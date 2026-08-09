@@ -70,13 +70,13 @@ Name collision: both trees ship a skill named `debugify` with **different behavi
 From this repo:
 
 ```bash
-./cli install          # install/update grok + cursor skills when repo is newer
-./cli install grok     # ~/.grok/skills/
-./cli install cursor   # ~/.cursor/skills/
-./cli install all      # same as ./cli install
-./cli status           # show what would install vs skip
-./cli install --dry-run
-./cli install --force  # overwrite even if dest is newer
+./scripts/cli.sh install          # install/update grok + cursor skills when repo is newer
+./scripts/cli.sh install grok     # ~/.grok/skills/
+./scripts/cli.sh install cursor   # ~/.cursor/skills/
+./scripts/cli.sh install all      # same as ./scripts/cli.sh install
+./scripts/cli.sh status           # show what would install vs skip
+./scripts/cli.sh install --dry-run
+./scripts/cli.sh install --force  # overwrite even if dest is newer
 ```
 
 ### Remote (sshub connections)
@@ -86,13 +86,13 @@ Uses the same connection file as `sshub` / `sshot`:
 `~/.local/share/sshub/connections.env` (override with `SSHUB_ENV_FILE`).
 
 ```bash
-./cli list                              # list connections (name + alias)
-./cli install --remote                  # all skills → every connection
-./cli install grok --remote casai       # name or alias (e.g. casai → CASSADYAIFAP)
-./cli install --remote casai CAS2SYS
-./cli install --local --remote          # this machine + all remotes
-./cli status --remote casai
-./cli install --remote --dry-run
+./scripts/cli.sh list                              # list connections (name + alias)
+./scripts/cli.sh install --remote                  # all skills → every connection
+./scripts/cli.sh install grok --remote casai       # name or alias (e.g. casai → CASSADYAIFAP)
+./scripts/cli.sh install --remote casai CAS2SYS
+./scripts/cli.sh install --local --remote          # this machine + all remotes
+./scripts/cli.sh status --remote casai
+./scripts/cli.sh install --remote --dry-run
 ```
 
 Remote skills land in the **remote user's** home:

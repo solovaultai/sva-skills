@@ -3,16 +3,16 @@
 # (local and/or across sshub connections from connections.env)
 #
 # Usage:
-#   ./cli install              # same as: install all (local)
-#   ./cli install all
-#   ./cli install grok
-#   ./cli install cursor
-#   ./cli install --remote                 # all skills → all connections
-#   ./cli install grok --remote casai      # grok skills → one host (name or alias)
-#   ./cli install --remote casai cas2      # all skills → listed hosts
-#   ./cli install --local --remote         # local + all remotes
-#   ./cli status [--remote [conn...]]
-#   ./cli list                             # list sshub connections
+#   ./scripts/cli.sh install              # same as: install all (local)
+#   ./scripts/cli.sh install all
+#   ./scripts/cli.sh install grok
+#   ./scripts/cli.sh install cursor
+#   ./scripts/cli.sh install --remote                 # all skills → all connections
+#   ./scripts/cli.sh install grok --remote casai      # grok skills → one host (name or alias)
+#   ./scripts/cli.sh install --remote casai cas2      # all skills → listed hosts
+#   ./scripts/cli.sh install --local --remote         # local + all remotes
+#   ./scripts/cli.sh status [--remote [conn...]]
+#   ./scripts/cli.sh list                             # list sshub connections
 #
 # Options:
 #   --force       Always install, even if dest is newer
@@ -23,7 +23,7 @@
 #   -h, --help    Show help
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 GROK_SRC="${ROOT}/.grok"
 CURSOR_SRC="${ROOT}/.cursor/skills"
@@ -56,17 +56,17 @@ usage() {
 sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
 
 Usage:
-  ./cli install              # same as: install all (local)
-  ./cli install all
-  ./cli install grok
-  ./cli install cursor
-  ./cli install --remote                 # all skills → all connections
-  ./cli install grok --remote casai      # name or alias from connections.env
-  ./cli install --remote casai CAS2SYS
-  ./cli install --local --remote         # local + every connection
-  ./cli status
-  ./cli status --remote [conn...]
-  ./cli list                             # list sshub connections
+  ./scripts/cli.sh install              # same as: install all (local)
+  ./scripts/cli.sh install all
+  ./scripts/cli.sh install grok
+  ./scripts/cli.sh install cursor
+  ./scripts/cli.sh install --remote                 # all skills → all connections
+  ./scripts/cli.sh install grok --remote casai      # name or alias from connections.env
+  ./scripts/cli.sh install --remote casai CAS2SYS
+  ./scripts/cli.sh install --local --remote         # local + every connection
+  ./scripts/cli.sh status
+  ./scripts/cli.sh status --remote [conn...]
+  ./scripts/cli.sh list                             # list sshub connections
 
 Options:
   --force       Always install, even if dest is newer
