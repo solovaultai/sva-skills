@@ -58,9 +58,12 @@ Constraints:
 
 Deliverable:
 A clear, cited answer (explanation, comparison, or findings) proportional to the question.
+If the question is about (or the workspace has) a multi-phase plan, the last
+printed item is the Trailing phase status table (completed vs left).
 
 Definition of Done (for the answer):
-<complete, accurate, cites verified paths, no unresolved guesses>
+<complete, accurate, cites verified paths, no unresolved guesses; multi-phase
+questions end with the trailing phase table>
 ```
 
 ## Override step 6 — Ask execution (read-only)
@@ -75,6 +78,9 @@ After optimize + scoring:
    1-2 targeted questions with the AskQuestion tool before answering.
 4. Produce the answer under `## Answer`, citing verified file paths / line references.
    Keep depth proportional to the question.
+5. If the question is about (or continues) a **multi-phase plan**, end with the
+   promptify Trailing phase status table (completed vs left). Skip only for a
+   true single-step question.
 
 ## No task body
 
@@ -125,7 +131,24 @@ Confidence: XX
 ## Answer
 …
 (the produced answer — read-only, cited)
+
+## Phased plan   ← only when the question is 2+ phases; last section if present
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| … | … | Left / Done |
 ```
+
+## Trailing phase status (when the question is multi-phase)
+
+Askify does **not** invent a plan. When the user asks about, continues, or the
+workspace already has a **multi-phase plan** (named P0/P1/…, a design phase
+index, or 2+ sequential todos), the **last printed section** MUST be the
+promptify **Trailing phase status** table: what is **done** and what is **left**.
+Skip only for a true single-step question.
+
+**Placement:** Absolute end of the full response (after `## Answer`). Nothing
+after the table except an optional one-line next-step.
 
 ## Hard rules
 
@@ -138,3 +161,5 @@ Confidence: XX
 - If Execution Readiness is Low or critical assets are Missing, say so and either
   resolve it via questions or answer only the parts the workspace supports, listing
   what could not be determined.
+- Multi-phase questions: last printed content is the Trailing phase status table
+  (done vs left). Do not emit a new implementation plan.

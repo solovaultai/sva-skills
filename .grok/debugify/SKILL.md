@@ -187,10 +187,44 @@ Summary of minimal change (after evidence only)
 
 ## Verification
 Repro result, tests, instrumentation removed (yes/no)
+
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 0 — Investigate | … | Done |
+| … | … | Left |
 ```
 
-When paused for user repro, end clearly with **Waiting for reproduction** and the
-exact steps — do not proceed to fix.
+When paused for user repro, say **Waiting for reproduction** and the exact
+steps — do not proceed to fix. Still end with the Trailing phase table; the
+waiting line may follow the table as the optional one-line next-step.
+
+## Trailing phase status (mandatory)
+
+Debugify is always multi-phase. The **last printed section** MUST be the
+promptify **Trailing phase status** table (`## Phased plan` — Phase |
+Description | Status). Users scroll to the bottom for completed vs left.
+
+Default rows (mark accurately; remaining work is **Left**):
+
+```markdown
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 0 — Investigate | Symptom, repro, suspects | Done |
+| Phase 1 — Hypotheses | 2–5 falsifiable claims | Done |
+| Phase 2 — Instrument | Temporary probes | In progress |
+| Phase 3 — Reproduce | Agent or user repro | Left |
+| Phase 4 — Analyze | Verdict + root cause | Left |
+| Phase 5 — Fix | Minimal evidence-backed change | Left |
+| Phase 6 — Verify + clean | Repro gone; probes removed | Left |
+```
+
+Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Deferred`. Do not
+mark `Done` unless that phase landed. When evidence-already-sufficient skips
+instrumentation, mark Phase 2 `Deferred` and say so above.
 
 ## Hard rules
 
@@ -205,3 +239,6 @@ exact steps — do not proceed to fix.
 - If `/debug-kickoff` was requested, do not run this full loop — use that skill.
 - Optional after a successful fix: offer or run `/check-work` if the user wants
   independent verification; not required to finish Debugify.
+- **Trailing phase table is mandatory:** end every run with `## Phased plan`
+  (Phase | Description | Status) as the last printed content so completed vs
+  left-to-do is visible without scrolling up.

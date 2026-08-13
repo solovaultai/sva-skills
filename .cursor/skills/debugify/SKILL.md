@@ -173,6 +173,8 @@ After optimize + scoring:
    suspects + preliminary hypotheses so the user can sanity-check before Debug Mode.
 5. Under `## Debug-Kickoff Prompt`, provide the full copy-pasteable prompt for
    Cursor Debug Mode (select **Debug** mode, paste, run).
+6. **Always end the response** with the Trailing phase table (`## Phased plan`).
+   No substantive content after it.
 
 ## No task body
 
@@ -242,7 +244,35 @@ Confidence: XX
 1. Switch Cursor to **Debug** mode
 2. Paste the Debug-Kickoff Prompt
 3. Follow the agent's instrumentation + reproduction instructions
+
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 0 — Kickoff | Code analysis + Debug-Kickoff Prompt | Done |
+| Phase 1 — Instrument | Temporary probes in Debug Mode | Left |
+| Phase 2 — Reproduce | User repro after probes | Left |
+| Phase 3 — Analyze | Verdict + root cause from logs | Left |
+| Phase 4 — Fix | Minimal evidence-backed change | Left |
+| Phase 5 — Verify + clean | Repro gone; probes removed | Left |
+
+(the trailing phase table is **mandatory** and must be the last section —
+see Trailing phase status)
 ```
+
+The **Next step** list may sit above the table. Prefer **table is last**.
+
+## Trailing phase status (mandatory)
+
+Cursor `/debugify` is kickoff-only; the Debug Mode loop it prepares is
+multi-phase. The **last printed section** MUST be the promptify **Trailing
+phase status** table (`## Phased plan` — Phase | Description | Status).
+Users scroll to the bottom for completed vs left.
+
+Default rows: Phase 0 Kickoff is `Done` when this skill finished; remaining
+Debug Mode steps are **Left** (`Not started` is fine if nothing has run).
+Do not mark later phases `Done` unless the workspace already shows that
+work landed.
 
 ## Hard rules
 
@@ -256,3 +286,6 @@ Confidence: XX
 - If Execution Readiness is Low or critical assets/repro are Missing, say so and
   either resolve via questions or mark unknowns explicitly in the kickoff so Debug
   Mode does not invent them.
+- **Trailing phase table is mandatory:** end every kickoff with `## Phased plan`
+  (Phase | Description | Status) as the last printed content so completed vs
+  left-to-do is visible without scrolling up.
