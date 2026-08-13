@@ -18,6 +18,10 @@ You are running **Promptify in Execution mode** (`/runnify`).
 3. Do **not** stop after Optimized Prompt + Scores — **execute** the optimized
    prompt, then append **Results**.
 4. Treat `/promptify-run` as an alias of this skill.
+5. If the work is (or continues) a **multi-phase plan**, the **last printed
+   item** after Results is the Trailing phase status table (completed vs
+   left-to-do) defined in promptify. Nothing after that table except an
+   optional one-line next-step.
 
 If the user message has no task body after `/runnify`, explain:
 
@@ -28,4 +32,4 @@ If the user message has no task body after `/runnify`, explain:
 
 Response format and pipeline: same as Promptify `/runnify` section in
 `~/.cursor/skills/promptify/SKILL.md` (Intent · Workspace · Optimized Prompt ·
-Scores · Results).
+Scores · Results · **Phased plan last** when the work is multi-phase).

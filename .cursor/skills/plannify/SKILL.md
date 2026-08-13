@@ -61,11 +61,54 @@ Constraints:
 
 Deliverable:
 A phased, actionable plan — ordered steps/todos, cited file paths, and explicit
-out-of-scope. Proportional to complexity.
+out-of-scope. Proportional to complexity. The plan body may detail phases inline,
+but the response MUST end with a single summary table of all phases (see
+Trailing phase table).
 
 Definition of Done (for the plan):
-<what makes the plan complete, reviewable, and ready to execute>
+<what makes the plan complete, reviewable, and ready to execute; includes the
+trailing phase table as the last printed content>
 ```
+
+## Trailing phase table (mandatory)
+
+Every plannify response that produces a plan MUST end with a **phase summary
+table as the last printed item** (after all other Plan content). Users scroll to
+the bottom to see completed vs left-to-do — never bury the only phase list mid-doc.
+
+**Placement:** Absolute end of the full response (after `## Plan` and any design
+detail). Nothing after the table except optional one-line next-step if needed;
+prefer **table is last**.
+
+**Format:** Same table as promptify **Trailing phase status**. GitHub markdown.
+Required columns:
+
+| Column | Content |
+|--------|---------|
+| **Phase** | Short id + title (e.g. `P0 — Spec`, `Phase 1 — API list/detail`) |
+| **Description** | One-line what ships / exit criteria (keep scannable) |
+| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Deferred` when known |
+
+Example (last thing in the response):
+
+```markdown
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| P0 — Spec | Freeze decisions + write design note | Not started |
+| P1 — API | List/detail endpoints + tests | Not started |
+| P2 — SPA | Page shell + core UI | Not started |
+```
+
+Rules:
+
+- One row per phase/todo the plan expects an executor to run.
+- Status defaults to **Not started** on a fresh plan unless the workspace already
+  shows partial delivery (then mark accurately; remaining work is **Left**).
+- Do not omit the table when the plan body already has a long phase section —
+  the trailing table is the scannable index; the body may elaborate above it.
+- If the plan has no phases (rare: single-step), still emit a one-row table.
 
 ## Override step 6 — Planning execution (read-only)
 
@@ -83,6 +126,8 @@ After optimize + scoring:
      plan with it.
    - Otherwise, output a structured markdown plan under `## Plan`.
 5. Keep the plan proportional to complexity; cite real, verified paths.
+6. **Always end the response** with the Trailing phase table (`## Phased plan` +
+   markdown table: Phase | Description | Status). No substantive content after it.
 
 ## No task body
 
@@ -132,6 +177,15 @@ Confidence: XX
 ## Plan
 …
 (the produced plan — via CreatePlan when available, else markdown)
+
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| … | … | Not started |
+
+(the trailing phase table is **mandatory** and must be the last section —
+see Trailing phase table)
 ```
 
 ## Hard rules
@@ -143,3 +197,7 @@ Confidence: XX
 - Keep the plan proportional to complexity; prefer verified repo-relative paths.
 - If Execution Readiness is Low or critical assets are Missing, say so and either
   resolve it via questions or make the plan's first phase close those gaps.
+- **Trailing phase table is mandatory:** end every plan with
+  `## Phased plan` as a markdown table (Phase | Description | Status) so the
+  user can read completed vs left-to-do without scrolling up. Default Status:
+  `Not started`.

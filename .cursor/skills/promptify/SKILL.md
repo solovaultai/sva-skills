@@ -112,10 +112,10 @@ Instructions:
 …
 
 Output Format:
-…
+… (if multi-phase, last printed item is the Trailing phase status table)
 
 Success Criteria:
-…
+… (if multi-phase, include: end with completed vs left phases as the last item)
 
 Assumptions:
 …
@@ -191,7 +191,17 @@ Low | Medium | High
 Execution Readiness: XX
 Coverage: XX
 Confidence: XX
+
+## Phased plan   ← only when the work is 2+ phases; last section if present
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| … | … | Left / Done |
 ```
+
+When the optimized prompt is itself a multi-phase plan, include the
+**Trailing phase status** requirement in Output Format and Success Criteria
+so any later executor (including `/runnify`) ends with that table.
 
 ### `/runnify` (execution mode)
 
@@ -205,6 +215,10 @@ Same as above, plus:
 In the **Results** section, report what you did when executing the optimized
 prompt (commands, edits, outcomes, failures).
 
+If the work is (or continues) a **multi-phase plan**, the **last printed
+item** after Results is the Trailing phase status table (done vs left).
+See **Trailing phase status** below.
+
 Copy-ready output shapes live in [references/response-templates.md](references/response-templates.md).
 
 ---
@@ -216,6 +230,50 @@ Copy-ready output shapes live in [references/response-templates.md](references/r
    clearly, execute only the parts that are safe/feasible, and list blockers.
 3. Prefer paths and commands verified in Workspace Assessment.
 4. Do not re-expand into unrelated work beyond the optimized prompt.
+5. If executing a multi-phase plan (or one phase of it), end with the
+   Trailing phase status table.
+
+---
+
+## Trailing phase status (mandatory when the work is multi-phase)
+
+When the request is, continues, or produces a **multi-phase plan** (named
+P0/P1/…, a design phase index, or 2+ sequential todos), the **last printed
+section** MUST be a phase status table: what is **done** and what is **left**.
+Users scroll to the bottom for progress — never bury the only phase list
+mid-doc.
+
+**Skip** only for a true single-step ask (no plan, no phases).
+
+**Placement:** Absolute end of the full response. Nothing after the table
+except an optional one-line next-step. Prefer **table is last**.
+
+**Format:** GitHub markdown table:
+
+```markdown
+## Phased plan
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| P0 — Spec | Freeze decisions | Done |
+| P1 — API | Endpoints + tests | Done |
+| P2 — SPA | Page shell | Left |
+```
+
+| Column | Content |
+|--------|---------|
+| **Phase** | Short id + title (`P0 — Spec`, `Phase 1 — API`) |
+| **Description** | One-line what ships / exit criteria |
+| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Deferred` (fresh plans may use `Not started`) |
+
+Rules:
+
+- One row per phase the plan expects an executor to run.
+- Mark accurately from this run + prior **verified** work. Do not mark `Done`
+  unless the work landed.
+- Use **`Left`** for remaining phases after a partial run so leftover work is
+  obvious (not only “Not started”).
+- Do not omit the table when the body already has a long phase section.
 
 ---
 
@@ -228,3 +286,5 @@ Copy-ready output shapes live in [references/response-templates.md](references/r
 - Analysis mode must not run builds, deploys, or mutating work unless the user
   only asked for analysis of those topics as text.
 - Keep the Optimized Prompt copy-pasteable as a standalone agent instruction.
+- Multi-phase work: last printed content is the Trailing phase status table
+  (done vs left).
