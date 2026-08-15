@@ -79,6 +79,19 @@ From this repo:
 ./scripts/cli.sh install --force  # overwrite even if dest is newer
 ```
 
+Windows 10/11 (PowerShell 5.1 or 7+; same flags and behavior as `cli.sh`).
+Use `scripts\cli.cmd` from `cmd.exe`, or if `.ps1` scripts are blocked:
+`Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+
+```powershell
+.\scripts\cli.ps1 install
+.\scripts\cli.ps1 install grok
+.\scripts\cli.ps1 status
+.\scripts\cli.ps1 install --dry-run
+.\scripts\cli.ps1 install --force
+# from cmd.exe: scripts\cli.cmd install
+```
+
 ### Remote (sshub connections)
 
 Uses the same connection file as `sshub` / `sshot`:
@@ -93,6 +106,15 @@ Uses the same connection file as `sshub` / `sshot`:
 ./scripts/cli.sh install --local --remote          # this machine + all remotes
 ./scripts/cli.sh status --remote casai
 ./scripts/cli.sh install --remote --dry-run
+```
+
+Windows uses the same `connections.env` and OpenSSH (`ssh.exe` / `scp.exe`):
+
+```powershell
+.\scripts\cli.ps1 list
+.\scripts\cli.ps1 install --remote
+.\scripts\cli.ps1 install grok --remote casai
+.\scripts\cli.ps1 status --remote casai
 ```
 
 Remote skills land in the **remote user's** home:
