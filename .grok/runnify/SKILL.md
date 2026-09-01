@@ -30,6 +30,14 @@ You are running **Promptify in Execution mode** (`/runnify`).
    images**: the N newest images in workspace `scratch/` are extra visual
    detail for the issue under review — find them, **read** them, and use
    what they show. Do not treat the marker as part of the task wording.
+   **First printed content** must be the acknowledgment so the user sees the
+   marker was **caught and correctly interpreted**:
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `<token>` as an attachment marker. Looking at the N most recent
+image(s) in `scratch/` for extra detail on the issue under review.
+```
 
 If the user message has no task body after `/runnify`, explain:
 

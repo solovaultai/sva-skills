@@ -83,6 +83,16 @@ repo root (or the project's existing `scratch` dir — do not create one),
 evidence, and use it when forming hypotheses. If several N tokens appear,
 use the **largest** N. Do this during Phase 0, before instrumenting.
 
+**Tell the user (mandatory, first printed content):** Print this so it is
+obvious the token was **caught and correctly interpreted**. Do not skip or
+bury it:
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `<token>` as an attachment marker. Looking at the N most recent
+image(s) in `scratch/` for extra detail on the issue under review.
+```
+
 ## Phase 1 — Hypotheses
 
 Publish 2–5 hypotheses before instrumenting. Each must be falsifiable:
@@ -180,6 +190,9 @@ said "debug this", "debug this bug", "root-cause this", or similar.
 Lead with progress; do not dump empty sections for phases not reached yet.
 
 ```markdown
+**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+
 ## Bug Brief
 Symptom / Expected / Actual / Repro / Environment / Existing evidence
 
@@ -260,4 +273,5 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
   left-to-do is visible without scrolling up.
 - `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
-  images**).
+  images**). Lead the response with the **caught and correctly interpreted**
+  acknowledgment so the user can see the marker was recognized.

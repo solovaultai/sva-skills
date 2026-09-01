@@ -5,6 +5,9 @@ Quick copy of output shapes. Source of truth for behavior is `SKILL.md`.
 ## Analysis mode (`/promptify`)
 
 ```markdown
+**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+
 ## Intent Analysis
 <summary of actual objective>
 

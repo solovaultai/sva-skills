@@ -50,6 +50,16 @@ repo root (or the project's existing `scratch` dir — do not create one),
 (or Missing Assets), and carry what they show into the Planning-Kickoff
 Prompt and the plan. If several N tokens appear, use the **largest** N.
 
+**Tell the user (mandatory, first printed content):** Print this so it is
+obvious the token was **caught and correctly interpreted**. Do not skip or
+bury it:
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `<token>` as an attachment marker. Looking at the N most recent
+image(s) in `scratch/` for extra detail on the issue under review.
+```
+
 ## Override step 3 — Planning-Kickoff Prompt
 
 Instead of Promptify's execution-oriented Optimized Prompt, produce the ideal prompt
@@ -161,6 +171,9 @@ they said "plannify this" / "plan this prompt" / "turn this into a planning prom
 ## Response format
 
 ```markdown
+**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+
 ## Intent Analysis
 …
 
@@ -219,4 +232,5 @@ see Trailing phase table)
   `Not started`.
 - `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
-  images**).
+  images**). Lead the response with the **caught and correctly interpreted**
+  acknowledgment so the user can see the marker was recognized.

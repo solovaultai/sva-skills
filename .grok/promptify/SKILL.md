@@ -66,6 +66,28 @@ Do this before finishing intent / workspace work:
 
 If several N tokens appear, use the **largest** N.
 
+**Tell the user (mandatory, first printed content):** As soon as the
+marker is recognized, print this acknowledgment so it is obvious the
+token was **caught and correctly interpreted**. Do not skip it. Do not
+bury it under later headings.
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `<token>` as an attachment marker. Looking at the N most recent
+image(s) in `scratch/` for extra detail on the issue under review.
+```
+
+Example: user wrote `2images` →
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `2images` as an attachment marker. Looking at the 2 most recent
+images in `scratch/` for extra detail on the issue under review.
+```
+
+If `scratch/` or enough images are missing, still print this, then say
+what was missing.
+
 ---
 
 ## Pipeline (both modes)
@@ -192,6 +214,9 @@ If any answer is no, revise before responding.
 ### `/promptify` (analysis mode)
 
 ```markdown
+**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+
 ## Intent Analysis
 …
 
@@ -317,4 +342,5 @@ Rules:
   (done vs left).
 - `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
-  images**).
+  images**). Lead the response with the **caught and correctly interpreted**
+  acknowledgment so the user can see the marker was recognized.
