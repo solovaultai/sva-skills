@@ -221,6 +221,7 @@ Repro result, tests, instrumentation removed (yes/no)
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | Phase 0 — Investigate | … | Done |
 | … | … | Left |
 ```
@@ -242,6 +243,7 @@ Default rows (mark accurately; remaining work is **Left**):
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | Phase 0 — Investigate | Symptom, repro, suspects | Done |
 | Phase 1 — Hypotheses | 2–5 falsifiable claims | Done |
 | Phase 2 — Instrument | Temporary probes | In progress |

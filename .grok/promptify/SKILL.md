@@ -9,6 +9,8 @@ description: >
   workspace", "prompt QA", or wants a prompt improved against actual files/tools
   before (or while) executing it. Recognizes Nimages / N images / N-images as
   a pointer to the newest N images in the workspace scratch/ folder.
+  Recognizes Npass / N-pass / N pass as a request to take N pipeline passes
+  (pass 1 is a documented pre-plan when N > 1).
 metadata:
   short-description: "Optimize prompts against the real workspace"
 ---
@@ -87,6 +89,55 @@ images in `scratch/` for extra detail on the issue under review.
 
 If `scratch/` or enough images are missing, still print this, then say
 what was missing.
+
+## Multi-pass (`Npass`)
+
+When the user text includes **`Npass`**, **`N-pass`**, or **`N pass`**
+(case-insensitive; examples: `2pass`, `2-pass`, `2 pass`), that token is
+a **pass-count marker**, not part of the task wording. If several appear,
+use the **largest** N. Default when omitted: **1** (single pass).
+
+**Meaning:** take **N passes** through the system **before** creating the
+final optimized prompt (promptify), plan (plannify), or answer (askify).
+
+**Tell the user (mandatory when present).** Print this with the scratch
+ack if both markers appear (scratch first, then this). Do not skip or
+bury it:
+
+```markdown
+**Npass — caught and correctly interpreted.**
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
+passes 2–N use that base for the final deliverable.
+```
+
+### If N = 1
+
+Run the normal pipeline once. No pre-plan section.
+
+### If N > 1
+
+**Pass 1 — preparation (required).** Do **not** emit the final prompt /
+plan / answer yet. Produce a **documented pre-plan** under
+`## Pre-plan (pass 1)` from **verified** workspace facts only:
+
+- **Inventories** — files, skills, APIs, schemas, datasets, configs that
+  matter
+- **Existing capabilities** — what already works here (tools, MCP, CLIs,
+  installed skills)
+- **External tools** — connected MCP / APIs / services that apply
+- **Approach** — how later passes should attack the request
+- **Gaps / risks** — missing assets, ambiguities, big items that must
+  not be dropped
+- **Light planning** — optional outline only; not the final plan or
+  answer
+
+**Passes 2 through N.** Each pass **uses the pre-plan as the base**.
+Deepen coverage so big items are handled correctly and with maximum
+intelligence. Do not discard pass-1 inventories. The **last pass**
+produces the actual deliverable (optimized prompt / plan / answer).
+
+Strip the marker from the restated goal; keep N. This marker is
+independent of `Nimages` — both may appear on the same request.
 
 ---
 
@@ -217,6 +268,9 @@ If any answer is no, revise before responding.
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
 Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
 
+**Npass — caught and correctly interpreted.**   ← when an Npass marker is present
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final deliverable.
+
 ## Intent Analysis
 …
 
@@ -237,19 +291,23 @@ Low | Medium | High
 ### Execution Readiness
 Low | Medium | High
 
+## Pre-plan (pass 1)   ← only when Npass > 1
+…
+
 ## Optimized Prompt
 …
-(full structured prompt)
+(full structured prompt from the last pass)
 
 ## Scores
 Execution Readiness: XX
 Coverage: XX
 Confidence: XX
 
-## Phased plan   ← only when the work is 2+ phases; last section if present
+## Phased plan   ← last section when 2+ phases, or when Nimages/Npass is present
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | … | … | Left / Done |
 ```
 
@@ -295,7 +353,9 @@ section** MUST be a phase status table: what is **done** and what is **left**.
 Users scroll to the bottom for progress — never bury the only phase list
 mid-doc.
 
-**Skip** only for a true single-step ask (no plan, no phases).
+**Skip** only for a true single-step ask (no plan, no phases) **and** no
+`Nimages` / `Npass` marker. If either marker is present, always emit the
+table so the Flags row can appear.
 
 **Placement:** Absolute end of the full response. Nothing after the table
 except an optional one-line next-step. Prefer **table is last**.
@@ -307,6 +367,7 @@ except an optional one-line next-step. Prefer **table is last**.
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `2images`, `3pass`. On pass 2 of 3. | Understood |
 | P0 — Spec | Freeze decisions | Done |
 | P1 — API | Endpoints + tests | Done |
 | P2 — SPA | Page shell | Left |
@@ -318,9 +379,17 @@ except an optional one-line next-step. Prefer **table is last**.
 | **Description** | One-line what ships / exit criteria |
 | **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Deferred` (fresh plans may use `Not started`) |
 
+**Flags row (mandatory first row when `Nimages` and/or `Npass` is present):**
+Phase = `Flags`. Description = `Caught and correctly interpreted` plus
+the exact token(s) (`1image`, `2images`, `3pass`, …) and **`On pass k of
+N`** (N defaults to 1 if there is no Npass; k is the pass just finished
+or in progress; after the last pass write `On pass N of N`). Status =
+`Understood`. This row is **not** a work phase. Omit it only when
+neither marker appeared.
+
 Rules:
 
-- One row per phase the plan expects an executor to run.
+- After the optional Flags row, one row per phase the plan expects an executor to run.
 - Mark accurately from this run + prior **verified** work. Do not mark `Done`
   unless the work landed.
 - Use **`Left`** for remaining phases after a partial run so leftover work is
@@ -339,8 +408,13 @@ Rules:
   only asked for analysis of those topics as text.
 - Keep the Optimized Prompt copy-pasteable as a standalone agent instruction.
 - Multi-phase work: last printed content is the Trailing phase status table
-  (done vs left).
+  (done vs left). When `Nimages` and/or `Npass` is present, that table's
+  **first row is Flags** (caught-and-understood tokens + On pass k of N).
 - `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
+- `Npass` / `N-pass` / `N pass`: take N pipeline passes (see **Multi-pass**).
+  When N > 1, pass 1 is a documented pre-plan only; later passes use that
+  base; the last pass emits the final prompt / plan / answer. Acknowledge
+  the marker so the user can see it was recognized.

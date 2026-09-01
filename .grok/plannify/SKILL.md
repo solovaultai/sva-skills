@@ -7,7 +7,9 @@ description: >
   /plannify, /promptify-plan (alias), "plannify", "plan this prompt", "turn this
   into a planning prompt", or wants a prompt reworked for a planning/design run and
   the plan produced. Recognizes Nimages / N images / N-images as a pointer to
-  the newest N images in the workspace scratch/ folder.
+  the newest N images in the workspace scratch/ folder. Recognizes Npass /
+  N-pass / N pass as a request to take N passes (pass 1 is a documented
+  pre-plan when N > 1) before producing the plan.
 metadata:
   short-description: "Promptify planning mode — optimize then plan read-only"
 ---
@@ -60,6 +62,25 @@ bury it:
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) in `scratch/` for extra detail on the issue under review.
+```
+
+## Multi-pass (`Npass`)
+
+When the user text includes **`Npass`**, **`N-pass`**, or **`N pass`**
+(case-insensitive; examples: `2pass`, `2-pass`, `2 pass`), follow
+promptify **Multi-pass**. Take **N passes** before producing the plan.
+
+If **N > 1**: pass 1 is a **documented pre-plan** only (`## Pre-plan
+(pass 1)` — inventories, existing capabilities, external tools, approach,
+gaps, light planning). Do **not** emit the final plan on pass 1.
+Passes 2–N use that base; the **last pass** produces the Planning-Kickoff
+Prompt and the **Plan**. Acknowledge the marker (after scratch ack if
+both are present).
+
+```markdown
+**Npass — caught and correctly interpreted.**
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
+passes 2–N use that base for the final plan.
 ```
 
 ## Override step 3 — Planning-Kickoff Prompt
@@ -124,6 +145,7 @@ Example (last thing in the response):
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `2pass`. On pass 2 of 2. | Understood |
 | P0 — Spec | Freeze decisions + write design note | Not started |
 | P1 — API | List/detail endpoints + tests | Not started |
 | P2 — SPA | Page shell + core UI | Not started |
@@ -131,7 +153,10 @@ Example (last thing in the response):
 
 Rules:
 
-- One row per phase/todo the plan expects an executor to run.
+- When `Nimages` and/or `Npass` is present, **first row is Flags** (see
+  promptify Trailing phase status): caught-and-understood tokens +
+  **On pass k of N**. Not a work phase.
+- After the optional Flags row, one row per phase/todo the plan expects an executor to run.
 - Status defaults to **Not started** on a fresh plan unless the workspace already
   shows partial delivery (then mark accurately; remaining work is **Left**).
 - Do not omit the table when the plan body already has a long phase section —
@@ -179,6 +204,9 @@ they said "plannify this" / "plan this prompt" / "turn this into a planning prom
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
 Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
 
+**Npass — caught and correctly interpreted.**   ← when an Npass marker is present
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final plan.
+
 ## Intent Analysis
 …
 
@@ -199,6 +227,9 @@ Low | Medium | High
 ### Execution Readiness
 Low | Medium | High
 
+## Pre-plan (pass 1)   ← only when Npass > 1
+…
+
 ## Planning-Kickoff Prompt
 …
 (full structured prompt from step 3 — copy-pasteable as a standalone planning instruction)
@@ -216,6 +247,7 @@ Confidence: XX
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | … | … | Not started |
 
 (the trailing phase table is **mandatory** and must be the last section —
@@ -239,3 +271,6 @@ see Trailing phase table)
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
+- `Npass` / `N-pass` / `N pass`: take N passes (see **Multi-pass**). When
+  N > 1, pass 1 documents a pre-plan only; later passes use that base;
+  the last pass emits the plan. Acknowledge the marker.

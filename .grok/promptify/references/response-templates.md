@@ -8,6 +8,9 @@ Quick copy of output shapes. Source of truth for behavior is `SKILL.md`.
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
 Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
 
+**Npass — caught and correctly interpreted.**   ← when an Npass marker is present
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final deliverable.
+
 ## Intent Analysis
 <summary of actual objective>
 
@@ -27,6 +30,9 @@ Low | Medium | High
 
 ### Execution Readiness
 Low | Medium | High
+
+## Pre-plan (pass 1)   ← only when Npass > 1
+- Inventories / capabilities / external tools / approach / gaps
 
 ## Optimized Prompt
 
@@ -56,10 +62,11 @@ Execution Readiness: 0-100
 Coverage: 0-100
 Confidence: 0-100
 
-## Phased plan   ← last section when the work is 2+ phases
+## Phased plan   ← last section when 2+ phases, or when Nimages/Npass is present
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | P0 — … | … | Left / Done |
 ```
 
@@ -80,6 +87,7 @@ If the work is (or continues) a **multi-phase plan**, append this as the
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | P0 — Spec | Freeze decisions | Done |
 | P1 — API | Endpoints + tests | Left |
 ```

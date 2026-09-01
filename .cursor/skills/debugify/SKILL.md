@@ -278,6 +278,7 @@ Confidence: XX
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | Phase 0 — Kickoff | Code analysis + Debug-Kickoff Prompt | Done |
 | Phase 1 — Instrument | Temporary probes in Debug Mode | Left |
 | Phase 2 — Reproduce | User repro after probes | Left |

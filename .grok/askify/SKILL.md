@@ -7,7 +7,9 @@ description: >
   Use when the user runs /askify, /promptify-ask (alias), "askify", "ask this prompt",
   "turn this into an ask prompt", or wants a prompt reworked for a question-answering
   run and the answer produced. Recognizes Nimages / N images / N-images as a
-  pointer to the newest N images in the workspace scratch/ folder.
+  pointer to the newest N images in the workspace scratch/ folder. Recognizes
+  Npass / N-pass / N pass as a request to take N passes (pass 1 is a
+  documented pre-plan when N > 1) before answering.
 metadata:
   short-description: "Promptify ask mode — optimize then answer read-only"
 ---
@@ -60,6 +62,25 @@ bury it:
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) in `scratch/` for extra detail on the issue under review.
+```
+
+## Multi-pass (`Npass`)
+
+When the user text includes **`Npass`**, **`N-pass`**, or **`N pass`**
+(case-insensitive; examples: `2pass`, `2-pass`, `2 pass`), follow
+promptify **Multi-pass**. Take **N passes** before answering.
+
+If **N > 1**: pass 1 is a **documented pre-plan** only (`## Pre-plan
+(pass 1)` — inventories, existing capabilities, external tools, approach,
+gaps, light planning). Do **not** emit the final answer on pass 1.
+Passes 2–N use that base; the **last pass** produces the Ask-Kickoff
+Prompt and the **Answer**. Acknowledge the marker (after scratch ack if
+both are present).
+
+```markdown
+**Npass — caught and correctly interpreted.**
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
+passes 2–N use that base for the final answer.
 ```
 
 ## Override step 3 — Ask-Kickoff Prompt
@@ -132,6 +153,9 @@ they said "askify this" / "ask this prompt" / "turn this into an ask prompt".
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
 Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
 
+**Npass — caught and correctly interpreted.**   ← when an Npass marker is present
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final answer.
+
 ## Intent Analysis
 …
 
@@ -152,6 +176,9 @@ Low | Medium | High
 ### Execution Readiness
 Low | Medium | High
 
+## Pre-plan (pass 1)   ← only when Npass > 1
+…
+
 ## Ask-Kickoff Prompt
 …
 (full structured prompt from step 3 — copy-pasteable as a standalone ask instruction)
@@ -165,10 +192,11 @@ Confidence: XX
 …
 (the produced answer — read-only, cited)
 
-## Phased plan   ← only when the question is 2+ phases; last section if present
+## Phased plan   ← last section when 2+ phases, or when Nimages/Npass is present
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | … | … | Left / Done |
 ```
 
@@ -178,7 +206,9 @@ Askify does **not** invent a plan. When the user asks about, continues, or the
 workspace already has a **multi-phase plan** (named P0/P1/…, a design phase
 index, or 2+ sequential todos), the **last printed section** MUST be the
 promptify **Trailing phase status** table: what is **done** and what is **left**.
-Skip only for a true single-step question.
+Skip only for a true single-step question **and** no `Nimages` / `Npass`
+marker. If either marker is present, emit the table with a **Flags** first
+row (caught-and-understood tokens + **On pass k of N**).
 
 **Placement:** Absolute end of the full response (after `## Answer`). Nothing
 after the table except an optional one-line next-step.
@@ -200,3 +230,6 @@ after the table except an optional one-line next-step.
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
+- `Npass` / `N-pass` / `N pass`: take N passes (see **Multi-pass**). When
+  N > 1, pass 1 documents a pre-plan only; later passes use that base;
+  the last pass emits the answer. Acknowledge the marker.
