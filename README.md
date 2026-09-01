@@ -14,6 +14,7 @@ Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases not
 | **runnify** | `/runnify`, `/promptify-run` | Promptify in execution mode: optimize the prompt, then **execute** it and return Results. |
 | **askify** | `/askify`, `/promptify-ask` | Promptify ask mode: coach into an ask-kickoff prompt, then answer read-only (cited findings; no plan, no edits). |
 | **plannify** | `/plannify`, `/promptify-plan` | Promptify planning mode: coach into a planning-kickoff prompt, then produce a structured plan (read-only; no implementation). |
+| **phasify** | `/phasify 0`, `/phasify next`, `/phasify 3` | Execute phase(s) of a plannified plan: named P0 (`0`/`p0`), next incomplete, or next N phases **synchronously**. On completion: boxed original plannify text + updated phased-plan statuses. Supports `1image` / `Nimages`. |
 | **debugify** | `/debugify`, `/debug` | **Grok Debug Mode (default / full loop).** Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. Not a speculative-fix loop. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
@@ -29,6 +30,9 @@ Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases not
 /runnify <prompt>         — optimize then EXECUTE
 /askify <prompt>          — optimize then ANSWER (read-only)
 /plannify <prompt>        — optimize then PLAN (read-only)
+/phasify 0                — execute phase P0 of the current plan
+/phasify next             — execute the next incomplete phase
+/phasify 3                — execute the next 3 phases, one after another
 /debugify <bug report>    — full Debug Mode loop (default)
 /debug-kickoff <bug>      — debug brief only (read-only)
 ```
@@ -43,6 +47,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **runnify** | `/runnify`, `/promptify-run` | Promptify execution mode: optimize, then execute and return Results. |
 | **askify** | `/askify`, `/promptify-ask` | Ask-mode coach: optimize into an ask-kickoff prompt, then answer read-only (no plan, no edits). |
 | **plannify** | `/plannify`, `/promptify-plan` | Planning-mode coach: optimize into a planning-kickoff prompt, then produce a structured plan (read-only). |
+| **phasify** | `/phasify 0`, `/phasify next`, `/phasify 3` | Execute phase(s) of a plannified plan: named P0 (`0`/`p0`), next incomplete, or next N phases **synchronously**. On completion: boxed original plannify text + updated phased-plan statuses. Supports `1image` / `Nimages`. |
 | **debugify** | `/debugify`, `/promptify-debug` | **Cursor Debug Mode kickoff only.** Code analysis + falsifiable hypotheses + copy-pasteable prompt for Cursor’s Debug mode. Does **not** instrument or fix — paste into Cursor Debug Mode to run the loop. |
 
 **Promptify family (Cursor):**
@@ -52,6 +57,9 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /runnify <prompt>         — optimize then EXECUTE
 /askify <prompt>          — optimize then ANSWER (read-only)
 /plannify <prompt>        — optimize then PLAN (read-only)
+/phasify 0                — execute phase P0 of the current plan
+/phasify next             — execute the next incomplete phase
+/phasify 3                — execute the next 3 phases, one after another
 /debugify <bug report>    — Debug Mode kickoff prompt (for Cursor Debug Mode)
 ```
 
