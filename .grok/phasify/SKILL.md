@@ -5,9 +5,10 @@ description: >
   phase (`/phasify 0`, `/phasify p0`, "run phase p0"), the next incomplete
   phase (`/phasify next`, "run next phase"), or the next N phases
   sequentially (`/phasify 3`, "run next 3 phases"). When phase(s) complete,
-  reprint the user's original ify request (plannify / runnify / etc.) in a
-  single-line border immediately above the phased plan with updated
-  statuses — not plannify's interpreted or projected text. Use when the user runs /phasify,
+  put the user's original ify request (promptify / askify / runnify /
+  plannify / debugify) in the spanning header row of the phased plan —
+  not a separate box, and not plannify's interpreted or projected text.
+  Use when the user runs /phasify,
   "phasify 0", "phasify next", "phasify 3", "run phase p0", "run next
   phase", or "run next n phases". Recognizes Nimages / N images / N-images
   (also Nimage / N image / N-image; e.g. 1image, 3images) as a pointer to
@@ -97,17 +98,18 @@ Keep two things separate:
    `/plannify` (or equivalent) `## Phased plan`, or a verified plan file.
    If no plan is found, stop and tell the user to `/plannify` first.
    Do not invent phases.
-2. **Original ify text** (what you reprint in the box) — the user's **raw
-   request** that kicked off plannify, runnify, promptify, askify,
-   debugify, or whatever ify produced this plan. That is the text they
-   typed after the slash command (or the free-text they asked to ify).
-   It is **not** Intent Analysis, not the Kickoff/Optimized Prompt, not
-   `## Plan`, and not any interpreted, projected, or updated text the
-   ify created.
+2. **Original ify text** (what you put in the phased-plan header row) —
+   the user's **raw request** that kicked off promptify, askify, runnify,
+   plannify, debugify, or whatever ify produced this plan. That is the
+   text they typed after the slash command (or the free-text they asked
+   to ify). It is **not** Intent Analysis, not the Kickoff/Optimized
+   Prompt, not `## Plan`, and not any interpreted, projected, or updated
+   text the ify created.
 
 If the raw request is not in this conversation, recover it from the ify
 invocation that created the plan. If it cannot be recovered, say so in
-the box (`(original ify text not found)`) — do not substitute the plan.
+the header row (`(original ify text not found)`) — do not substitute the
+plan.
 
 **Next incomplete** = first phase whose Status is not `Done` or `Deferred`
 (treat `Not started`, `Left`, `In progress`, `Blocked` as eligible; if
@@ -169,53 +171,51 @@ then the closing recap.
 
 ## Closing recap (mandatory when the run's phase(s) complete)
 
-After the banner(s), **before rewriting / reprinting the phased plan**,
-print **exactly this pair**, in this order. The original-text box sits
-**immediately above** the status table. The **Phased plan** table is the
-last section (promptify trailing-table rule).
+After the banner(s), print **only** the **Phased plan** (last section;
+promptify trailing-table rule). **Do not** print a separate original-text
+box above the table.
 
-### 1. Original ify text — single-line border (immediately above the table)
-
-This is only a reminder of **what the user is executing**. Print the
-**verbatim original user text** of the plannify, runnify, or whatever
-ify started this work, inside a **single-line** box (`┌─┐│└─┘`, not
-double `╔═╗`).
+The **verbatim original ify text** (promptify / askify / runnify /
+plannify / debugify — whatever started this work) is the **spanning
+header row** of that table: immediately under the `Phase | Description |
+Status` column headers, one cell across the full table width. Then Flags
+(if present), then the work phases.
 
 **Do not include** any interpreted, projected, or updated text created
-by plannify (or any other ify): no `## Plan`, no kickoff prompt, no
-intent rewrite, no scores, no “optimized” wording. **Just the original
-text.**
+by the ify: no `## Plan`, no kickoff prompt, no intent rewrite, no
+scores, no “optimized” wording. **Just the original text.** Do not
+rewrite, summarize, or “improve” it. Wrap long lines inside the
+spanning row.
 
-Do not rewrite, summarize, or “improve” that text. Wrap long lines
-inside the box.
+Use a single-line box-drawing table (`┌─┐│└─┘`, not double `╔═╗`) so the
+header row can span all three columns:
 
 ```text
-┌─ Original ify text ──────────────────────────────────────────┐
-│ <verbatim user request that they typed to plannify/runnify/…>│
-│ …                                                            │
-└──────────────────────────────────────────────────────────────┘
-```
-
-If the original is too long for a tidy box, keep the single-line border
-and wrap; do not drop the border or replace the text with a summary or
-with the generated plan.
-
-### 2. Phased plan — up-to-date statuses
-
-```markdown
 ## Phased plan
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
-| P0 — Spec | … | Done |
-| P1 — API | … | Done |
-| P2 — SPA | … | Left |
+┌────────────────────────┬──────────────────────────────────────────────────────────┬───────────┐
+│ Phase                  │ Description                                              │ Status    │
+├────────────────────────┴──────────────────────────────────────────────────────────┴───────────┤
+│ <verbatim original user request — wrap as needed>                                         │
+├────────────────────────┬──────────────────────────────────────────────────────────┬───────────┤
+│ Flags                  │ Caught and correctly interpreted `<tokens>`. On pass k of N. │ Understood │
+├────────────────────────┼──────────────────────────────────────────────────────────┼───────────┤
+│ P0 — Spec              │ …                                                        │ Done      │
+├────────────────────────┼──────────────────────────────────────────────────────────┼───────────┤
+│ P1 — API               │ …                                                        │ Done      │
+├────────────────────────┼──────────────────────────────────────────────────────────┼───────────┤
+│ P2 — SPA               │ …                                                        │ Left      │
+└────────────────────────┴──────────────────────────────────────────────────────────┴───────────┘
 ```
 
-When `Nimages` and/or `Npass` is present, the **first row is Flags**:
-`Caught and correctly interpreted <tokens>. On pass k of N.` Status
-`Understood`. Then the work phases.
+When `Nimages` and/or `Npass` is present, Flags is the **first row after
+the original-text header**: `Caught and correctly interpreted <tokens>.
+On pass k of N.` Status `Understood`. Then the work phases. If neither
+flag is present, omit the Flags row; the original-text header still
+appears.
+
+If the original is long, wrap inside the spanning row. Do not drop the
+row or replace the text with a summary or the generated plan.
 
 Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Deferred` ·
 `Not started`. Mark from this run + prior **verified** work only.
@@ -244,16 +244,17 @@ Nothing after the table except an optional one-line next-step
 │  ✓  PHASE P1 — API   COMPLETED                               │
 └──────────────────────────────────────────────────────────────┘
 
-┌─ Original ify text ──────────────────────────────────────────┐
-│ …verbatim original user request (not the generated plan)…    │
-└──────────────────────────────────────────────────────────────┘
-
 ## Phased plan
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
-| … | … | Done / Left / … |
+┌────────────────────────┬──────────────────────────────────────────────────────────┬───────────┐
+│ Phase                  │ Description                                              │ Status    │
+├────────────────────────┴──────────────────────────────────────────────────────────┴───────────┤
+│ …verbatim original user request (not the generated plan)…                                 │
+├────────────────────────┬──────────────────────────────────────────────────────────┬───────────┤
+│ Flags                  │ Caught and correctly interpreted `<tokens>`. On pass k of N. │ Understood │
+├────────────────────────┼──────────────────────────────────────────────────────────┼───────────┤
+│ …                      │ …                                                        │ Done / Left / … │
+└────────────────────────┴──────────────────────────────────────────────────────────┴───────────┘
 ```
 
 ---
@@ -264,7 +265,7 @@ Nothing after the table except an optional one-line next-step
 - Next-N is **synchronous**: x finishes, then x+1 begins.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
-- Last printed section is the **Phased plan** table. Immediately above it,
-  a single-line box with the **original ify text only** (user request) —
+- Last printed section is the **Phased plan** table. The **original ify
+  text** is the spanning header row of that table (not a separate box) —
   never plannify's interpreted, projected, or updated plan text.
 - Image markers are not phase selectors; acknowledge them first when present.
