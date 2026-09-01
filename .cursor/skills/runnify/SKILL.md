@@ -25,9 +25,11 @@ You are running **Promptify in Execution mode** (`/runnify`).
    optional one-line next-step.
 6. If the request contains **`Nimages`**, **`N images`**, or **`N-images`**
    (e.g. `1images`, `1 images`, `1-images`), follow promptify **Scratch
-   images**: the N newest images in workspace `scratch/` are extra visual
-   detail for the issue under review — find them, **read** them, and use
-   what they show. Do not treat the marker as part of the task wording.
+   images** and **Flag parse order**: use only the first numbered instance
+   left to right (skip unnumbered "image" so a later `1image` counts).
+   The N newest images in workspace `scratch/` are extra visual detail —
+   find them, **read** them, and use what they show. Do not treat the
+   marker as part of the task wording.
    **First printed content** must be the acknowledgment so the user sees the
    marker was **caught and correctly interpreted**:
 

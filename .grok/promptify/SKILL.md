@@ -43,6 +43,24 @@ If the user invokes the skill with no prompt body, explain:
 The prompt to improve is everything after the command, or the free-text request
 when they said "promptify this" / "runnify this" / "optimize this prompt".
 
+## Flag parse order (`Nimages` / `Npass`)
+
+Read the user text **left to right**. For the **image** family and the
+**pass** family independently, use **only the first instance that counts**.
+
+- A **numbered** instance counts: `1image`, `1 image`, `1-image`,
+  `2images`, `3pass`, `2-pass`, `2 pass`, …
+- An **unnumbered** word does **not** count: `image`, `images`, `pass`,
+  `passes`. Skip it and keep scanning.
+- If the first hit is unnumbered and a later hit **is numbered**, use
+  that numbered instance (the first numbered one). Example: `create an
+  image of the run. 1image` → use `1image` (the leading "image" has no
+  number).
+- If several numbered tokens appear, use only the **first** numbered one
+  left to right. Do **not** take the largest N.
+- If there is no numbered instance, the flag is **absent**. Ordinary
+  English "image" / "pass" is not a marker.
+
 ## Scratch images (`Nimages`)
 
 When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
@@ -66,7 +84,7 @@ Do this before finishing intent / workspace work:
 5. Carry the paths and visual facts into the optimized / kickoff prompt.
 6. Restate the goal **without** the marker; keep N and the file paths.
 
-If several N tokens appear, use the **largest** N.
+Parse per **Flag parse order** above (first numbered instance only).
 
 **Tell the user (mandatory, first printed content):** As soon as the
 marker is recognized, print this acknowledgment so it is obvious the
@@ -94,8 +112,9 @@ what was missing.
 
 When the user text includes **`Npass`**, **`N-pass`**, or **`N pass`**
 (case-insensitive; examples: `2pass`, `2-pass`, `2 pass`), that token is
-a **pass-count marker**, not part of the task wording. If several appear,
-use the **largest** N. Default when omitted: **1** (single pass).
+a **pass-count marker**, not part of the task wording. Parse per **Flag
+parse order** (first numbered instance only). Default when omitted or
+no numbered instance: **1** (single pass).
 
 **Meaning:** take **N passes** through the system **before** creating the
 final optimized prompt (promptify), plan (plannify), or answer (askify).

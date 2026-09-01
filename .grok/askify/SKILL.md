@@ -52,7 +52,9 @@ extra visual detail for the issue under review. Resolve `scratch/` at the
 repo root (or the project's existing `scratch` dir — do not create one),
 **read** those N images (or all if fewer), list them in Validated Assets
 (or Missing Assets), and carry what they show into the Ask-Kickoff Prompt
-and the answer. If several N tokens appear, use the **largest** N.
+and the answer. Parse image/pass flags per promptify **Flag parse
+order** (first numbered instance left to right; skip unnumbered
+`image`/`pass` so a later `1image` / `2pass` can count).
 
 **Tell the user (mandatory, first printed content):** Print this so it is
 obvious the token was **caught and correctly interpreted**. Do not skip or

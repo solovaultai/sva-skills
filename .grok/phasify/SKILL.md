@@ -41,8 +41,9 @@ The **N most recent image files** in workspace **`scratch/`** (`*.png`,
 extra visual detail for the issue under review. Resolve `scratch/` at the
 repo root (or the project's existing `scratch` dir — do not create one),
 **read** those N images (or all if fewer), and use what they show while
-executing the phase(s). If several image-N tokens appear, use the
-**largest** N.
+executing the phase(s). Parse image/pass flags per promptify **Flag parse
+order** (first numbered instance left to right; skip unnumbered
+`image`/`pass` so a later `1image` / `2pass` can count).
 
 **Tell the user (mandatory, first printed content when a marker is present):**
 
