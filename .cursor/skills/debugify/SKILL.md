@@ -7,7 +7,8 @@ description: >-
   copy-pasteable Debug-Kickoff Prompt. Use when the user runs /debugify,
   /promptify-debug (alias), "debugify", "debug this prompt", "prepare for debug
   mode", "turn this into a debug prompt", or wants a prompt set up for Cursor
-  Debug Mode.
+  Debug Mode. Recognizes Nimages / N images / N-images as a pointer to the
+  newest N images in the workspace scratch/ folder.
 ---
 
 # Debugify (= Promptify debug mode)
@@ -52,6 +53,21 @@ starts with verified paths, crisp repro, and testable hypotheses — not a vague
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch)
 with the sections below. Also apply the Step 1 / Step 2 extensions.
 
+## Scratch images (`Nimages`)
+
+When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
+(case-insensitive; also `Nimage` / `N image` / `N-image`; examples: `1images`,
+`1 images`, `1-images`), that token is an **attachment marker**, not part of
+the task wording.
+
+The **N most recent image files** in workspace **`scratch/`** (`*.png`,
+`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
+extra visual detail for the issue under review. Resolve `scratch/` at the
+repo root (or the project's existing `scratch` dir — do not create one),
+**read** those N images (or all if fewer), list them under Existing Evidence
+/ Validated Assets (or Missing Assets), and carry what they show into the
+Debug-Kickoff Prompt. If several N tokens appear, use the **largest** N.
+
 ## Extend step 1 — Bug intent fields
 
 In addition to Promptify's intent table, always extract (or mark **unknown**):
@@ -64,7 +80,7 @@ In addition to Promptify's intent table, always extract (or mark **unknown**):
 | Frequency | Always / intermittent / env-specific |
 | Environment | App, branch, OS, runtime, config, feature flags |
 | Recent changes | Commits, deps, config that may correlate |
-| Existing evidence | Stack traces, logs, screenshots, failing tests |
+| Existing evidence | Stack traces, logs, screenshots, failing tests; scratch images when an `Nimages` marker is present |
 | Blast radius | Users, paths, data at risk if mis-fixed |
 
 ## Extend step 2 — Code analysis pass (read-only)
@@ -289,3 +305,6 @@ work landed.
 - **Trailing phase table is mandatory:** end every kickoff with `## Phased plan`
   (Phase | Description | Status) as the last printed content so completed vs
   left-to-do is visible without scrolling up.
+- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+  and treat them as extra detail for the issue under review (see **Scratch
+  images**).

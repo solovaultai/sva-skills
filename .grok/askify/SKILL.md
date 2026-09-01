@@ -6,7 +6,8 @@ description: >
   runs that optimized prompt read-only to produce a cited answer (no plan, no edits).
   Use when the user runs /askify, /promptify-ask (alias), "askify", "ask this prompt",
   "turn this into an ask prompt", or wants a prompt reworked for a question-answering
-  run and the answer produced.
+  run and the answer produced. Recognizes Nimages / N images / N-images as a
+  pointer to the newest N images in the workspace scratch/ folder.
 metadata:
   short-description: "Promptify ask mode — optimize then answer read-only"
 ---
@@ -35,6 +36,21 @@ findings, comparison), never code changes and never a plan.
 
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch) with
 the two sections below.
+
+## Scratch images (`Nimages`)
+
+When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
+(case-insensitive; also `Nimage` / `N image` / `N-image`; examples: `1images`,
+`1 images`, `1-images`), that token is an **attachment marker**, not part of
+the task wording.
+
+The **N most recent image files** in workspace **`scratch/`** (`*.png`,
+`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
+extra visual detail for the issue under review. Resolve `scratch/` at the
+repo root (or the project's existing `scratch` dir — do not create one),
+**read** those N images (or all if fewer), list them in Validated Assets
+(or Missing Assets), and carry what they show into the Ask-Kickoff Prompt
+and the answer. If several N tokens appear, use the **largest** N.
 
 ## Override step 3 — Ask-Kickoff Prompt
 
@@ -167,3 +183,6 @@ after the table except an optional one-line next-step.
   what could not be determined.
 - Multi-phase questions: last printed content is the Trailing phase status table
   (done vs left). Do not emit a new implementation plan.
+- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+  and treat them as extra detail for the issue under review (see **Scratch
+  images**).

@@ -6,7 +6,8 @@ description: >-
   optimized prompt read-only to produce a structured plan. Use when the user runs
   /plannify, /promptify-plan (alias), "plannify", "plan this prompt", "turn this
   into a planning prompt", or wants a prompt reworked for a planning/design run and
-  the plan produced.
+  the plan produced. Recognizes Nimages / N images / N-images as a pointer to
+  the newest N images in the workspace scratch/ folder.
 ---
 
 # Plannify (= Promptify planning mode)
@@ -33,6 +34,21 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
 
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch)
 with the two sections below.
+
+## Scratch images (`Nimages`)
+
+When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
+(case-insensitive; also `Nimage` / `N image` / `N-image`; examples: `1images`,
+`1 images`, `1-images`), that token is an **attachment marker**, not part of
+the task wording.
+
+The **N most recent image files** in workspace **`scratch/`** (`*.png`,
+`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
+extra visual detail for the issue under review. Resolve `scratch/` at the
+repo root (or the project's existing `scratch` dir — do not create one),
+**read** those N images (or all if fewer), list them in Validated Assets
+(or Missing Assets), and carry what they show into the Planning-Kickoff
+Prompt and the plan. If several N tokens appear, use the **largest** N.
 
 ## Override step 3 — Planning-Kickoff Prompt
 
@@ -201,3 +217,6 @@ see Trailing phase table)
   `## Phased plan` as a markdown table (Phase | Description | Status) so the
   user can read completed vs left-to-do without scrolling up. Default Status:
   `Not started`.
+- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+  and treat them as extra detail for the issue under review (see **Scratch
+  images**).

@@ -5,6 +5,8 @@ description: >
   real workspace, enrich and rewrite the prompt, score readiness, then execute
   only the optimized prompt and return Results. Use when the user runs /runnify,
   /promptify-run, "runnify", or wants prompt QA plus immediate execution.
+  Recognizes Nimages / N images / N-images as a pointer to the newest N
+  images in the workspace scratch/ folder.
 metadata:
   short-description: "Promptify + execute optimized prompt"
 ---
@@ -23,6 +25,11 @@ You are running **Promptify in Execution mode** (`/runnify`).
    item** after Results is the Trailing phase status table (completed vs
    left-to-do) defined in promptify. Nothing after that table except an
    optional one-line next-step.
+6. If the request contains **`Nimages`**, **`N images`**, or **`N-images`**
+   (e.g. `1images`, `1 images`, `1-images`), follow promptify **Scratch
+   images**: the N newest images in workspace `scratch/` are extra visual
+   detail for the issue under review — find them, **read** them, and use
+   what they show. Do not treat the marker as part of the task wording.
 
 If the user message has no task body after `/runnify`, explain:
 

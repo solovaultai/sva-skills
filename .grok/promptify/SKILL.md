@@ -7,7 +7,8 @@ description: >
   prompt. Use when the user runs /promptify, /runnify, /promptify-run (alias),
   "promptify", "runnify", "optimize this prompt", "rewrite this prompt for this
   workspace", "prompt QA", or wants a prompt improved against actual files/tools
-  before (or while) executing it.
+  before (or while) executing it. Recognizes Nimages / N images / N-images as
+  a pointer to the newest N images in the workspace scratch/ folder.
 metadata:
   short-description: "Optimize prompts against the real workspace"
 ---
@@ -40,6 +41,31 @@ If the user invokes the skill with no prompt body, explain:
 The prompt to improve is everything after the command, or the free-text request
 when they said "promptify this" / "runnify this" / "optimize this prompt".
 
+## Scratch images (`Nimages`)
+
+When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
+(case-insensitive; also `Nimage` / `N image` / `N-image`), that token is an
+**attachment marker**, not part of the task wording. Examples: `1images`,
+`1 images`, `1-images`.
+
+**Meaning:** the **N most recent image files** in the workspace **`scratch/`**
+folder provide extra visual detail for the issue under review.
+
+Do this before finishing intent / workspace work:
+
+1. Resolve `scratch/` at the workspace / repo root. If it is missing, look
+   for the project's existing `scratch` directory. Do not create one.
+2. List image files (`*.png`, `*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`).
+   Sort by newest mtime; take **N** (or all, if fewer than N).
+3. **Read** those images. Use what they show as evidence for the issue.
+4. Put the paths (and a one-line what-they-show) in Validated Assets. If the
+   folder or enough images are missing, list them under Missing Assets — do
+   not invent pixels.
+5. Carry the paths and visual facts into the optimized / kickoff prompt.
+6. Restate the goal **without** the marker; keep N and the file paths.
+
+If several N tokens appear, use the **largest** N.
+
 ---
 
 ## Pipeline (both modes)
@@ -68,6 +94,8 @@ Inspect the **actual** environment with tools as needed:
 - Workflows, scripts, configs, env vars
 - Tools, APIs, MCP/connected systems
 - Existing outputs and terminology
+- Scratch images when an `Nimages` / `N images` / `N-images` marker is present
+  (see **Scratch images** above)
 
 Evaluate the draft intent/prompt against that reality:
 
@@ -287,3 +315,6 @@ Rules:
 - Keep the Optimized Prompt copy-pasteable as a standalone agent instruction.
 - Multi-phase work: last printed content is the Trailing phase status table
   (done vs left).
+- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+  and treat them as extra detail for the issue under review (see **Scratch
+  images**).

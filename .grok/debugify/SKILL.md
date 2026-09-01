@@ -7,7 +7,8 @@ description: >
   /debugify, /debug (alias), "debug this", "debug this bug", "root-cause this",
   "why is this failing", "instrument and fix", or wants Cursor-style Debug Mode
   behavior inside Grok. Prefer this over /debug-kickoff unless they only want a
-  kickoff brief.
+  kickoff brief. Recognizes Nimages / N images / N-images as a pointer to the
+  newest N images in the workspace scratch/ folder.
 metadata:
   short-description: "Debug Mode full loop — instrument, repro, fix, clean"
 ---
@@ -53,7 +54,7 @@ Extract (or mark **unknown**):
 | Frequency | Always / intermittent / env-specific |
 | Environment | App, branch, OS, runtime, config, flags |
 | Recent changes | Commits, deps, config that may correlate |
-| Existing evidence | Stacks, logs, screenshots, failing tests |
+| Existing evidence | Stacks, logs, screenshots, failing tests; scratch images when an `Nimages` marker is present |
 | Blast radius | Users, paths, data at risk if mis-fixed |
 
 Then analyze code (verify paths before citing):
@@ -66,6 +67,21 @@ Then analyze code (verify paths before citing):
 6. Draft **preliminary hypotheses** only when grounded in code or evidence.
 
 Prefer repo-relative paths. Never invent files or APIs.
+
+## Scratch images (`Nimages`)
+
+When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
+(case-insensitive; also `Nimage` / `N image` / `N-image`; examples: `1images`,
+`1 images`, `1-images`), that token is an **attachment marker**, not part of
+the task wording.
+
+The **N most recent image files** in workspace **`scratch/`** (`*.png`,
+`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
+extra visual detail for the issue under review. Resolve `scratch/` at the
+repo root (or the project's existing `scratch` dir — do not create one),
+**read** those N images (or all if fewer), treat what they show as existing
+evidence, and use it when forming hypotheses. If several N tokens appear,
+use the **largest** N. Do this during Phase 0, before instrumenting.
 
 ## Phase 1 — Hypotheses
 
@@ -242,3 +258,6 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
 - **Trailing phase table is mandatory:** end every run with `## Phased plan`
   (Phase | Description | Status) as the last printed content so completed vs
   left-to-do is visible without scrolling up.
+- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+  and treat them as extra detail for the issue under review (see **Scratch
+  images**).
