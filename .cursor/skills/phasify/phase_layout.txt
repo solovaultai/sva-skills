@@ -1,28 +1,31 @@
-┌───────────────┬──────────────────────────────────────────────────────────┬───────────┐
-│ Phase         │ Description                                              │ Status    │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│               │ I want to add an icon  to campaigns that will be used    │ Planned   │
-│  Task         │ wherever the campaign is used for quick identification.  │           │
-│               │ If none is supplied the icon should be a badge           │           │
-│               │ <text cut but will be shown by cursor and grok>          │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P0 — Spec     │ Freeze I1–I8 in DESIGN_FLUENT_CAMPAIGN_ICON.md + PRODUCT │ Done      │
-│               │ row; initials examples including EEFF2                   │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P1 — Mark     │ campaignInitials + CampaignMark; tests; initials on      │ Done      │
-│               │ campaign lists with no API                               │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P2 — API      │ 081_campaign_icon.sql icon_url; PATCH/POST; series       │ Done      │
-│               │ campaign_icon_url; Console tests                         │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P3 — Edit     │ Properties Identity + create dialog URL field on         │ Done      │
-│               │ existing instance-edit snapshot                          │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P4 — Tables   │ Per-row nameIcon; campaign lists + run Campaign column,  │ Done      │
-│               │ 20px                                                     │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P5 — Surfaces │ Blade title, picker, runner, Home campaign rows, run     │ Left      │
-│               │ essentials campaign label                                │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P6 — Bake     │ PRODUCT greps, rebuild Fluent, Console tests green       │ Left      │
-└───────────────┴──────────────────────────────────────────────────────────┴───────────┘
+┌───────────────┬──────────────────────────────────────────────────────────┬────────────┐
+│ Phase         │ Description                                              │ Status     │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│               │ I want to add an icon  to campaigns that will be used    │ Planned    │
+│  Task         │ wherever the campaign is used for quick identification.  │            │
+│               │ If none is supplied the icon should be a badge           │            │
+│               │ <text cut but will be shown by cursor and grok>          │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│  Flags        │ Caught and correctly interpreted 1image. On pass 1 of 2. │ Understood │
+│               │ Caught and correctly interpreted 2pass. On pass 1 of 2.  │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P0 — Spec     │ Freeze I1–I8 in DESIGN_FLUENT_CAMPAIGN_ICON.md + PRODUCT │ Done       │
+│               │ row; initials examples including EEFF2                   │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P1 — Mark     │ campaignInitials + CampaignMark; tests; initials on      │ Done       │
+│               │ campaign lists with no API                               │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P2 — API      │ 081_campaign_icon.sql icon_url; PATCH/POST; series       │ Done       │
+│               │ campaign_icon_url; Console tests                         │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P3 — Edit     │ Properties Identity + create dialog URL field on         │ Done       │
+│               │ existing instance-edit snapshot                          │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P4 — Tables   │ Per-row nameIcon; campaign lists + run Campaign column,  │ Done       │
+│               │ 20px                                                     │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P5 — Surfaces │ Blade title, picker, runner, Home campaign rows, run     │ Left       │
+│               │ essentials campaign label                                │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P6 — Bake     │ PRODUCT greps, rebuild Fluent, Console tests green       │ Left       │
+└───────────────┴──────────────────────────────────────────────────────────┴────────────┘

@@ -4,16 +4,19 @@ description: >
   Phasify — execute phase(s) of an existing plannified plan. Run a named
   phase (`/phasify 0`, `/phasify p0`, "run phase p0"), the next incomplete
   phase (`/phasify next`, "run next phase"), or the next N phases
-  sequentially (`/phasify 3`, "run next 3 phases"). When phase(s) complete,
-  put the user's original ify request (promptify / askify / runnify /
-  plannify / debugify) in the Task row of the aligned phased-plan table
-  (docs/phase_layout.txt) — not a separate box, not a spanning cell, and
-  not plannify's interpreted or projected text.
+  sequentially (`/phasify 3`, "run next 3 phases"). When phase(s)
+  complete, put the user's original ify Task text
+  (promptify / askify / runnify / plannify / debugify — verbatim user
+  request, not generated plan text) in the Task row of the aligned
+  phased-plan table (docs/phase_layout.txt). Capture Flags as specified:
+  both Nimages and Npass, one of them, or no Flags row. Not a separate
+  box, not a spanning cell, not plannify's interpreted or projected text.
   Use when the user runs /phasify,
   "phasify 0", "phasify next", "phasify 3", "run phase p0", "run next
   phase", or "run next n phases". Recognizes Nimages / N images / N-images
   (also Nimage / N image / N-image; e.g. 1image, 3images) as a pointer to
-  the newest N images in the workspace scratch/ folder.
+  the newest N images in the workspace scratch/ folder. Recognizes Npass /
+  N-pass / N pass as a pass-count flag to record (not a phase selector).
 metadata:
   short-description: "Execute named, next, or next-N plannify phases"
 ---
@@ -56,13 +59,20 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) in `scratch/` for extra detail on the issue under review.
 ```
 
-Do not skip or bury this. Strip image tokens **before** parsing the phasify
-mode so `phasify 3 2images` means **next 3 phases** + 2 scratch images, not
-phase 2.
+Do not skip or bury this. Strip **image and pass** tokens **before**
+parsing the phasify mode so `phasify 3 2images` means **next 3 phases** +
+2 scratch images, not phase 2, and `2pass` is never a phase count.
+
+When **`Npass`** / **`N-pass`** / **`N pass`** is present (same Flag parse
+order), it is a **pass-count flag** to record in the Flags row — not a
+phase selector and not part of the Task wording. Default N = 1 if absent.
+Print the promptify Npass acknowledgment after the scratch ack when both
+appear. Capture whichever flags the user included (both, one, or none)
+in the table — see **Capture Task and Flags**.
 
 ---
 
-## Invocation (parse after stripping image tokens)
+## Invocation (parse after stripping image and pass tokens)
 
 | User text | Mode | What to run |
 |-----------|------|-------------|
@@ -112,6 +122,54 @@ If the raw request is not in this conversation, recover it from the ify
 invocation that created the plan. If it cannot be recovered, put
 `(original ify text not found)` in the Task Description — do not
 substitute the plan.
+
+## Capture Task and Flags (mandatory)
+
+Fill **Task** and **Flags** exactly as `docs/phase_layout.txt` (and this
+skill's `phase_layout.txt`) show — three columns, no extra box, no
+spanning cell.
+
+### Task
+
+**Description** = the verbatim original ify Task text (the words the
+user typed for promptify / askify / runnify / plannify / debugify).
+Not `## Plan`, not Intent Analysis, not the Kickoff/Optimized Prompt,
+not scores, not any interpreted / projected / updated text an ify
+generated. Do not rewrite or summarize.
+
+Strip `Nimages` / `Npass` marker tokens from the Task text (they belong
+in Flags). Leave the rest unchanged.
+
+- Status **`Planned`** on the **first** Task line only; blank Status on
+  wrap lines (as in the layout).
+- Phase: blank on the first Task line (text + `Planned`); label
+  **`Task`** on the next line; blank Phase on further wraps.
+
+### Flags — both, one, or none
+
+Parse `Nimages` and `Npass` independently per promptify **Flag parse
+order**: first numbered instance left to right; skip unnumbered
+`image` / `pass` so a later `1image` / `2pass` can count. No numbered
+instance ⇒ that flag is absent.
+
+| What the user included | Flags row |
+|------------------------|-----------|
+| Both `Nimages` and `Npass` | **Two** Description lines (image family, then pass family) |
+| Only `Nimages` **or** only `Npass` | **One** Description line for that token |
+| Neither | **Omit** the Flags row entirely |
+
+Each present flag is its own Description line:
+
+`Caught and correctly interpreted <token>. On pass k of N.`
+
+- `<token>` is the exact numbered token (`1image`, `2pass`, …).
+- **N** is the Npass value (default **1** if `Npass` is absent).
+- **k** is the pass just finished or in progress (after the last pass:
+  `On pass N of N`).
+- Phase **`Flags`** on the first Flags line; blank Phase on a second
+  line. Status **`Understood`** on the first Flags line only; blank after.
+
+This row is not a work phase.
 
 **Next incomplete** = first phase whose Status is not `Done` or `Deferred`
 (treat `Not started`, `Left`, `In progress`, `Blocked` as eligible; if
@@ -186,16 +244,18 @@ If the workspace has `docs/phase_layout.txt`, or this skill folder has
 `phase_layout.txt`, match that file's column widths. The copy next to
 this skill is the installed source of truth.
 
-### Fixed widths (every line is **exactly 88** characters)
+### Fixed widths (every line is **exactly 89** characters)
+
+Match `docs/phase_layout.txt`. Status is **12** so `Understood` fits.
 
 | Piece | Inner width | `│` column index |
 |-------|-------------|------------------|
 | Phase | **15** | left border = 0; after Phase = **16** |
 | Description | **58** | after Description = **75** |
-| Status | **11** | right border = **87** |
+| Status | **12** | right border = **88** |
 
-`0 + 15 + 1 + 58 + 1 + 11 + 1 = 88`. Count characters before sending.
-If any line is not 88, or any `│` is not in columns 0 / 16 / 75 / 87,
+`1 + 15 + 1 + 58 + 1 + 12 + 1 = 89`. Count characters before sending.
+If any line is not 89, or any `│` is not in columns 0 / 16 / 75 / 88,
 rebuild the line. No trailing space after the right border.
 
 ### Characters
@@ -203,19 +263,24 @@ rebuild the line. No trailing space after the right border.
 - Single-line box only: `┌┬┐ ├┼┤ └┴┘ │ ─` (not `╔═╗`, not markdown pipes).
 - Pad with spaces — **never tabs**.
 - Cell text: one leading space, then content, then spaces to the inner
-  width. Example Phase ` P0 — Spec     ` (15), Status ` Done      ` (11).
+  width. Example Phase ` P0 — Spec     ` (15), Status ` Done       ` (12).
+  Task / Flags use a two-space indent as in the layout (`  Task`,
+  `  Flags`).
 
 ### Wrap — keep the three columns on every line
 
 Long text wraps **inside Description only** (max **56** characters of
 content after the leading space). Word-wrap; never overflow a cell.
 
-- **Task** (original ify text): Phase label `Task` on the **first** wrap
-  line, blank Phase on continuations. Status `Planned` on the **first**
-  Task line only; blank after.
-- **Flags** (only if `Nimages` and/or `Npass`): Phase `Flags` on the
-  first wrap line. Status `Understood` on the first line, blank after.
-  Description: `Caught and correctly interpreted <tokens>. On pass k of N.`
+- **Task** (verbatim original ify text): Status `Planned` on the **first**
+  Task line only; blank after. First Task line has a blank Phase; label
+  `Task` on the next line; further wraps blank Phase. See **Capture Task
+  and Flags**.
+- **Flags** (both / one / none — see **Capture Task and Flags**): one
+  Description line per present flag (`Caught and correctly interpreted
+  <token>. On pass k of N.`). Phase `Flags` and Status `Understood` on
+  the first Flags line only; blank after. Omit the row if neither flag
+  was included.
 - **Work phases:** Phase id (`P0 — Spec`) and Status on the **first**
   wrap line only; continuations have a blank Phase and a blank Status.
 
@@ -225,13 +290,13 @@ collapse a separator across the full table width.
 ### Row order
 
 1. Column titles: `Phase` / `Description` / `Status`
-2. **Task** — verbatim original ify text (promptify / askify / runnify /
-   plannify / debugify). No `## Plan`, kickoff prompt, intent rewrite,
-   scores, or “optimized” wording. Do not rewrite or summarize it.
-3. **Flags** — omit if neither marker is present
+2. **Task** — verbatim original ify Task text (promptify / askify /
+   runnify / plannify / debugify). No generated plan text. See **Capture
+   Task and Flags**.
+3. **Flags** — both flags, one flag, or omit the row (neither present)
 4. Work phases in order, current statuses
 
-### Status words (must fit in 11 with the leading space)
+### Status words (must fit in 12 with the leading space)
 
 Use exactly: `Planned` · `Done` · `Left` · `Blocked` · `Deferred` ·
 `Progress` · `Understood`. Do **not** write `In progress` (too long).
@@ -239,24 +304,42 @@ Mark from this run + prior **verified** work only.
 
 ### Canonical example (copy these widths)
 
-This example is already 88 characters per line:
+This is `docs/phase_layout.txt` — 89 characters per line. Both flags
+present ⇒ two Flags Description lines. Copy this file next to the skill
+when widths drift.
 
 ```text
-┌───────────────┬──────────────────────────────────────────────────────────┬───────────┐
-│ Phase         │ Description                                              │ Status    │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ Task          │ 2pass any page that has detail data that can potentially │ Planned   │
-│               │ be edited in place needs an edit, undo, and save button  │           │
-│               │ where the delete and refresh buttons are.                │           │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ Flags         │ Caught and correctly interpreted 1image. On pass 1 of 1. │ Understood│
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P0 — Spec     │ Freeze E1–E12 in DESIGN_FLUENT_INSTANCE_EDIT.md          │ Done      │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P1 — Chrome   │ Shared instanceEditChrome + Email Clear → Undo           │ Done      │
-├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
-│ P2 — SPA      │ Campaign edit mode; lift blackouts Save                  │ Left      │
-└───────────────┴──────────────────────────────────────────────────────────┴───────────┘
+┌───────────────┬──────────────────────────────────────────────────────────┬────────────┐
+│ Phase         │ Description                                              │ Status     │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│               │ I want to add an icon  to campaigns that will be used    │ Planned    │
+│  Task         │ wherever the campaign is used for quick identification.  │            │
+│               │ If none is supplied the icon should be a badge           │            │
+│               │ <text cut but will be shown by cursor and grok>          │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│  Flags        │ Caught and correctly interpreted 1image. On pass 1 of 2. │ Understood │
+│               │ Caught and correctly interpreted 2pass. On pass 1 of 2.  │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P0 — Spec     │ Freeze I1–I8 in DESIGN_FLUENT_CAMPAIGN_ICON.md + PRODUCT │ Done       │
+│               │ row; initials examples including EEFF2                   │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P1 — Mark     │ campaignInitials + CampaignMark; tests; initials on      │ Done       │
+│               │ campaign lists with no API                               │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P2 — API      │ 081_campaign_icon.sql icon_url; PATCH/POST; series       │ Done       │
+│               │ campaign_icon_url; Console tests                         │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P3 — Edit     │ Properties Identity + create dialog URL field on         │ Done       │
+│               │ existing instance-edit snapshot                          │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P4 — Tables   │ Per-row nameIcon; campaign lists + run Campaign column,  │ Done       │
+│               │ 20px                                                     │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P5 — Surfaces │ Blade title, picker, runner, Home campaign rows, run     │ Left       │
+│               │ essentials campaign label                                │            │
+├───────────────┼──────────────────────────────────────────────────────────┼────────────┤
+│ P6 — Bake     │ PRODUCT greps, rebuild Fluent, Console tests green       │ Left       │
+└───────────────┴──────────────────────────────────────────────────────────┴────────────┘
 ```
 
 ---
@@ -282,7 +365,7 @@ table except an optional one-line next-step (e.g. `/phasify next`).
 └──────────────────────────────────────────────────────────────┘
 
 ## Phased plan
-(aligned 88-column table — between phases on Next-N)
+(aligned 89-column table — between phases on Next-N)
 
 ## Phase P1 — API
 (only if Next-N included it; after P0 fully finished)
@@ -304,8 +387,10 @@ table except an optional one-line next-step (e.g. `/phasify next`).
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
 - Last printed section is the **Phased plan** table in the
-  `phase_layout.txt` layout. Original ify text is the **Task** row
+  `phase_layout.txt` layout. Original ify Task text is the **Task** row
   (three columns, wrapped) — never a separate box, never a spanning
-  cell, never plannify's interpreted or projected plan text.
-- Every table line is exactly 88 characters with `│` at 0, 16, 75, 87.
-- Image markers are not phase selectors; acknowledge them first when present.
+  cell, never generated plan text. Flags are both / one / none per
+  **Capture Task and Flags**.
+- Every table line is exactly 89 characters with `│` at 0, 16, 75, 88.
+- Image and pass markers are not phase selectors; acknowledge them first
+  when present. Parse per promptify Flag parse order.
