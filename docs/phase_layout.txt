@@ -2,9 +2,9 @@
 │ Phase         │ Description                                              │ Status    │
 ├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
 │               │ I want to add an icon  to campaigns that will be used    │ Planned   │
-│  Task         │ wherever the campaign is used for quick identification.  │ Planned   │
-│               │ If none is supplied the icon should be a badge           │ Planned   │
-│               │ <text cut but will be shown by cursor and grok>          │ Planned   │
+│  Task         │ wherever the campaign is used for quick identification.  │           │
+│               │ If none is supplied the icon should be a badge           │           │
+│               │ <text cut but will be shown by cursor and grok>          │           │
 ├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
 │ P0 — Spec     │ Freeze I1–I8 in DESIGN_FLUENT_CAMPAIGN_ICON.md + PRODUCT │ Done      │
 │               │ row; initials examples including EEFF2                   │           │

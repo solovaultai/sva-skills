@@ -208,8 +208,8 @@ Long text wraps **inside Description only** (max **56** characters of
 content after the leading space). Word-wrap; never overflow a cell.
 
 - **Task** (original ify text): Phase label `Task` on the **first** wrap
-  line, blank Phase on continuations. Status `Planned` on **every** Task
-  wrap line.
+  line, blank Phase on continuations. Status `Planned` on the **first**
+  Task line only; blank after.
 - **Flags** (only if `Nimages` and/or `Npass`): Phase `Flags` on the
   first wrap line. Status `Understood` on the first line, blank after.
   Description: `Caught and correctly interpreted <tokens>. On pass k of N.`
@@ -243,8 +243,8 @@ This example is already 88 characters per line:
 │ Phase         │ Description                                              │ Status    │
 ├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
 │ Task          │ 2pass any page that has detail data that can potentially │ Planned   │
-│               │ be edited in place needs an edit, undo, and save button  │ Planned   │
-│               │ where the delete and refresh buttons are.                │ Planned   │
+│               │ be edited in place needs an edit, undo, and save button  │           │
+│               │ where the delete and refresh buttons are.                │           │
 ├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
 │ Flags         │ Caught and correctly interpreted 1image. On pass 1 of 1. │ Understood│
 ├───────────────┼──────────────────────────────────────────────────────────┼───────────┤
