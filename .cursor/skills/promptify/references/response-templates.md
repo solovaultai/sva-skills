@@ -6,7 +6,7 @@ Quick copy of output shapes. Source of truth for behavior is `SKILL.md`.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
 
 **Npass — caught and correctly interpreted.**   ← when an Npass marker is present
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final deliverable.

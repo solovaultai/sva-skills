@@ -9,7 +9,7 @@ description: >-
   mode", "turn this into a debug prompt", or wants a prompt set up for Cursor
   Debug Mode. Print a complete reference with `/debugify help` or
   `/debugify --help` (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the
-  newest N images in the workspace scratch/ folder.
+  newest N images from the configured scratch source (or workspace scratch/).
 ---
 
 # Debugify (= Promptify debug mode)
@@ -61,24 +61,20 @@ When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
 `1 images`, `1-images`), that token is an **attachment marker**, not part of
 the task wording.
 
-The **N most recent image files** in workspace **`scratch/`** (`*.png`,
-`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
-extra visual detail for the issue under review. Resolve `scratch/` at the
-repo root (or the project's existing `scratch` dir — do not create one),
-**read** those N images (or all if fewer), list them under Existing Evidence
-/ Validated Assets (or Missing Assets), and carry what they show into the
-Debug-Kickoff Prompt. Parse image/pass flags per promptify **Flag parse
-order** (first numbered instance left to right; skip unnumbered
-`image`/`pass` so a later `1image` / `2pass` can count).
+Follow promptify **Scratch images**: if `scratch.env` exists, run
+`scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
+**read those paths**. Else workspace `scratch/` (do not create). Parse
+image/pass flags per promptify **Flag parse order**. Carry what they show
+into the Debug-Kickoff Prompt (Existing Evidence / Validated Assets).
 
 **Tell the user (mandatory, first printed content):** Print this so it is
-obvious the token was **caught and correctly interpreted**. Do not skip or
-bury it:
+obvious the token was **caught and correctly interpreted**. Name the
+source (`local …` or `remote conn:dir` or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 ## Extend step 1 — Bug intent fields
@@ -234,7 +230,7 @@ said "debugify this" / "debug this prompt" / "prepare for debug mode" /
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
 
 ## Intent Analysis
 …
@@ -331,7 +327,7 @@ work landed.
 - **Trailing phase table is mandatory:** end every kickoff with `## Phased plan`
   (Phase | Description | Status) as the last printed content so completed vs
   left-to-do is visible without scrolling up.
-- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+- `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
@@ -370,7 +366,7 @@ Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
 Promptify Flag parse order: first numbered instance left to right;
 skip unnumbered `image` / `pass`. Strip before Help vs task.
 
-**`Nimages`:** N newest `scratch/` images as existing evidence. Lead
+**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence. Lead
 with the caught-and-interpreted ack. Carry what they show into the
 kickoff.
 

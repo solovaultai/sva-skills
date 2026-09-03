@@ -10,7 +10,7 @@ description: >-
   prompt improved against actual files/tools before (or while) executing it.
   Print a complete reference with `/promptify help` or `/promptify --help`
   (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the newest N
-  images in the workspace scratch/ folder. Recognizes Npass / N-pass /
+  images from the configured scratch source (or workspace scratch/). Recognizes Npass / N-pass /
   N pass as a request to take N pipeline passes (pass 1 is a documented
   pre-plan when N > 1).
 ---
@@ -77,15 +77,27 @@ When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
 **attachment marker**, not part of the task wording. Examples: `1images`,
 `1 images`, `1-images`.
 
-**Meaning:** the **N most recent image files** in the workspace **`scratch/`**
-folder provide extra visual detail for the issue under review.
+**Meaning:** the **N most recent image files** from the configured scratch
+source (or workspace **`scratch/`** if unset) provide extra visual detail
+for the issue under review.
 
 Do this before finishing intent / workspace work:
 
-1. Resolve `scratch/` at the workspace / repo root. If it is missing, look
-   for the project's existing `scratch` directory. Do not create one.
-2. List image files (`*.png`, `*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`).
-   Sort by newest mtime; take **N** (or all, if fewer than N).
+1. If the scratch source config exists, run the sva-skills resolver and
+   **read those paths**:
+   - Config: `~/.local/share/sva-skills/scratch.env` (Linux / Git Bash)
+     or `%LOCALAPPDATA%\sva-skills\scratch.env` (Windows PowerShell).
+     `scratch show` prints the file it used.
+   - Resolve: `scripts/cli.sh scratch ls N` or `scripts\cli.ps1 scratch ls N`
+     (from the sva-skills repo). Prints one absolute path per line (local
+     files, or a cache of the N newest remote files). Read those files.
+   - Mention the source in the ack (`local ~/Pictures/Screenshots` or
+     `remote cas3:scratch` — from `scratch show`).
+2. Else (no config, or the resolver prints nothing / fails): workspace
+   `scratch/` at the repo root (or the project's existing `scratch` dir).
+   Do not create one. List image files (`*.png`, `*.jpg`, `*.jpeg`,
+   `*.webp`, `*.gif`, `*.bmp`), newest mtime first; take **N** (or all
+   if fewer).
 3. **Read** those images. Use what they show as evidence for the issue.
 4. Put the paths (and a one-line what-they-show) in Validated Assets. If the
    folder or enough images are missing, list them under Missing Assets — do
@@ -98,12 +110,13 @@ Parse per **Flag parse order** above (first numbered instance only).
 **Tell the user (mandatory, first printed content):** As soon as the
 marker is recognized, print this acknowledgment so it is obvious the
 token was **caught and correctly interpreted**. Do not skip it. Do not
-bury it under later headings.
+bury it under later headings. Name the source (`local ~/Pictures/Screenshots`,
+`remote cas3:scratch`, or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 Example: user wrote `2images` →
@@ -111,10 +124,10 @@ Example: user wrote `2images` →
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `2images` as an attachment marker. Looking at the 2 most recent
-images in `scratch/` for extra detail on the issue under review.
+images from <source> for extra detail on the issue under review.
 ```
 
-If `scratch/` or enough images are missing, still print this, then say
+If the source or enough images are missing, still print this, then say
 what was missing.
 
 ## Multi-pass (`Npass`)
@@ -295,7 +308,7 @@ If any answer is no, revise before responding.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
 
 **Npass — caught and correctly interpreted.**   ← when an Npass marker is present
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final deliverable.
@@ -441,10 +454,11 @@ Rules:
 - Multi-phase work: last printed content is the Trailing phase status table
   (done vs left). When `Nimages` and/or `Npass` is present, that table's
   **first row is Flags** (caught-and-understood tokens + On pass k of N).
-- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
-  and treat them as extra detail for the issue under review (see **Scratch
-  images**). Lead the response with the **caught and correctly interpreted**
-  acknowledgment so the user can see the marker was recognized.
+- `Nimages` / `N images` / `N-images`: read the N newest images from the
+  configured scratch source (`scratch ls N`) or workspace `scratch/`
+  (see **Scratch images**). Lead the response with the **caught and
+  correctly interpreted** acknowledgment so the user can see the marker
+  was recognized. Name the source in the ack.
 - `Npass` / `N-pass` / `N pass`: take N pipeline passes (see **Multi-pass**).
   When N > 1, pass 1 is a documented pre-plan only; later passes use that
   base; the last pass emits the final prompt / plan / answer. Acknowledge

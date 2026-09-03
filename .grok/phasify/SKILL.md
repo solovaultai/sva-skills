@@ -26,8 +26,8 @@ description: >
   "phasify help", "phasify --help", "run phase p0", "run next phase",
   or "run next n phases". Recognizes
   Nimages / N images / N-images (also Nimage / N image / N-image; e.g.
-  1image, 3images) as a pointer to the newest N images in the workspace
-  scratch/ folder. Recognizes Npass / N-pass / N pass as a pass-count
+  1image, 3images) as a pointer to the newest N images from the
+  configured scratch source (or workspace scratch/). Recognizes Npass / N-pass / N pass as a pass-count
   flag to record (not a phase selector). `-2pass` is a pass flag, not
   stop-before-end.
 metadata:
@@ -55,21 +55,19 @@ or singular **`Nimage`** / **`N image`** / **`N-image`** (case-insensitive;
 examples: `1image`, `1 image`, `1-image`, `3images`), that token is an
 **attachment marker**, not a phase count and not part of the task wording.
 
-The **N most recent image files** in workspace **`scratch/`** (`*.png`,
-`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
-extra visual detail for the issue under review. Resolve `scratch/` at the
-repo root (or the project's existing `scratch` dir — do not create one),
-**read** those N images (or all if fewer), and use what they show while
-executing the phase(s). Parse image/pass flags per promptify **Flag parse
-order** (first numbered instance left to right; skip unnumbered
-`image`/`pass` so a later `1image` / `2pass` can count).
+Follow promptify **Scratch images**: if `scratch.env` exists, run
+`scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
+**read those paths**. Else workspace `scratch/` (do not create). Parse
+image/pass flags per promptify **Flag parse order**. Use what they show
+while executing the phase(s).
 
 **Tell the user (mandatory, first printed content when a marker is present):**
+Name the source (`local …` or `remote conn:dir` or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 Do not skip or bury this. Strip **image and pass** tokens **before**

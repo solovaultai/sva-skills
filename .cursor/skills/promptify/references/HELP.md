@@ -73,20 +73,24 @@ of the task wording.
 `Nimages` / `N images` / `N-images` (also singular `Nimage` / `N image`
 / `N-image`). Attachment marker.
 
-**Meaning:** the N most recent images in workspace `scratch/`
-(`*.png` `*.jpg` `*.jpeg` `*.webp` `*.gif` `*.bmp`). Newest mtime
-first. Do not create `scratch/`. Read them; list paths in Validated
-or Missing Assets; carry facts into the optimized prompt.
+**Meaning:** the N most recent images from the configured scratch
+source (or workspace `scratch/` if unset). If `scratch.env` exists,
+run `scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`)
+and read those paths. Else workspace `scratch/` (`*.png` `*.jpg`
+`*.jpeg` `*.webp` `*.gif` `*.bmp`; newest mtime first). Do not create
+`scratch/`. List paths in Validated or Missing Assets; carry facts
+into the optimized prompt. Ack names the source (`local …` or
+`remote conn:dir` or workspace `scratch/`).
 
 **First printed content** when present:
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
-If the folder or enough images are missing, still print this, then
+If the source or enough images are missing, still print this, then
 say what was missing.
 
 ---
@@ -196,7 +200,7 @@ one-line next-step.
 - Analysis mode must not run builds, deploys, or mutating work.
 - Multi-phase (or any Nimages/Npass): last content is the phase table;
   Flags is the first row when markers are present.
-- `Nimages`: read N newest `scratch/` images; lead with the ack.
+- `Nimages`: read N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`; lead with the ack (name the source).
 - `Npass`: N passes; pass 1 is pre-plan only when N > 1.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
   do not run the pipeline.

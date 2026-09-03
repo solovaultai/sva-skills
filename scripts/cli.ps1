@@ -15,6 +15,8 @@
   .\scripts\cli.ps1 install --remote casai
   .\scripts\cli.ps1 status --remote
   .\scripts\cli.ps1 list
+  .\scripts\cli.ps1 scratch show
+  .\scripts\cli.ps1 scratch ls 3
 #>
 # Do not use [CmdletBinding()]/param() — bash-style --force/--remote must
 # reach the manual parser instead of PowerShell parameter binding.
@@ -115,6 +117,8 @@ Usage:
   .\scripts\cli.ps1 status
   .\scripts\cli.ps1 status --remote [conn...]
   .\scripts\cli.ps1 list                             # list sshub connections
+  .\scripts\cli.ps1 scratch show                     # screenshot folder for ify Nimages / Grok /image
+  .\scripts\cli.ps1 scratch ls [N]                   # last-N image paths (default 5)
 
 Options:
   --force       Always install, even if dest is newer
@@ -140,6 +144,16 @@ the remote user's home (~/.grok/skills, ~/.cursor/skills).
 A skill is installed when the destination is missing, or when any file under
 the repo skill is newer than the newest file under the installed skill.
 With --force, every skill is reinstalled regardless of mtimes.
+
+Scratch source (ify Nimages and Grok /image last-N images):
+  .\scripts\cli.ps1 scratch show                     # current source; unset is OK (skills use workspace scratch/)
+  .\scripts\cli.ps1 scratch set <path>
+  .\scripts\cli.ps1 scratch set --remote <conn> <dir>
+  .\scripts\cli.ps1 scratch search [--remote <conn>]
+  .\scripts\cli.ps1 scratch detect [--force]
+  .\scripts\cli.ps1 scratch ls [N]
+Config: %LOCALAPPDATA%\sva-skills\scratch.env
+Install detects the screenshot folder and writes that file if unset.
 '@
     Write-Out $text
 }
@@ -814,6 +828,21 @@ function Invoke-ForTargets {
     return $failures
 }
 
+# ── scratch source (detect / last-N) ──────────────────────────
+
+. (Join-Path $PSScriptRoot 'lib\scratch_resolve.ps1')
+# Show-ScratchSource / Write-ScratchUnsetState / Write-ScratchDieUnset live in that file.
+
+# scratch has its own --remote / --force; handle before installer flags.
+if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'scratch') {
+    $scratchRest = @()
+    if ($CliArgs.Count -gt 1) {
+        $scratchRest = @($CliArgs[1..($CliArgs.Count - 1)])
+    }
+    Invoke-ScratchCommand -ScratchArgs $scratchRest
+    exit 0
+}
+
 # ── arg parse (same rules as cli.sh) ──────────────────────────
 
 function Test-KnownTarget {
@@ -971,6 +1000,9 @@ switch ($Cmd) {
         if ($DryRun) {
             Write-Out '(dry-run: no files written)'
         }
+        elseif ($rc -eq 0) {
+            Invoke-ScratchInstallDetect
+        }
         exit $rc
     }
     'status' {
@@ -981,6 +1013,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, status, list, --help)"
+        Die "unknown command: $Cmd (try: install, status, list, scratch, --help)"
     }
 }

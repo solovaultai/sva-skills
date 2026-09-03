@@ -7,7 +7,7 @@ description: >
   Use when the user runs /askify, /promptify-ask (alias), "askify", "ask this prompt",
   "turn this into an ask prompt", or wants a prompt reworked for a question-answering
   run and the answer produced. Recognizes Nimages / N images / N-images as a
-  pointer to the newest N images in the workspace scratch/ folder. Recognizes
+  pointer to the newest N images from the configured scratch source (or workspace scratch/). Recognizes
   Npass / N-pass / N pass as a request to take N passes (pass 1 is a
   documented pre-plan when N > 1) before answering. Print a complete
   reference with `/askify help` or `/askify --help` (also `/?`).
@@ -47,24 +47,20 @@ When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
 `1 images`, `1-images`), that token is an **attachment marker**, not part of
 the task wording.
 
-The **N most recent image files** in workspace **`scratch/`** (`*.png`,
-`*.jpg`, `*.jpeg`, `*.webp`, `*.gif`, `*.bmp`; newest mtime first) provide
-extra visual detail for the issue under review. Resolve `scratch/` at the
-repo root (or the project's existing `scratch` dir — do not create one),
-**read** those N images (or all if fewer), list them in Validated Assets
-(or Missing Assets), and carry what they show into the Ask-Kickoff Prompt
-and the answer. Parse image/pass flags per promptify **Flag parse
-order** (first numbered instance left to right; skip unnumbered
-`image`/`pass` so a later `1image` / `2pass` can count).
+Follow promptify **Scratch images**: if `scratch.env` exists, run
+`scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
+**read those paths**. Else workspace `scratch/` (do not create). Parse
+image/pass flags per promptify **Flag parse order**. Carry what they show
+into the Ask-Kickoff Prompt and the answer.
 
 **Tell the user (mandatory, first printed content):** Print this so it is
-obvious the token was **caught and correctly interpreted**. Do not skip or
-bury it:
+obvious the token was **caught and correctly interpreted**. Name the
+source (`local …` or `remote conn:dir` or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 ## Multi-pass (`Npass`)
@@ -162,7 +158,7 @@ they said "askify this" / "ask this prompt" / "turn this into an ask prompt".
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) in `scratch/` for extra detail on the issue under review.
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
 
 **Npass — caught and correctly interpreted.**   ← when an Npass marker is present
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final answer.
@@ -237,7 +233,7 @@ after the table except an optional one-line next-step.
   what could not be determined.
 - Multi-phase questions: last printed content is the Trailing phase status table
   (done vs left). Do not emit a new implementation plan.
-- `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
+- `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
@@ -274,7 +270,7 @@ Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
 Promptify Flag parse order: first numbered instance left to right;
 skip unnumbered `image` / `pass`. Strip before Help vs task.
 
-**`Nimages`:** N newest `scratch/` images. Lead with the caught-and-
+**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`. Lead with the caught-and-
 interpreted ack. Carry what they show into the Ask-Kickoff Prompt and
 the answer.
 

@@ -75,7 +75,7 @@ Same parse order as promptify: first numbered instance left to
 right; skip unnumbered `image` / `pass`. Strip **before** deciding
 Help vs fromhere vs plan.
 
-**`Nimages`:** N newest images in `scratch/`. Attachment marker,
+**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`. Attachment marker,
 not task wording. Lead with the caught-and-interpreted ack. Carry
 what they show into the Planning-Kickoff Prompt and the plan.
 

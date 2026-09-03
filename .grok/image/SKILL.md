@@ -1,7 +1,8 @@
 ---
 name: image
 description: >
-  Attach the N most recent images from the workspace scratch/ folder and
+  Attach the N most recent images from the configured scratch source
+  (or workspace scratch/) and
   answer this request using them. Use when the user runs /image, /image 2,
   /image N, "2image", "Nimage", "N image", "N-image", "Nimages",
   "N images", "N-images", or wants scratch-folder images as extra detail
@@ -10,18 +11,19 @@ description: >
   (that is imagine / image_gen). Print a complete reference with
   `/image help` or `/image --help` (also `/?`).
 metadata:
-  short-description: "Read N newest scratch/ images and answer"
+  short-description: "Read N newest scratch-source images and answer"
 ---
 
 # /image — scratch attachments
 
-You **run** this skill. Attach the N newest images in workspace
-`scratch/` and **answer the user's actual question** using what they
-show. This is not promptify-only and not image generation.
+You **run** this skill. Attach the N newest images from the configured
+scratch source (or workspace `scratch/`) and **answer the user's actual
+question** using what they show. This is not promptify-only and not
+image generation.
 
 **Not imagine.** Do not call `image_gen` / `image_edit`. `/imagine` is
-a different skill (generate or edit). This skill only **reads** files
-already in `scratch/`.
+a different skill (generate or edit). This skill only **reads** existing
+image files.
 
 ## Help (`help` / `--help` / `/?`)
 
@@ -74,19 +76,30 @@ or `2image`.
 The numbered token (or `/image N`, or default N = 1) is an
 **attachment marker**, not part of the task wording.
 
-**Meaning:** the **N most recent image files** in the workspace
-**`scratch/`** folder provide extra visual detail for **this** request.
+**Meaning:** the **N most recent image files** from the configured
+scratch source (or workspace **`scratch/`** if unset) provide extra
+visual detail for **this** request.
 
 Do this:
 
-1. Resolve `scratch/` at the workspace / repo root. If it is missing,
-   look for the project's existing `scratch` directory. Do **not**
-   create one.
-2. List image files (`*.png`, `*.jpg`, `*.jpeg`, `*.webp`, `*.gif`,
-   `*.bmp`). Sort by newest mtime; take **N** (or all, if fewer than N).
+1. If the scratch source config exists, run the sva-skills resolver and
+   **read those paths**:
+   - Config: `~/.local/share/sva-skills/scratch.env` (Linux / Git Bash)
+     or `%LOCALAPPDATA%\sva-skills\scratch.env` (Windows PowerShell).
+     `scratch show` prints the file it used.
+   - Resolve: `scripts/cli.sh scratch ls N` or `scripts\cli.ps1 scratch ls N`
+     (from the sva-skills repo). Prints one absolute path per line (local
+     files, or a cache of the N newest remote files). Read those files.
+   - Mention the source in the ack (`local ~/Pictures/Screenshots` or
+     `remote cas3:scratch` — from `scratch show`).
+2. Else (no config, or the resolver prints nothing / fails): workspace
+   `scratch/` at the repo root (or the project's existing `scratch` dir).
+   Do **not** create one. List image files (`*.png`, `*.jpg`, `*.jpeg`,
+   `*.webp`, `*.gif`, `*.bmp`). Sort by newest mtime; take **N** (or all,
+   if fewer than N).
 3. **Read** those images. Use what they show as evidence for the
    question.
-4. If the folder or enough images are missing, still print the ack,
+4. If the source or enough images are missing, still print the ack,
    then say what was missing. Do not invent pixels.
 5. Restate the question **without** the marker; keep N and the file
    paths. Then **answer** that question.
@@ -95,11 +108,13 @@ Do this:
 marker is recognized (including default N = 1 on `/image`), print this
 acknowledgment so it is obvious the token was **caught and correctly
 interpreted**. Do not skip it. Do not bury it under later headings.
+Name the source (`local ~/Pictures/Screenshots`, `remote cas3:scratch`,
+or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on this request.
+image(s) from <source> for extra detail on this request.
 ```
 
 Use the exact token they wrote (`2image`, `2 images`, `2-images`, …)
@@ -109,7 +124,7 @@ or `/image N` when N came from the slash form. For bare `/image`
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `/image` as an attachment marker. Looking at the 1 most recent
-image in `scratch/` for extra detail on this request.
+image from <source> for extra detail on this request.
 ```
 
 Example: user wrote `2image` →
@@ -117,7 +132,7 @@ Example: user wrote `2image` →
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `2image` as an attachment marker. Looking at the 2 most recent
-images in `scratch/` for extra detail on this request.
+images from <source> for extra detail on this request.
 ```
 
 Example: user wrote `/image 2` →
@@ -125,7 +140,7 @@ Example: user wrote `/image 2` →
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `/image 2` as an attachment marker. Looking at the 2 most recent
-images in `scratch/` for extra detail on this request.
+images from <source> for extra detail on this request.
 ```
 
 ## Answer

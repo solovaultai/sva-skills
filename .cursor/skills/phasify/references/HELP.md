@@ -200,7 +200,7 @@ choosing a mode.
 - No numbered instance → that flag is absent
 - `-2pass` is a **pass** flag, not stop-before-end
 
-**`Nimages`:** read the N newest images in workspace `scratch/`
+**`Nimages`:** read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
 (`*.png` `*.jpg` `*.jpeg` `*.webp` `*.gif` `*.bmp`). Do not create
 `scratch/`. Acknowledge first when present.
 

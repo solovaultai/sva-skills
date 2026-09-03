@@ -10,7 +10,8 @@ Empty `/image` is default N = 1 (newest scratch image), not this page.
 
 ## What it does
 
-Attach the **N most recent images** in workspace `scratch/` and
+Attach the **N most recent images** from the configured scratch
+source (or workspace `scratch/` if unset) and
 **answer this request** using what they show.
 
 This skill **runs**. It is not promptify-only. It does **not** generate
@@ -61,21 +62,24 @@ text.
 
 ---
 
-## Scratch folder
+## Scratch source
 
-Resolve `scratch/` at the repo root (or the project's existing
-`scratch` dir). Do **not** create one.
+If `scratch.env` exists, run `scripts/cli.sh scratch ls N` (or
+`scripts\cli.ps1 scratch ls N`) and **read those paths**. Else
+resolve workspace `scratch/` at the repo root (or the project's
+existing `scratch` dir). Do **not** create one.
 
 Read the N newest `*.png` `*.jpg` `*.jpeg` `*.webp` `*.gif` `*.bmp`
-(newest mtime first). If the folder or enough images are missing,
-still print the ack, then say what was missing.
+(newest mtime first). If the source or enough images are missing,
+still print the ack, then say what was missing. Name the source
+(`local …` or `remote conn:dir` or workspace `scratch/`).
 
 **First printed content** when this skill runs:
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on this request.
+image(s) from <source> for extra detail on this request.
 ```
 
 `<token>` is what they wrote (`2image`, `2 images`, …) or `/image N`.

@@ -7,7 +7,7 @@ description: >
   /promptify-run, "runnify", or wants prompt QA plus immediate execution.
   Print a complete reference with `/runnify help` or `/runnify --help`
   (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the newest N
-  images in the workspace scratch/ folder.
+  images from the configured scratch source (or workspace scratch/).
 metadata:
   short-description: "Promptify + execute optimized prompt"
 ---
@@ -30,16 +30,18 @@ You are running **Promptify in Execution mode** (`/runnify`).
    (e.g. `1images`, `1 images`, `1-images`), follow promptify **Scratch
    images** and **Flag parse order**: use only the first numbered instance
    left to right (skip unnumbered "image" so a later `1image` counts).
-   The N newest images in workspace `scratch/` are extra visual detail —
-   find them, **read** them, and use what they show. Do not treat the
-   marker as part of the task wording.
+   Follow promptify **Scratch images**: if `scratch.env` exists, run
+   `scripts/cli.sh scratch ls N` (or `cli.ps1`) and **read those paths**;
+   else workspace `scratch/`. Do not treat the marker as part of the task
+   wording.
    **First printed content** must be the acknowledgment so the user sees the
-   marker was **caught and correctly interpreted**:
+   marker was **caught and correctly interpreted**. Name the source
+   (`local …` or `remote conn:dir` or workspace `scratch/`):
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 ## Help (`help` / `--help` / `/?`)
@@ -91,13 +93,14 @@ Follow promptify **Flag parse order**: first numbered instance left to
 right; skip unnumbered `image` / `pass`. Strip before deciding Help vs
 task. Not part of the task wording.
 
-**`Nimages`:** N newest images in workspace `scratch/`. Read them; use
-what they show. **First printed content** when present:
+**`Nimages`:** N newest images from the scratch source (`scratch ls N`)
+or workspace `scratch/`. Read them; use what they show. **First printed
+content** when present (name the source):
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
 Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) in `scratch/` for extra detail on the issue under review.
+image(s) from <source> for extra detail on the issue under review.
 ```
 
 **`Npass`:** inherited from promptify — N pipeline passes; pass 1 is a

@@ -13,6 +13,7 @@
 #   ./scripts/cli.sh install --local --remote         # local + all remotes
 #   ./scripts/cli.sh status [--remote [conn...]]
 #   ./scripts/cli.sh list                             # list sshub connections
+#   ./scripts/cli.sh scratch show|set|search|detect|ls
 #
 # Options:
 #   --force       Always install, even if dest is newer
@@ -67,6 +68,8 @@ Usage:
   ./scripts/cli.sh status
   ./scripts/cli.sh status --remote [conn...]
   ./scripts/cli.sh list                             # list sshub connections
+  ./scripts/cli.sh scratch show                     # screenshot folder for ify Nimages / Grok /image
+  ./scripts/cli.sh scratch ls [N]                   # last-N image paths (default 5)
 
 Options:
   --force       Always install, even if dest is newer
@@ -89,6 +92,16 @@ the same as sshub / sshot (e.g. casai, CASSADYAIFAP).
 A skill is installed when the destination is missing, or when any file under
 the repo skill is newer than the newest file under the installed skill.
 With --force, every skill is reinstalled regardless of mtimes.
+
+Scratch source (ify Nimages and Grok /image last-N images):
+  ./scripts/cli.sh scratch show                     # current source; unset is OK (skills use workspace scratch/)
+  ./scripts/cli.sh scratch set <path>
+  ./scripts/cli.sh scratch set --remote <conn> <dir>
+  ./scripts/cli.sh scratch search [--remote <conn>]
+  ./scripts/cli.sh scratch detect [--force]
+  ./scripts/cli.sh scratch ls [N]
+Config: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/scratch.env
+Install detects the screenshot folder and writes that file if unset.
 EOF
 }
 
@@ -666,6 +679,19 @@ run_for_targets() {
   return "$failures"
 }
 
+# ── scratch source (detect / last-N) ──────────────────────────
+
+# shellcheck source=lib/scratch_resolve.sh
+source "$ROOT/scripts/lib/scratch_resolve.sh"
+# scratch_cmd_show / scratch_print_unset_state / scratch_die_unset live in that file.
+
+# scratch has its own --remote / --force; handle before installer flags.
+if [[ "${1:-}" == "scratch" ]]; then
+  shift
+  scratch_cmd "$@"
+  exit $?
+fi
+
 # ── arg parse ─────────────────────────────────────────────────
 
 while [[ $# -gt 0 ]]; do
@@ -814,6 +840,8 @@ case "$CMD" in
     rc=$?
     if [[ "$DRY_RUN" -eq 1 ]]; then
       echo "(dry-run: no files written)"
+    elif [[ "$rc" -eq 0 ]]; then
+      scratch_install_detect
     fi
     exit "$rc"
     ;;
@@ -825,6 +853,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, status, list, --help)"
+    die "unknown command: $CMD (try: install, status, list, scratch, --help)"
     ;;
 esac

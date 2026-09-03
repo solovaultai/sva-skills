@@ -21,7 +21,7 @@ Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases not
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
 | **create-skill** | `/create-skill` | Interactively scaffold a new Grok skill (`SKILL.md` + optional scripts/references). |
 | **help** | `/help` (and related help asks) | Grok setup/docs: config, MCP, auth, skills, slash commands, keyboard shortcuts, onboarding. |
-| **image** | `/image`, `/image 2`, `2image` | Attach the N newest images in workspace `scratch/` and **answer** using them. `/image 2` and `2image` are the same (N = 2). Bare `/image` defaults to N = 1. Same parse as ify `Nimage` / `N images` / `N-images` (first numbered instance L→R; skip unnumbered "image"). `/image help` (also `--help`, `/?`) prints the reference. Does **not** generate images (that is **imagine**). |
+| **image** | `/image`, `/image 2`, `2image` | Attach the N newest images from the configured scratch source (or workspace `scratch/` if unset) and **answer** using them. `/image 2` and `2image` are the same (N = 2). Bare `/image` defaults to N = 1. Same parse as ify `Nimage` / `N images` / `N-images` (first numbered instance L→R; skip unnumbered "image"). `/image help` (also `--help`, `/?`) prints the reference. Does **not** generate images (that is **imagine**). |
 | **imagine** | (auto when image tools apply) | Guidance for Grok `image_gen` / `image_edit`: when to code vs generate, prompt craft, references, factual grounding. |
 
 **Promptify family (Grok):**
@@ -48,8 +48,8 @@ Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases not
 /debugify <bug report>    — full Debug Mode loop (default)
 /debugify help            — full debugify reference (also --help, /?)
 /debug-kickoff <bug>      — debug brief only (read-only)
-/image <question>         — newest scratch image (N = 1) + answer
-/image 2 <question>       — 2 newest scratch images + answer (same as 2image)
+/image <question>         — newest scratch-source image (N = 1) + answer
+/image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
 2image <question>         — same as /image 2 (also 2 images / 2-images)
 /image help               — full image reference (also --help, /?)
 ```
@@ -99,7 +99,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **debugify** | Full loop in-agent (`/debugify`) | Kickoff brief for product Debug Mode |
 | Debug prep only | `/debug-kickoff` | Same role as Cursor `/debugify` |
 | Grok-only utilities | `check-work`, `code-review`, `create-skill`, `help`, `image`, `imagine` | — |
-| Scratch images | `/image`, `/image 2`, `2image` (standalone) | `2image` / `Nimages` on ify skills |
+| Scratch images | `/image`, `/image 2`, `2image` (standalone); last-N via `scratch ls` | `2image` / `Nimages` on ify skills; last-N via `scratch ls` |
 
 Name collision: both trees ship a skill named `debugify` with **different behavior**. Prefer `/debug-kickoff` on Grok when you only want a brief; use Cursor Debug Mode after Cursor `/debugify`.
 
@@ -163,3 +163,52 @@ Remote skills land in the **remote user's** home:
 | `.cursor/skills/<skill>/` | `~/.cursor/skills/<skill>/` |
 
 A skill is copied when the destination is missing (first install) or when any file in the repo skill is newer than the newest file already installed. Unchanged or newer-on-disk skills are skipped unless you pass `--force`.
+
+Local `install` also detects the OS screenshot folder (if unset) and writes the scratch source config below.
+
+## Scratch source
+
+ify `Nimages` and Grok `/image` resolve last-N images from a persisted source. `install` detects the screenshot folder on this box and writes the config **only if it is missing**. `scratch detect --force` overwrites.
+
+**Config file** (`chmod 600`; `show` prints the path it used):
+
+| CLI | Path |
+|-----|------|
+| `cli.sh` (Linux / Git Bash) | `${XDG_DATA_HOME:-~/.local/share}/sva-skills/scratch.env` |
+| `cli.ps1` (Windows PowerShell) | `%LOCALAPPDATA%\sva-skills\scratch.env` |
+
+```bash
+# kind=local | remote
+SCRATCH_KIND=local
+SCRATCH_DIR=/home/ami/Pictures/Screenshots
+# remote only:
+# SCRATCH_KIND=remote
+# SCRATCH_CONN=cas3          # sshub name or alias
+# SCRATCH_REMOTE_DIR=scratch # bare → NAME_FOLDER (same as sshub)
+```
+
+```bash
+./scripts/cli.sh scratch show
+./scripts/cli.sh scratch set ~/Pictures/Screenshots
+./scripts/cli.sh scratch set --remote cas3 scratch
+./scripts/cli.sh scratch search
+./scripts/cli.sh scratch search --remote cas3
+./scripts/cli.sh scratch detect          # write only if unset
+./scripts/cli.sh scratch detect --force
+./scripts/cli.sh scratch ls              # last 5 paths (skills use this)
+./scripts/cli.sh scratch ls 3
+```
+
+```powershell
+.\scripts\cli.ps1 scratch show
+.\scripts\cli.ps1 scratch set $env:USERPROFILE\Pictures\Screenshots
+.\scripts\cli.ps1 scratch set --remote cas3 scratch
+.\scripts\cli.ps1 scratch search
+.\scripts\cli.ps1 scratch ls 3
+```
+
+Detect prefers a directory that **exists and has images** (`png/jpg/jpeg/webp/gif/bmp`): `$SCREENSHOT_DIR`, then Linux `xdg-user-dir PICTURES`/`Screenshots` or `~/Pictures/Screenshots` / `~/Pictures`, then Windows `Pictures\Screenshots` / OneDrive, then the first existing candidate (even if empty). If nothing is found, it leaves the file unset and tells you to `scratch search`.
+
+**Last-N:** `scratch ls N` prints absolute paths (default N = 5). Local: newest mtime in `SCRATCH_DIR`. Remote: `ssh` lists image mtimes in the resolved remote dir, then `scp` **only those N files** into `${XDG_CACHE_HOME:-~/.cache}/sva-skills/scratch/` (PowerShell: `%LOCALAPPDATA%\sva-skills\cache\scratch`) and prints the cache paths. Never `scp -r` the whole folder.
+
+Skills: if `scratch.env` exists, run `scratch ls N` and **read those paths**; else workspace `scratch/`. The ack names the source (`local ~/Pictures/Screenshots` or `remote cas3:scratch`).
