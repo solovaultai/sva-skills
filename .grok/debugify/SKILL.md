@@ -7,7 +7,8 @@ description: >
   /debugify, /debug (alias), "debug this", "debug this bug", "root-cause this",
   "why is this failing", "instrument and fix", or wants Cursor-style Debug Mode
   behavior inside Grok. Prefer this over /debug-kickoff unless they only want a
-  kickoff brief. Recognizes Nimages / N images / N-images as a pointer to the
+  kickoff brief. Print a complete reference with `/debugify help` or
+  `/debugify --help` (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the
   newest N images in the workspace scratch/ folder.
 metadata:
   short-description: "Debug Mode full loop — instrument, repro, fix, clean"
@@ -170,12 +171,21 @@ Only after a supported root cause:
 
 If verification fails: return to analyze/instrument — do not pile speculative fixes.
 
+## Help (`help` / `--help` / `/?`)
+
+Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
+body is exactly** `help`, `--help`, or `/?` (case-insensitive), print
+**User help** below and **stop**. Do not instrument, fix, or start the
+loop. Empty `/debugify` is the short usage, not Help. `help me debug …`
+is a **task**, not Help.
+
 ## No task body
 
 If there is no bug report after the command, explain:
 
 ```text
 /debugify <bug report>     — full Debug Mode loop (default): instrument → repro → fix → clean
+/debugify help             — full reference (also --help, /?)
 /debug <bug report>        — alias of /debugify
 /debug-kickoff <bug report>— read-only: hypotheses + kickoff brief only (no edits)
 /askify <prompt>           — coach then answer (read-only)
@@ -279,3 +289,95 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
+- Exact `help` / `--help` / `/?` after flag strip: print **User help**
+  and stop. Empty `/debugify` is short usage, not Help. `help me debug …`
+  is a task.
+
+## User help
+
+Print this section as the response on `help` / `--help` / `/?`.
+
+### What it does
+
+**Grok Debug Mode — full loop** (default). Runtime evidence loop, not
+a speculative-fix loop: hypothesize → instrument → repro → analyze →
+fix → verify → clean. Alias: `/debug`.
+
+For a read-only kickoff brief only, use `/debug-kickoff`.
+
+### How to invoke
+
+```text
+/debugify <bug report>      — full loop (default)
+/debugify help              — this reference (also --help / /?)
+/debug <bug report>         — alias of /debugify
+/debug-kickoff <bug report> — read-only brief (no edits)
+```
+
+Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
+`help me debug the login` is a task.
+
+### Flags (`Nimages`)
+
+Promptify Flag parse order: first numbered instance left to right;
+skip unnumbered `image` / `pass`. Strip before Help vs task.
+
+**`Nimages`:** N newest `scratch/` images as existing evidence during
+Phase 0. Lead with the caught-and-interpreted ack.
+
+### Loop (mandatory order)
+
+| Phase | Name | What happens |
+|-------|------|----------------|
+| 0 | Investigate | Symptom, expected vs actual, repro, suspects |
+| 1 | Hypotheses | 2–5 falsifiable claims before instrumenting |
+| 2 | Instrument | Temporary probes only — **no product fix** |
+| 3 | Reproduce | Agent-repro first; else pause for the user |
+| 4 | Analyze | Confirm / reject / inconclusive + root cause |
+| 5 | Fix | Only after evidence; minimal diff |
+| 6 | Verify + clean | Repro gone; **remove all probes** |
+
+**Hard gate:** do not change production logic until step 6 has
+runtime (or equivalent hard) evidence. Code reading alone is not
+enough. Stack traces, reproducing failing tests, and deterministic
+agent repro count.
+
+**Exception:** if the session already has hard evidence, you may skip
+new instrumentation (Investigate → Hypothesize → Analyze existing →
+Fix → Verify). State that skip; mark Phase 2 `Deferred`.
+
+### Instrument rules
+
+- Tag probes (`grok-debug`) so cleanup is trivial.
+- Log only what tests a hypothesis. Never log secrets / PII / huge
+  payloads.
+- Do not refactor or apply the suspected product fix while probing.
+
+### Reproduce
+
+Agent-repro first (test / CLI / curl). User-repro when UI / private
+env / hardware is required: stop mutating, give a numbered protocol,
+wait. Do not invent log lines.
+
+### Trailing phase table (mandatory)
+
+Always end with `## Phased plan` (Phase | Description | Status).
+Default rows: Investigate → Hypotheses → Instrument → Reproduce →
+Analyze → Fix → Verify + clean. Mark accurately; remaining work is
+`Left`. Flags first row if `Nimages` / `Npass` is present.
+
+When paused for user repro, say **Waiting for reproduction** (optional
+one-line after the table). Do not proceed to fix.
+
+### Hard rules (short)
+
+- Evidence before product fixes — no speculative fixes.
+- Instrument before fixing unless evidence is already sufficient.
+- Always clean up temporary probes after verify.
+- Never invent workspace resources. Redact secrets/PII.
+- Prefer minimal diffs; no unrelated refactors.
+- If `/debug-kickoff` was requested, do not run this full loop.
+- Trailing phase table is mandatory and last.
+- Exact `help` / `--help` / `/?` after flag strip: print this page;
+  do not start the loop.
+

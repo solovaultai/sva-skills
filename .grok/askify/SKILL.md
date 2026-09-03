@@ -9,7 +9,8 @@ description: >
   run and the answer produced. Recognizes Nimages / N images / N-images as a
   pointer to the newest N images in the workspace scratch/ folder. Recognizes
   Npass / N-pass / N pass as a request to take N passes (pass 1 is a
-  documented pre-plan when N > 1) before answering.
+  documented pre-plan when N > 1) before answering. Print a complete
+  reference with `/askify help` or `/askify --help` (also `/?`).
 metadata:
   short-description: "Promptify ask mode — optimize then answer read-only"
 ---
@@ -135,12 +136,20 @@ After optimize + scoring:
    promptify Trailing phase status table (completed vs left). Skip only for a
    true single-step question.
 
+## Help (`help` / `--help` / `/?`)
+
+Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
+body is exactly** `help`, `--help`, or `/?` (case-insensitive), print
+**User help** below and **stop**. Do not answer. Empty `/askify` is the
+short usage, not Help. `help me …` is a **task**, not Help.
+
 ## No task body
 
 If there is no task after the command, explain:
 
 ```text
 /askify <prompt>      — coach into an ask-kickoff prompt, then answer (read-only)
+/askify help          — full reference (also --help, /?)
 /plannify <prompt>    — coach then produce a plan
 /runnify <prompt>     — optimize then EXECUTE the work (mutating)
 /promptify <prompt>   — analyze/optimize only (no run)
@@ -235,3 +244,89 @@ after the table except an optional one-line next-step.
 - `Npass` / `N-pass` / `N pass`: take N passes (see **Multi-pass**). When
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the answer. Acknowledge the marker.
+- Exact `help` / `--help` / `/?` after flag strip: print **User help**
+  and stop. Empty `/askify` is short usage, not Help. `help me …` is a
+  task.
+
+## User help
+
+Print this section as the response on `help` / `--help` / `/?`.
+
+### What it does
+
+Promptify in **Ask** mode. Coach the request into an ask-kickoff
+prompt, then run it **read-only** and return a cited answer. Never
+implements and never emits a plan. Alias: `/promptify-ask`.
+
+### How to invoke
+
+```text
+/askify <prompt>       — coach, then answer (read-only)
+/askify help           — this reference (also --help / /?)
+/promptify-ask <prompt>— alias of /askify
+```
+
+Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
+`help me understand X` is a task.
+
+### Flags (`Nimages` / `Npass`)
+
+Promptify Flag parse order: first numbered instance left to right;
+skip unnumbered `image` / `pass`. Strip before Help vs task.
+
+**`Nimages`:** N newest `scratch/` images. Lead with the caught-and-
+interpreted ack. Carry what they show into the Ask-Kickoff Prompt and
+the answer.
+
+**`Npass`:** N passes before answering. If N > 1, pass 1 is
+`## Pre-plan (pass 1)` only — do **not** emit the final answer on
+pass 1. Last pass produces the Ask-Kickoff Prompt and the **Answer**.
+Acknowledge after the scratch ack when both appear.
+
+### Ask-Kickoff Prompt (required sections)
+
+Copy-pasteable. Must say **answer, do not implement or plan**.
+
+- Objective — answer/explain X using the workspace
+- Workspace Context — verified paths
+- Research Scope — what to read/search
+- Questions to Answer
+- Constraints
+- Deliverable — cited answer; multi-phase questions end with the
+  trailing phase table
+- Definition of Done
+
+### Ask pass (read-only)
+
+1. Run only the optimized Ask-Kickoff Prompt.
+2. **READ-ONLY** — no edits, commits, builds, deploys, or plan artifacts.
+3. Resolve ambiguities from the workspace; ask 1–2 questions only if
+   a blocking clarification remains.
+4. Produce `## Answer` with cited file paths.
+5. If the question is about (or continues) a multi-phase plan, end
+   with the promptify Trailing phase status table.
+
+### Trailing phase table
+
+Askify does **not** invent a plan. When the question is about an
+existing multi-phase plan, **or** `Nimages` / `Npass` is present,
+end with `## Phased plan`. Flags is the first row when either marker
+is present. Skip only for a true single-step question and no markers.
+
+### Response shape
+
+Scratch ack → Npass ack → Intent Analysis → Workspace Assessment →
+Pre-plan (Npass > 1 only) → Ask-Kickoff Prompt → Scores → Answer →
+Phased plan (when required).
+
+### Hard rules (short)
+
+- Never invent workspace resources.
+- Must not modify the system or emit a plan.
+- Kickoff prompt says “answer, do not implement or plan.”
+- Cite verified paths; keep depth proportional.
+- Low readiness / missing assets: say so; answer only what the
+  workspace supports.
+- Exact `help` / `--help` / `/?` after flag strip: print this page;
+  do not answer.
+

@@ -8,7 +8,8 @@ description: >-
   /runnify, /promptify-run (alias), "promptify", "runnify", "optimize this
   prompt", "rewrite this prompt for this workspace", "prompt QA", or wants a
   prompt improved against actual files/tools before (or while) executing it.
-  Recognizes Nimages / N images / N-images as a pointer to the newest N
+  Print a complete reference with `/promptify help` or `/promptify --help`
+  (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the newest N
   images in the workspace scratch/ folder. Recognizes Npass / N-pass /
   N pass as a request to take N pipeline passes (pass 1 is a documented
   pre-plan when N > 1).
@@ -32,10 +33,19 @@ Use only verified workspace information gathered with Cursor's read/search tools
 | `/runnify <prompt>` | **Execution** | **Yes** — after optimize, run the optimized prompt only |
 | `/promptify-run <prompt>` | **Execution (alias)** | Same as `/runnify` (legacy name) |
 
+## Help (`help` / `--help` / `/?`)
+
+Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
+body is exactly** `help`, `--help`, or `/?` (case-insensitive), **read
+and print** `references/HELP.md` (this skill folder) and **stop**. Do
+not run the pipeline. Empty `/promptify` is the short usage below, not
+Help. `help me …` is a **task**, not Help.
+
 If the user invokes the skill with no prompt body, explain:
 
 ```text
 /promptify <prompt>   — analyze, validate, enrich, rewrite (do not execute)
+/promptify help       — full reference (also --help, /?)
 /runnify <prompt>     — same, then execute the optimized prompt
 ```
 
@@ -439,3 +449,6 @@ Rules:
   When N > 1, pass 1 is a documented pre-plan only; later passes use that
   base; the last pass emits the final prompt / plan / answer. Acknowledge
   the marker so the user can see it was recognized.
+- Exact `help` / `--help` / `/?` after flag strip: print
+  `references/HELP.md` and stop. Empty `/promptify` is short usage, not
+  Help. `help me …` is a task.

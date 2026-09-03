@@ -4,12 +4,17 @@ description: >
   Plannify — Promptify planning mode / planning-prompt coach. Reworks any request
   into the ideal Grok prompt for kicking off a PLANNING agent run, then runs that
   optimized prompt read-only to produce a structured plan. Use when the user runs
-  /plannify, /promptify-plan (alias), "plannify", "plan this prompt", "turn this
-  into a planning prompt", or wants a prompt reworked for a planning/design run and
-  the plan produced. Recognizes Nimages / N images / N-images as a pointer to
-  the newest N images in the workspace scratch/ folder. Recognizes Npass /
-  N-pass / N pass as a request to take N passes (pass 1 is a documented
-  pre-plan when N > 1) before producing the plan.
+  /plannify, /promptify-plan (alias), /plannify fromhere (alias planify
+  fromhere), "plannify", "plan this prompt", "turn this into a planning
+  prompt", or wants a prompt reworked for a planning/design run and
+  the plan produced. `/plannify fromhere` replans from current phase
+  statuses (Keep new plan vs Continue original). Trailing tables may use
+  Status `Deferred` and an optional reason note. Recognizes Nimages /
+  N images / N-images as a pointer to the newest N images in the
+  workspace scratch/ folder. Recognizes Npass / N-pass / N pass as a
+  request to take N passes (pass 1 is a documented pre-plan when N > 1)
+  before producing the plan. Print a complete reference with
+  `/plannify help` or `/plannify --help` (also `/?`).
 metadata:
   short-description: "Promptify planning mode — optimize then plan read-only"
 ---
@@ -35,6 +40,8 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
    - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
 2. Force mode = **Planning** (`/plannify`), even if the user only said "plannify".
 3. Treat `/promptify-plan` as an alias of this skill.
+4. Treat `/plannify fromhere` and `planify fromhere` as **fromhere**
+   (see **`/plannify fromhere`**). Not a greenfield plan.
 
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch)
 with the two sections below.
@@ -84,6 +91,27 @@ both are present).
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
 passes 2–N use that base for the final plan.
 ```
+
+## `/plannify fromhere` (alias `planify fromhere`)
+
+Read-only replan from the **current** plan's statuses. Not a greenfield
+plan. If the task body is `fromhere` (or the user said `planify
+fromhere`), use this path — do not treat it as an empty `/plannify`.
+If no current plan exists, tell the user to `/plannify` first.
+
+1. Recover Task row text (original ify wording) and Flags (`Nimages` /
+   `Npass` or none). Same outcome as that Task; same flags.
+2. List phases already `Done` (landed) and `Deferred` (skip + reason).
+   Do not treat them as greenfield.
+3. Run the normal plannify pipeline (including Npass if the Flags row
+   has it; read scratch images if Nimages is set).
+4. Emit a **candidate** plan that keeps Done/Deferred constraints and
+   aims at the same Task.
+
+Then **AskQuestion**: Keep new plan vs Continue original. If it fits,
+show the two phased tables **side by side** (or stacked labeled Original /
+Candidate if width fails). The chosen plan becomes the current plan for
+later `/phasify`. Use `ask_user_question` for that Keep / Continue choice.
 
 ## Override step 3 — Planning-Kickoff Prompt
 
@@ -138,7 +166,8 @@ Required columns:
 |--------|---------|
 | **Phase** | Short id + title (e.g. `P0 — Spec`, `Phase 1 — API list/detail`) |
 | **Description** | One-line what ships / exit criteria (keep scannable) |
-| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Deferred` when known |
+| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Deferred` when known. Status `Deferred` is allowed on new plans for future-consideration slices. |
+| **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add a Reason note on that row so it matches phasify deferrals. |
 
 Example (last thing in the response):
 
@@ -161,6 +190,8 @@ Rules:
 - After the optional Flags row, one row per phase/todo the plan expects an executor to run.
 - Status defaults to **Not started** on a fresh plan unless the workspace already
   shows partial delivery (then mark accurately; remaining work is **Left**).
+  Status may be **`Deferred`** with an optional reason note so new plans can
+  mark future-consideration slices the same way.
 - Do not omit the table when the plan body already has a long phase section —
   the trailing table is the scannable index; the body may elaborate above it.
 - If the plan has no phases (rare: single-step), still emit a one-row table.
@@ -186,12 +217,26 @@ After optimize + scoring:
 6. **Always end the response** with the Trailing phase table (`## Phased plan` +
    markdown table: Phase | Description | Status). No substantive content after it.
 
+## Help (`help` / `--help` / `/?`)
+
+Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
+body is exactly** `help`, `--help`, or `/?` (case-insensitive), **read
+and print** `references/HELP.md` (this skill folder) and **stop**. Do
+not plan or replan. Empty `/plannify` is the short usage below, not
+Help. `fromhere` is a task body, not Help. `help me …` is a **task**,
+not Help.
+
 ## No task body
+
+`fromhere` / `planify fromhere` is a task body — follow **`/plannify
+fromhere`**, do not print Help.
 
 If there is no task after the command, explain:
 
 ```text
 /plannify <prompt>    — coach into a planning-kickoff prompt, then produce the plan
+/plannify fromhere    — replan from current statuses (Keep new vs Continue original)
+/plannify help        — full reference (also --help, /?)
 /askify <prompt>      — coach then answer (read-only)
 /promptify <prompt>   — analyze/optimize only (no run)
 /runnify <prompt>     — optimize then EXECUTE the work (mutating)
@@ -268,7 +313,13 @@ see Trailing phase table)
 - **Trailing phase table is mandatory:** end every plan with
   `## Phased plan` as a markdown table (Phase | Description | Status) so the
   user can read completed vs left-to-do without scrolling up. Default Status:
-  `Not started`.
+  `Not started`. Status `Deferred` and an optional reason note are allowed
+  so new plans can mark future-consideration slices the same way.
+- `/plannify fromhere` (alias `planify fromhere`): read-only replan from
+  current statuses. Same Task and Flags. Keep Done/Deferred constraints.
+  Then **AskQuestion**: Keep new plan vs Continue original. Side by side
+  (or stacked labeled Original / Candidate if width fails). The chosen
+  plan becomes current for later `/phasify`.
 - `Nimages` / `N images` / `N-images`: read the N newest images in `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
@@ -276,3 +327,6 @@ see Trailing phase table)
 - `Npass` / `N-pass` / `N pass`: take N passes (see **Multi-pass**). When
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the plan. Acknowledge the marker.
+- Exact `help` / `--help` / `/?` after flag strip: print
+  `references/HELP.md` and stop. Empty `/plannify` is short usage, not
+  Help. `fromhere` is not Help. `help me …` is a task.

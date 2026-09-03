@@ -4,8 +4,15 @@ description: >
   Phasify — execute phase(s) of an existing plannified plan. Run a named
   phase (`/phasify 0`, `/phasify p0`, "run phase p0"), the next incomplete
   phase (`/phasify` with no selector, `/phasify next`, "run next phase"),
-  or the next N phases sequentially (`/phasify 3`, "run next 3 phases").
-  Empty `/phasify` is Next (count = 1), not help. When phase(s)
+  the next N phases sequentially (`/phasify 3`, "run next 3 phases"),
+  remaining phases to the end (`/phasify done`, finish, end, all, close),
+  or stop before the last N work phases (`/phasify -`, `/phasify -0`,
+  `/phasify -N`). Defer a phase (`/phasify defer`, `Ndefer`, `defer N`
+  [reason]). Show the current table (`/phasify show`, `/phasify refresh`).
+  Empty `/phasify` is Next (count = 1), not help. Print the full
+  reference with `/phasify help` or `/phasify --help` (also `/?`).
+  Replan from current
+  statuses with `/plannify fromhere` (plannify skill). When phase(s)
   complete, put the user's original ify Task text
   (promptify / askify / runnify / plannify / debugify — verbatim user
   request, not generated plan text) in the Task row of the aligned
@@ -13,13 +20,18 @@ description: >
   both Nimages and Npass, one of them, or no Flags row. Not a separate
   box, not a spanning cell, not plannify's interpreted or projected text.
   Use when the user runs /phasify (no selector = next incomplete phase),
-  "phasify 0", "phasify next", "phasify 3", "run phase p0", "run next
-  phase", or "run next n phases". Recognizes Nimages / N images / N-images
-  (also Nimage / N image / N-image; e.g. 1image, 3images) as a pointer to
-  the newest N images in the workspace scratch/ folder. Recognizes Npass /
-  N-pass / N pass as a pass-count flag to record (not a phase selector).
+  "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
+  finish", "phasify end", "phasify all", "phasify close", "phasify -",
+  "phasify -2", "phasify defer", "phasify show", "phasify refresh",
+  "phasify help", "phasify --help", "run phase p0", "run next phase",
+  or "run next n phases". Recognizes
+  Nimages / N images / N-images (also Nimage / N image / N-image; e.g.
+  1image, 3images) as a pointer to the newest N images in the workspace
+  scratch/ folder. Recognizes Npass / N-pass / N pass as a pass-count
+  flag to record (not a phase selector). `-2pass` is a pass flag, not
+  stop-before-end.
 metadata:
-  short-description: "Execute named, next, or next-N plannify phases"
+  short-description: "Execute named, next, next-N, run-to-end, stop-before-end, defer, show, or help"
 ---
 
 # Phasify (= execute plannified phase(s))
@@ -76,6 +88,9 @@ in the table — see **Capture Task and Flags**.
 
 ## Invocation (parse after stripping image and pass tokens)
 
+Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
+`-2pass` is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
+
 | User text | Mode | What to run |
 |-----------|------|-------------|
 | (empty / no selector) | **Next** | The next incomplete phase (count = 1) |
@@ -83,6 +98,12 @@ in the table — see **Capture Task and Flags**.
 | `pN`, `phase N`, `phase pN`, `run phase pN` | **Named** | That specific phase (PN) |
 | `next`, `run next phase` | **Next** | The next incomplete phase (count = 1) |
 | `3`, `next 3`, `run next 3 phases` | **Next-N** | The next **N** incomplete phases, **N ≥ 1** |
+| `done` / `finish` / `end` / `all` / `close` | **Run-to-end** | Every remaining incomplete phase through the end of the plan |
+| `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
+| `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
+| `show` / `refresh` | **Show** | Print the current table (read-only; no implementation) |
+| `help` / `--help` / `/?` | **Help** | Print `references/HELP.md`; do not execute |
+| `/plannify fromhere` | **fromhere** | Replan from current statuses (plannify skill) |
 
 **Disambiguation (required):**
 
@@ -91,12 +112,95 @@ in the table — see **Capture Task and Flags**.
 - To run a specific phase that is not P0, require the **`p` / `phase` prefix**
   (`phasify p3`, `run phase 3`).
 - Empty `/phasify` (no selector) is **Next**, not help.
+- After stripping flags, if the remaining selector is exactly `help`,
+  `--help`, or `/?` (case-insensitive), that is **Help** — print
+  `references/HELP.md` and **stop**. Extra tokens after a help trigger
+  are ignored. Help is not a phase selector.
+- After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
+  **Stop-before-end**, not Next-N.
+- `-2pass` is a pass flag, not stop-before-end.
+- Bare `3` is still Next-3. New tokens must be words (`done`, `defer`) or a
+  **leading minus** (`-2`), never collide with `2pass`.
+- `done` / `finish` / `end` / `all` / `close` are case-insensitive
+  **Run-to-end** aliases.
 
 If there is no selector after `/phasify`, treat the empty invocation as
 **Next** mode (count = 1) — same as `next` / `run next phase`. Do not
 print a help/usage block. Strip image/pass tokens before this parse, so
 `/phasify 1image` is still Next + 1 image, and `/phasify` with nothing
 is Next.
+
+### Help (`help` / `--help` / `/?`)
+
+Strip image/pass tokens first. If the remaining selector is `help`,
+`--help`, or `/?` (case-insensitive), **read and print**
+`references/HELP.md` (this skill folder) and **stop**. Do not execute,
+defer, or show. Do not invent extra modes. Help is not a phase
+selector. Empty `/phasify` is **Next**, not Help.
+
+**Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end are
+**execute** modes (mutating). **Defer** updates status only (no
+implementation). **Show** and **Help** are read-only (no implementation).
+Handle Defer, Show, and Help without entering Execute.
+
+### Run-to-end
+
+One mode. Aliases (case-insensitive): `done`, `finish`, `end`, `all`, `close`.
+
+Run every remaining incomplete phase through the end of the plan. Last
+executed phase of the plan gets the full recap.
+
+### Stop-before-end (`-N`)
+
+After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
+**Stop-before-end**, not Next-N.
+
+Let `C` = work-phase count (not Task/Flags). 1-based index `i` maps to
+`P(i-1)` (so phase 1 = P0).
+
+- Last **included** 1-based index = `C - N`
+- Do not run 1-based phases `> C - N`
+- **`N = 0` or bare `-`:** treat as **`N = 1`** (run all but the last phase)
+
+Examples:
+
+- 3 phases (P0–P2), `-` / `-0` / `-1`: run 1 and 2 (P0, P1); leave P2
+- 6 phases (P0–P5), `-2`: `C - N = 4` → run through P3; do not run P4 or P5 (“up to but not including” 1-based phase 5)
+
+If every remaining incomplete phase is past that cutoff, print the table
+and say there is nothing to run. Still skip Deferred/Done inside the
+allowed window.
+
+### Defer
+
+Non-executing. Update the current plan’s status and keep the reason on
+that row.
+
+| Text | Effect |
+|------|--------|
+| `defer` | Defer the **next open** phase (same “next incomplete” rule). If none, say so — do not invent a target. |
+| `Ndefer` / `pN defer` / `defer N` / `defer pN` | Defer that **table id** (`0`/`p0` = P0). |
+
+Invalid id (not a number, negative, higher than last phase, unknown id):
+**do not defer**. Print a clear **Error:** line (red via HTML
+`<span style="color:red">` when the client will render it; otherwise
+bold `Error:`).
+
+Optional reason: remainder of the line after the defer token
+(`defer API freeze` / `2defer waiting on legal`). Store on the phase
+permanently for this plan (reprint on every recap/show). Empty reason
+is allowed.
+
+Future execute modes **skip** `Deferred` unless the user explicitly
+says to run that phase (`pN`, `redo`, `--force`).
+
+### Show / refresh
+
+Aliases: `show`, `refresh`. **Read-only.** No implementation.
+
+Print the current aligned table (Task, Flags if present, all phase
+statuses). Include Reason if any deferral has one. If no plan, tell the
+user to `/plannify` first.
 
 ---
 
@@ -174,6 +278,10 @@ This row is not a work phase.
 `Blocked`, try it only if this run can unblock it, otherwise skip and say
 so).
 
+Skip `Done` and `Deferred` unless `--force` / explicit redo. Named `pN`
+is an explicit request to run that phase (even if Deferred). Stop the
+sequence on `Blocked`.
+
 If the named phase does not exist, stop and list the real phase ids.
 If **Next-N** asks for more phases than remain, run the remainder and say
 the shortfall.
@@ -184,19 +292,26 @@ If the named phase is already `Done`, do not redo it unless the user said
 
 ## Execute (mutating, phase-scoped)
 
+All multi-phase execute modes stay **sequential, synchronous, in plan
+order**. No parallel/fan-out. Skip `Done` and `Deferred` unless
+`--force` / explicit redo. Stop the sequence on `Blocked`. Between
+phases, re-read Task + Flags and confirm the next phase still serves
+that goal; if not, stop and say why.
+
 1. Validate the selected phase(s) against the real workspace (`read_file` /
    `grep` / `list_dir`).
 2. **Execute only** that phase's exit criteria — implement, edit, test as
    needed. Do not start later phases. Do not reopen earlier `Done` work
    except to fix a blocker this phase depends on.
-3. **Synchronous Next-N (mandatory):** finish phase x **completely**
+3. **Synchronous multi-phase (mandatory):** finish phase x **completely**
    (work landed or explicitly Blocked) **before** phase x+1 begins.
    Do **not** run phases in parallel, as background agents, or as a batch
-   of simultaneous todos. No async fan-out.
+   of simultaneous todos. No async fan-out. Applies to Next-N,
+   Run-to-end, and Stop-before-end.
 4. Mark status accurately: `Done` only if the work **landed**; else
    `In progress`, `Blocked`, or leave as `Left`. Remaining unstarted work
    after a partial run is **`Left`**.
-5. If a phase is **Blocked**, stop the Next-N sequence. Do not start x+1.
+5. If a phase is **Blocked**, stop the sequence. Do not start x+1.
 
 Use scratch images (when marked) as extra detail while implementing.
 
@@ -205,8 +320,8 @@ Use scratch images (when marked) as extra detail while implementing.
 ## Phase COMPLETED banner (obvious)
 
 After each phase that **finishes** (Done or Blocked), print a single-line
-box **before** starting the next phase (and before the progress table).
-Pad so every banner line is the same width:
+box **before** starting the next phase. Pad so every banner line is the
+same width:
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
@@ -222,10 +337,16 @@ Use `✓` and `COMPLETED` for Done. If Blocked:
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Then print the **aligned Phased plan table** (next section). That table
-is the between-phase output on Next-N and the closing recap after the
-last phase. For a single-phase run (`0` / `pN` / `next` / empty), still print
-the banner, then the table.
+**Between-phase vs last-of-run:**
+
+- After every finished phase **except the last phase of this run:**
+  COMPLETED/BLOCKED banner only (no full table).
+- After the **last phase of this run:** banner + full `phase_layout.txt`
+  recap (Task, Flags if any, statuses).
+
+Apply this to Next-N, Run-to-end, and Stop-before-end. Single-phase Next
+stays banner + table. Named single-phase (`0` / `pN`) also stays banner +
+table.
 
 ---
 
@@ -285,14 +406,25 @@ content after the leading space). Word-wrap; never overflow a cell.
 Row separators always keep three columns (`┼` / `┬` / `┴`). Never
 collapse a separator across the full table width.
 
+### Reason column (`show` / recap)
+
+If any phase has a stored reason, add a **Reason** column on
+`show`/`refresh` only (keep the 3-column execute recap unless a reason
+exists — then include Reason so it is retrievable quickly). Reprint the
+stored reason on every recap/show. Omit the column entirely if no phase
+has a reason. Align with box-drawing; not a markdown table. 3-column
+lines stay exactly 89 characters (`phase_layout.txt`); when Reason is
+present, keep every line the same width.
+
 ### Row order
 
-1. Column titles: `Phase` / `Description` / `Status`
+1. Column titles: `Phase` / `Description` / `Status` (and **Reason** when
+   any phase has a stored reason)
 2. **Task** — verbatim original ify Task text (promptify / askify /
    runnify / plannify / debugify). No generated plan text. See **Capture
    Task and Flags**.
 3. **Flags** — both flags, one flag, or omit the row (neither present)
-4. Work phases in order, current statuses
+4. Work phases in order, current statuses (Reason on that row when stored)
 
 ### Status words (must fit in 12 with the leading space)
 
@@ -344,16 +476,20 @@ when widths drift.
 
 ## Closing recap (mandatory when the run's phase(s) complete)
 
-After the last banner, print **only** `## Phased plan` plus the aligned
-table (last section; promptify trailing-table rule). Nothing after the
-table except an optional one-line next-step (e.g. `/phasify next`).
+After the last banner of this run, print **only** `## Phased plan` plus
+the aligned table (last section; promptify trailing-table rule). Nothing
+after the table except an optional one-line next-step (e.g.
+`/phasify next`). Mid-run phases get the banner only — not this recap.
+Include Reason if any phase has a stored reason.
 
 ---
 
 ## Response shape
 
 Empty `/phasify` and `next` use the single-phase path (one phase, then
-the table). Next-N adds later phases after each prior phase finishes.
+the table). Next-N / Run-to-end / Stop-before-end add later phases after
+each prior phase finishes. Mid-run: banner only. Last-of-run: banner +
+full table.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, if marker present
@@ -364,37 +500,57 @@ the table). Next-N adds later phases after each prior phase finishes.
 ┌──────────────────────────────────────────────────────────────┐
 │  ✓  PHASE P0 — Spec   COMPLETED                              │
 └──────────────────────────────────────────────────────────────┘
-
-## Phased plan
-(aligned 89-column table — between phases on Next-N)
+(banner only — not the last phase of this run)
 
 ## Phase P1 — API
-(only if Next-N included it; after P0 fully finished)
+(only if this run included it; after P0 fully finished)
 
 ┌──────────────────────────────────────────────────────────────┐
 │  ✓  PHASE P1 — API   COMPLETED                               │
 └──────────────────────────────────────────────────────────────┘
 
 ## Phased plan
-(same aligned table, updated statuses — last printed section)
+(aligned table — last phase of this run only; last printed section)
 ```
+
+`show` / `refresh` print only the table (plus Reason if any deferral has
+one). `defer` prints **Error:** on invalid id, otherwise the updated
+table. `help` / `--help` / `/?` print `references/HELP.md` only.
 
 ---
 
 ## Hard rules
 
 - Execute only the selected phase(s). Do not re-plan the whole project.
+  Use `/plannify fromhere` (plannify skill) to replan from current
+  statuses.
 - Empty `/phasify` (no selector after stripping image/pass tokens) is
   **Next** (count = 1), same as `next`. Never print help/usage for an
-  empty invocation.
-- Next-N is **synchronous**: x finishes, then x+1 begins.
+  empty invocation. After flag strip, `help` / `--help` / `/?` prints
+  `references/HELP.md` and stops — do not execute.
+- All multi-phase execute modes are **sequential, synchronous, in plan
+  order**. No parallel/fan-out. Next-N, Run-to-end, and Stop-before-end:
+  x finishes, then x+1 begins.
+- Skip `Done` and `Deferred` unless `--force` / explicit redo / named
+  `pN`. Stop the sequence on `Blocked`.
+- After every finished phase except the last of this run: banner only.
+  After the last phase of this run: banner + full table. Single-phase
+  Next stays banner + table.
+- `-` / `-0` / `-N` is **Stop-before-end** (`C - N`). `-2pass` is a pass
+  flag, not stop-before-end. Bare `3` is still Next-3.
+- Invalid defer id: **do not defer**. Print a clear **Error:** line
+  (red via HTML `<span style="color:red">` when the client will render
+  it; otherwise bold `Error:`).
+- `show` / `refresh` are read-only. No implementation.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
 - Last printed section is the **Phased plan** table in the
-  `phase_layout.txt` layout. Original ify Task text is the **Task** row
-  (three columns, wrapped) — never a separate box, never a spanning
-  cell, never generated plan text. Flags are both / one / none per
-  **Capture Task and Flags**.
-- Every table line is exactly 89 characters with `│` at 0, 16, 75, 88.
+  `phase_layout.txt` layout (execute recap / show). Original ify Task
+  text is the **Task** row (three columns, wrapped) — never a separate
+  box, never a spanning cell, never generated plan text. Flags are
+  both / one / none per **Capture Task and Flags**. Include **Reason**
+  when any phase has a stored reason.
+- Every 3-column table line is exactly 89 characters with `│` at 0, 16,
+  75, 88.
 - Image and pass markers are not phase selectors; acknowledge them first
   when present. Parse per promptify Flag parse order.
