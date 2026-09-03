@@ -3,15 +3,16 @@ name: phasify
 description: >
   Phasify — execute phase(s) of an existing plannified plan. Run a named
   phase (`/phasify 0`, `/phasify p0`, "run phase p0"), the next incomplete
-  phase (`/phasify next`, "run next phase"), or the next N phases
-  sequentially (`/phasify 3`, "run next 3 phases"). When phase(s)
+  phase (`/phasify` with no selector, `/phasify next`, "run next phase"),
+  or the next N phases sequentially (`/phasify 3`, "run next 3 phases").
+  Empty `/phasify` is Next (count = 1), not help. When phase(s)
   complete, put the user's original ify Task text
   (promptify / askify / runnify / plannify / debugify — verbatim user
   request, not generated plan text) in the Task row of the aligned
   phased-plan table (docs/phase_layout.txt). Capture Flags as specified:
   both Nimages and Npass, one of them, or no Flags row. Not a separate
   box, not a spanning cell, not plannify's interpreted or projected text.
-  Use when the user runs /phasify,
+  Use when the user runs /phasify (no selector = next incomplete phase),
   "phasify 0", "phasify next", "phasify 3", "run phase p0", "run next
   phase", or "run next n phases". Recognizes Nimages / N images / N-images
   (also Nimage / N image / N-image; e.g. 1image, 3images) as a pointer to
@@ -61,7 +62,8 @@ image(s) in `scratch/` for extra detail on the issue under review.
 
 Do not skip or bury this. Strip **image and pass** tokens **before**
 parsing the phasify mode so `phasify 3 2images` means **next 3 phases** +
-2 scratch images, not phase 2, and `2pass` is never a phase count.
+2 scratch images, not phase 2; `/phasify 1image` is **Next** + 1 image;
+empty `/phasify` is **Next**; and `2pass` is never a phase count.
 
 When **`Npass`** / **`N-pass`** / **`N pass`** is present (same Flag parse
 order), it is a **pass-count flag** to record in the Flags row — not a
@@ -76,6 +78,7 @@ in the table — see **Capture Task and Flags**.
 
 | User text | Mode | What to run |
 |-----------|------|-------------|
+| (empty / no selector) | **Next** | The next incomplete phase (count = 1) |
 | `0`, `p0`, `phase 0`, `phase p0`, `run phase p0` | **Named** | That specific phase (P0) |
 | `pN`, `phase N`, `phase pN`, `run phase pN` | **Named** | That specific phase (PN) |
 | `next`, `run next phase` | **Next** | The next incomplete phase (count = 1) |
@@ -87,18 +90,13 @@ in the table — see **Capture Task and Flags**.
 - Bare integer **N ≥ 1** is **next N phases** (`phasify 3` = next 3, not P3).
 - To run a specific phase that is not P0, require the **`p` / `phase` prefix**
   (`phasify p3`, `run phase 3`).
+- Empty `/phasify` (no selector) is **Next**, not help.
 
-If there is no selector after `/phasify`, explain:
-
-```text
-/phasify 0              — run phase P0
-/phasify p2             — run named phase P2
-/phasify next           — run the next incomplete phase
-/phasify 3              — run the next 3 phases, one after another (sync)
-/phasify next 1image    — next phase + newest scratch image
-/plannify <prompt>      — produce a plan (does not execute)
-/runnify <prompt>       — execute a prompt (not phase-scoped)
-```
+If there is no selector after `/phasify`, treat the empty invocation as
+**Next** mode (count = 1) — same as `next` / `run next phase`. Do not
+print a help/usage block. Strip image/pass tokens before this parse, so
+`/phasify 1image` is still Next + 1 image, and `/phasify` with nothing
+is Next.
 
 ---
 
@@ -226,7 +224,7 @@ Use `✓` and `COMPLETED` for Done. If Blocked:
 
 Then print the **aligned Phased plan table** (next section). That table
 is the between-phase output on Next-N and the closing recap after the
-last phase. For a single-phase run (`0` / `pN` / `next`), still print
+last phase. For a single-phase run (`0` / `pN` / `next` / empty), still print
 the banner, then the table.
 
 ---
@@ -354,6 +352,9 @@ table except an optional one-line next-step (e.g. `/phasify next`).
 
 ## Response shape
 
+Empty `/phasify` and `next` use the single-phase path (one phase, then
+the table). Next-N adds later phases after each prior phase finishes.
+
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, if marker present
 
@@ -383,6 +384,9 @@ table except an optional one-line next-step (e.g. `/phasify next`).
 ## Hard rules
 
 - Execute only the selected phase(s). Do not re-plan the whole project.
+- Empty `/phasify` (no selector after stripping image/pass tokens) is
+  **Next** (count = 1), same as `next`. Never print help/usage for an
+  empty invocation.
 - Next-N is **synchronous**: x finishes, then x+1 begins.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
