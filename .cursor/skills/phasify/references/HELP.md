@@ -1,7 +1,7 @@
 # Phasify — user reference
 
 Print this file as the response when the user runs `/phasify help`,
-`/phasify --help`, or `/phasify /?`. Do not execute, defer, or show.
+`/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer, or show.
 
 Empty `/phasify` is **Next**, not this page.
 
@@ -29,6 +29,7 @@ Need a new plan from current statuses? Use **`/plannify fromhere`**
 /phasify done            — Run-to-end (also finish / end / all / close)
 /phasify -               — Stop-before-end (also -0 / -N)
 /phasify defer [reason]  — Defer next open phase (also Ndefer / defer N)
+/phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
 ```
@@ -50,13 +51,14 @@ pass flag, not stop-before-end. Help is **not** a phase selector.
 | `done` / `finish` / `end` / `all` / `close` | **Run-to-end** | Yes — every remaining incomplete phase |
 | `-` / `-0` / `-N` | **Stop-before-end** | Yes — through 1-based index `C − N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | No — status only |
+| `undefer`, `Nundefer`, `undefer N` | **Undefer** | No — status only (`Left`) |
 | `show` / `refresh` | **Show** | No — print table only |
 | `help` / `--help` / `/?` | **Help** | No — print this reference |
 | `/plannify fromhere` | **fromhere** | Replan (plannify skill, not phasify) |
 
 **Execute modes** (mutating): Named · Next · Next-N · Run-to-end ·
-Stop-before-end. **Defer** updates status only. **Show** and **Help**
-are read-only.
+Stop-before-end. **Defer** and **Undefer** update status only. **Show**
+and **Help** are read-only.
 
 ---
 
@@ -73,8 +75,9 @@ are read-only.
 | `help` / `--help` / `/?` after flag strip | **Help**, do not execute |
 | `done` / `finish` / `end` / `all` / `close` | Run-to-end (case-insensitive) |
 
-New tokens are words (`done`, `defer`) or a **leading minus** (`-2`),
-never something that collides with `2pass`.
+New tokens are words (`done`, `defer`, `undefer`) or a **leading minus**
+(`-2`), never something that collides with `2pass`. Match `undefer` /
+`Nundefer` as **Undefer**, not Defer.
 
 ---
 
@@ -167,6 +170,37 @@ runs that phase (`pN`, `redo`, `--force`).
 /phasify defer API freeze
 /phasify 2defer waiting on legal
 /phasify defer p1
+```
+
+---
+
+## Undefer
+
+Non-executing. Inverse of Defer. Clears `Deferred` so Next / Next-N /
+done will pick the phase up again. Parse after stripping `Nimages` /
+`Npass`. Match `undefer` / `Nundefer` as this mode — not `defer` /
+`Ndefer`.
+
+| Text | Effect |
+|------|--------|
+| `undefer` | Undefer the **next Deferred** phase in plan order (first status `Deferred`). If none, say so — do not invent a target. |
+| `Nundefer` / `pN undefer` / `undefer N` / `undefer pN` | Undefer that table id (`0` / `p0` = P0) |
+
+If that phase is not `Deferred`: **do not change it**. Print **Error:**
+(same red/bold style as invalid defer).
+
+Invalid id (not a number, negative, past last phase, unknown): **do not
+undefer**. Print the same **Error:** style as invalid defer.
+
+After success: set Status to `Left`. **Clear** the stored Reason so
+`show` no longer lists it as deferred-with-reason. Print the updated
+table (show-style). Do not execute the phase.
+
+```text
+/phasify undefer
+/phasify 2undefer
+/phasify undefer p1
+/phasify p1 undefer
 ```
 
 ---
@@ -313,8 +347,8 @@ line the same width.
 Closing recap: after the last banner of this run, print only
 `## Phased plan` plus the aligned table (last section). Optional
 one-line next-step (e.g. `/phasify next`). `show` prints only the
-table. `defer` prints **Error:** on invalid id, otherwise the updated
-table.
+table. `defer` and `undefer` print **Error:** on invalid id (or undefer
+of a non-Deferred phase), otherwise the updated table.
 
 ---
 
@@ -336,6 +370,10 @@ is the **plannify** skill. Phasify does not replan.
 - Mid-run: banner only. Last-of-run: banner + full table.
 - `-` / `-0` / `-N` is Stop-before-end. `-2pass` is a pass flag.
 - Invalid defer id: do not defer; print **Error:**.
+- Invalid undefer id, or undefer of a non-Deferred phase: do not change
+  it; print **Error:**. Bare `undefer` with no Deferred phase: say so.
+  Success: Status `Left`, clear Reason, print the table; do not execute.
+  Parse `undefer` / `Nundefer` as Undefer, not Defer.
 - `show` / `refresh` are read-only.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.

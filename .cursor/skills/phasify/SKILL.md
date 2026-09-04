@@ -8,7 +8,8 @@ description: >-
   remaining phases to the end (`/phasify done`, finish, end, all, close),
   or stop before the last N work phases (`/phasify -`, `/phasify -0`,
   `/phasify -N`). Defer a phase (`/phasify defer`, `Ndefer`, `defer N`
-  [reason]). Show the current table (`/phasify show`, `/phasify refresh`).
+  [reason]). Undefer a phase (`/phasify undefer`, `Nundefer`,
+  `undefer N`). Show the current table (`/phasify show`, `/phasify refresh`).
   Empty `/phasify` is Next (count = 1), not help. Print the full
   reference with `/phasify help` or `/phasify --help` (also `/?`).
   Replan from current
@@ -22,8 +23,9 @@ description: >-
   Use when the user runs /phasify (no selector = next incomplete phase),
   "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
   finish", "phasify end", "phasify all", "phasify close", "phasify -",
-  "phasify -2", "phasify defer", "phasify show", "phasify refresh",
-  "phasify help", "phasify --help", "run phase p0", "run next phase",
+  "phasify -2", "phasify defer", "phasify undefer", "phasify show",
+  "phasify refresh", "phasify help", "phasify --help", "run phase p0",
+  "run next phase",
   or "run next n phases". Recognizes
   Nimages / N images / N-images (also Nimage / N image / N-image; e.g.
   1image, 3images) as a pointer to the newest N images from the
@@ -97,6 +99,7 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
 | `done` / `finish` / `end` / `all` / `close` | **Run-to-end** | Every remaining incomplete phase through the end of the plan |
 | `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
+| `undefer`, `Nundefer`, `undefer N` | **Undefer** | Clear Deferred → `Left`; do not execute |
 | `show` / `refresh` | **Show** | Print the current table (read-only; no implementation) |
 | `help` / `--help` / `/?` | **Help** | Print `references/HELP.md`; do not execute |
 | `/plannify fromhere` | **fromhere** | Replan from current statuses (plannify skill) |
@@ -115,8 +118,10 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
 - After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
-- Bare `3` is still Next-3. New tokens must be words (`done`, `defer`) or a
-  **leading minus** (`-2`), never collide with `2pass`.
+- Bare `3` is still Next-3. New tokens must be words (`done`, `defer`,
+  `undefer`) or a **leading minus** (`-2`), never collide with `2pass`.
+- Match **`undefer` / `Nundefer`** as **Undefer**, not Defer. Do not treat
+  the suffix `defer` inside `undefer` as Defer.
 - `done` / `finish` / `end` / `all` / `close` are case-insensitive
   **Run-to-end** aliases.
 
@@ -131,13 +136,14 @@ is Next.
 Strip image/pass tokens first. If the remaining selector is `help`,
 `--help`, or `/?` (case-insensitive), **read and print**
 `references/HELP.md` (this skill folder) and **stop**. Do not execute,
-defer, or show. Do not invent extra modes. Help is not a phase
+defer, undefer, or show. Do not invent extra modes. Help is not a phase
 selector. Empty `/phasify` is **Next**, not Help.
 
 **Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end are
-**execute** modes (mutating). **Defer** updates status only (no
-implementation). **Show** and **Help** are read-only (no implementation).
-Handle Defer, Show, and Help without entering Execute.
+**execute** modes (mutating). **Defer** and **Undefer** update status only
+(no implementation). **Show** and **Help** are read-only (no
+implementation). Handle Defer, Undefer, Show, and Help without entering
+Execute.
 
 ### Run-to-end
 
@@ -189,6 +195,28 @@ is allowed.
 
 Future execute modes **skip** `Deferred` unless the user explicitly
 says to run that phase (`pN`, `redo`, `--force`).
+
+### Undefer
+
+Non-executing. Inverse of Defer. Clear `Deferred` so Next / Next-N /
+done will pick the phase up again. Parse after stripping `Nimages` /
+`Npass`. Match `undefer` / `Nundefer` as this mode — do **not** treat
+them as `defer` / `Ndefer`.
+
+| Text | Effect |
+|------|--------|
+| `undefer` | Undefer the **next Deferred** phase in plan order (first status `Deferred`). If none, say so — do not invent a target. |
+| `Nundefer` / `pN undefer` / `undefer N` / `undefer pN` | Undefer that **table id** (`0`/`p0` = P0). |
+
+If that phase is not `Deferred`: **do not change it**. Print a clear
+**Error:** line (same red/bold style as invalid defer).
+
+Invalid id (not a number, negative, higher than last phase, unknown id):
+**do not undefer**. Print the same **Error:** style as invalid defer.
+
+After success: set Status to `Left`. **Clear** the stored Reason so
+`show` no longer lists it as deferred-with-reason. Print the updated
+table (show-style). Do not execute the phase.
 
 ### Show / refresh
 
@@ -509,8 +537,9 @@ full table.
 ```
 
 `show` / `refresh` print only the table (plus Reason if any deferral has
-one). `defer` prints **Error:** on invalid id, otherwise the updated
-table. `help` / `--help` / `/?` print `references/HELP.md` only.
+one). `defer` and `undefer` print **Error:** on invalid id (or undefer
+of a non-Deferred phase), otherwise the updated table. `help` /
+`--help` / `/?` print `references/HELP.md` only.
 
 ---
 
@@ -536,6 +565,11 @@ table. `help` / `--help` / `/?` print `references/HELP.md` only.
 - Invalid defer id: **do not defer**. Print a clear **Error:** line
   (red via HTML `<span style="color:red">` when the client will render
   it; otherwise bold `Error:`).
+- Invalid undefer id, or undefer of a phase that is not `Deferred`:
+  **do not change it**. Print the same **Error:** style. Bare `undefer`
+  with no Deferred phase: say so — do not invent a target. Success:
+  Status `Left`, clear Reason, print the table; do not execute. Parse
+  `undefer` / `Nundefer` as Undefer, not Defer.
 - `show` / `refresh` are read-only. No implementation.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
