@@ -5,7 +5,8 @@ description: >
   phase (`/phasify 0`, `/phasify p0`, "run phase p0"), the next incomplete
   phase (`/phasify` with no selector, `/phasify next`, "run next phase"),
   the next N phases sequentially (`/phasify 3`, "run next 3 phases"),
-  remaining phases to the end (`/phasify done`, finish, end, all, close),
+  remaining phases to the end (`/phasify done`, finish, end, all, close,
+  toend, to-end, to end),
   or stop before the last N work phases (`/phasify -`, `/phasify -0`,
   `/phasify -N`). Defer a phase (`/phasify defer`, `Ndefer`, `defer N`
   [reason]). Undefer a phase (`/phasify undefer`, `Nundefer`,
@@ -23,7 +24,8 @@ description: >
   box, not a spanning cell, not plannify's interpreted or projected text.
   Use when the user runs /phasify (no selector = next incomplete phase),
   "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
-  finish", "phasify end", "phasify all", "phasify close", "phasify -",
+  finish", "phasify end", "phasify all", "phasify close", "phasify
+  toend", "phasify to-end", "phasify to end", "phasify -",
   "phasify -2", "phasify defer", "phasify undefer", "phasify show",
   "phasify refresh", "phasify help", "phasify --help", "run phase p0",
   "run next phase",
@@ -99,7 +101,7 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
 | `pN`, `phase N`, `phase pN`, `run phase pN` | **Named** | That specific phase (PN) |
 | `next`, `run next phase` | **Next** | The next incomplete phase (count = 1) |
 | `3`, `next 3`, `run next 3 phases` | **Next-N** | The next **N** incomplete phases, **N ≥ 1** |
-| `done` / `finish` / `end` / `all` / `close` | **Run-to-end** | Every remaining incomplete phase through the end of the plan |
+| `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | **Run-to-end** | Every remaining incomplete phase through the end of the plan |
 | `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | Clear Deferred → `Left`; do not execute |
@@ -121,12 +123,16 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
 - After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
-- Bare `3` is still Next-3. New tokens must be words (`done`, `defer`,
-  `undefer`) or a **leading minus** (`-2`), never collide with `2pass`.
+- Bare `3` is still Next-3. New tokens must be words (`done`, `toend`,
+  `defer`, `undefer`) or a **leading minus** (`-2`), never collide with
+  `2pass`.
 - Match **`undefer` / `Nundefer`** as **Undefer**, not Defer. Do not treat
   the suffix `defer` inside `undefer` as Defer.
-- `done` / `finish` / `end` / `all` / `close` are case-insensitive
-  **Run-to-end** aliases.
+- `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` /
+  `to end` are case-insensitive **Run-to-end** aliases. After flag
+  strip, remaining body exactly `toend`, `to-end`, or `to end` is
+  Run-to-end (not empty Next). `to-end` is not Stop-before-end (no
+  leading minus). Bare `end` stays Run-to-end.
 
 If there is no selector after `/phasify`, treat the empty invocation as
 **Next** mode (count = 1) — same as `next` / `run next phase`. Do not
@@ -150,7 +156,10 @@ Execute.
 
 ### Run-to-end
 
-One mode. Aliases (case-insensitive): `done`, `finish`, `end`, `all`, `close`.
+One mode. Aliases (case-insensitive): `done`, `finish`, `end`, `all`,
+`close`, `toend`, `to-end`, `to end`. After flag strip, remaining body
+exactly `toend`, `to-end`, or `to end` selects this mode (not empty
+Next; `to-end` is not `-N`).
 
 Run every remaining incomplete phase through the end of the plan. Last
 executed phase of the plan gets the full recap.
