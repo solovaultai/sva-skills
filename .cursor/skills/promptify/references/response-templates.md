@@ -92,7 +92,7 @@ If the work is (or continues) a **multi-phase plan**, append this as the
 | P1 — API | Endpoints + tests | Left |
 ```
 
-Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Deferred` (`Not started` on a fresh plan). Use **Left** for remaining work after a partial run.
+Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (`Not started` on a fresh plan). Use **Left** (or `Unblocked`) for remaining work after a partial run. `Def-Blocked` is the table spelling of canonical Deferred-Blocked.
 
 Legacy alias: `/promptify-run` behaves the same as `/runnify`.
 

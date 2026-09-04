@@ -203,11 +203,16 @@ After optimize + scoring:
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), print
-**User help** below and **stop**. Do not analyze or emit a kickoff.
-Empty `/debugify` is the short usage, not Help. `help me debug …` is a
-**task**, not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  print **User help** below and **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  There is no `/pass` skill.
+
+Do not analyze or emit a kickoff. Empty `/debugify` is the short
+usage, not Help. `help me debug …` is a **task**, not Help.
 
 ## No task body
 
@@ -216,6 +221,7 @@ If there is no task after the command, explain:
 ```text
 /debugify <bug report>  — analyze code, enrich, emit a Cursor Debug Mode kickoff prompt
 /debugify help          — full reference (also --help, /?)
+/debugify pass help     — Pass (Npass) subsection (also `pass`)
 /askify <prompt>        — coach then answer (read-only)
 /plannify <prompt>      — coach then produce a plan
 /runnify <prompt>       — optimize then EXECUTE the work (mutating)
@@ -332,12 +338,14 @@ work landed.
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print **User help**
-  and stop. Empty `/debugify` is short usage, not Help. `help me debug …`
-  is a task.
+  and stop. Exact `pass` / `pass help`: print the **Pass (`Npass`)**
+  subsection and stop. Empty `/debugify` is short usage, not Help.
+  `help me debug …` is a task.
 
 ## User help
 
 Print this section as the response on `help` / `--help` / `/?`.
+On `pass` / `pass help`, print only **Pass (`Npass`)** below.
 
 ### What it does
 
@@ -355,20 +363,44 @@ clean).
 ```text
 /debugify <bug report>  — code analysis + Debug Mode kickoff prompt
 /debugify help          — this reference (also --help / /?)
+/debugify pass          — Pass (Npass) subsection only (also pass help)
 /promptify-debug <bug>  — alias of /debugify
 ```
 
-Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
-`help me debug the login` is a task.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
 
-### Flags (`Nimages`)
+### Flags (`Nimages` / `Npass`)
 
 Promptify Flag parse order: first numbered instance left to right;
-skip unnumbered `image` / `pass`. Strip before Help vs task.
+skip unnumbered `image` / `pass`. Strip before Help vs task. Cite
+promptify — do not fork.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence. Lead
 with the caught-and-interpreted ack. Carry what they show into the
 kickoff.
+
+**`Npass`:** see **Pass (`Npass`)** below.
+
+### Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this subsection** and stops.
+Cite promptify **Flag parse order** — do not fork. Full reference:
+`/promptify pass help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right. Default **1**. Extra pass(es) deepen the kickoff /
+code analysis (pre-plan when N > 1); last pass emits the
+Debug-Kickoff Prompt. Acknowledge after the scratch ack when both
+appear.
+
+```text
+/debugify pass
+/debugify pass help
+/debugify 2pass <bug>
+/promptify pass help
+```
 
 ### Bug intent fields
 
@@ -423,7 +455,8 @@ phases `Done` unless the workspace already shows that work landed.
 - Hypotheses must be falsifiable and linked to observations.
 - Trailing phase table is mandatory and last.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not emit a kickoff.
+  do not emit a kickoff. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only.
 
 ### Related
 

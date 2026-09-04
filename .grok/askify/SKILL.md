@@ -134,10 +134,16 @@ After optimize + scoring:
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), print
-**User help** below and **stop**. Do not answer. Empty `/askify` is the
-short usage, not Help. `help me …` is a **task**, not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  print **User help** below and **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  There is no `/pass` skill.
+
+Do not answer. Empty `/askify` is the short usage, not Help.
+`help me …` is a **task**, not Help.
 
 ## No task body
 
@@ -146,6 +152,7 @@ If there is no task after the command, explain:
 ```text
 /askify <prompt>      — coach into an ask-kickoff prompt, then answer (read-only)
 /askify help          — full reference (also --help, /?)
+/askify pass help     — Pass (Npass) subsection (also `pass`)
 /plannify <prompt>    — coach then produce a plan
 /runnify <prompt>     — optimize then EXECUTE the work (mutating)
 /promptify <prompt>   — analyze/optimize only (no run)
@@ -241,12 +248,14 @@ after the table except an optional one-line next-step.
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the answer. Acknowledge the marker.
 - Exact `help` / `--help` / `/?` after flag strip: print **User help**
-  and stop. Empty `/askify` is short usage, not Help. `help me …` is a
-  task.
+  and stop. Exact `pass` / `pass help`: print the **Pass (`Npass`)**
+  subsection and stop. Empty `/askify` is short usage, not Help.
+  `help me …` is a task.
 
 ## User help
 
 Print this section as the response on `help` / `--help` / `/?`.
+On `pass` / `pass help`, print only **Pass (`Npass`)** below.
 
 ### What it does
 
@@ -259,11 +268,12 @@ implements and never emits a plan. Alias: `/promptify-ask`.
 ```text
 /askify <prompt>       — coach, then answer (read-only)
 /askify help           — this reference (also --help / /?)
+/askify pass           — Pass (Npass) subsection only (also pass help)
 /promptify-ask <prompt>— alias of /askify
 ```
 
-Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
-`help me understand X` is a task.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me understand X` is a task.
 
 ### Flags (`Nimages` / `Npass`)
 
@@ -274,10 +284,27 @@ skip unnumbered `image` / `pass`. Strip before Help vs task.
 interpreted ack. Carry what they show into the Ask-Kickoff Prompt and
 the answer.
 
-**`Npass`:** N passes before answering. If N > 1, pass 1 is
-`## Pre-plan (pass 1)` only — do **not** emit the final answer on
-pass 1. Last pass produces the Ask-Kickoff Prompt and the **Answer**.
-Acknowledge after the scratch ack when both appear.
+**`Npass`:** see **Pass (`Npass`)** below.
+
+### Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this subsection** and stops.
+Cite promptify **Flag parse order** — do not fork. Full reference:
+`/promptify pass help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right. Default **1**. N passes before answering. If N > 1,
+pass 1 is `## Pre-plan (pass 1)` only — do **not** emit the final
+answer on pass 1. Last pass produces the Ask-Kickoff Prompt and
+the **Answer**. Acknowledge after the scratch ack when both appear.
+
+```text
+/askify pass
+/askify pass help
+/askify 2pass <prompt>
+/promptify pass help
+```
 
 ### Ask-Kickoff Prompt (required sections)
 
@@ -324,7 +351,8 @@ Phased plan (when required).
 - Low readiness / missing assets: say so; answer only what the
   workspace supports.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not answer.
+  do not answer. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only.
 
 ### Related
 

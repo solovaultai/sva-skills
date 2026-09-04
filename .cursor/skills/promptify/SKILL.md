@@ -9,7 +9,8 @@ description: >-
   prompt", "rewrite this prompt for this workspace", "prompt QA", or wants a
   prompt improved against actual files/tools before (or while) executing it.
   Print a complete reference with `/promptify help` or `/promptify --help`
-  (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the newest N
+  (also `/?`). `/promptify pass help` (or `pass`) prints the Pass (`Npass`)
+  section. Recognizes Nimages / N images / N-images as a pointer to the newest N
   images from the configured scratch source (or workspace scratch/). Recognizes Npass / N-pass /
   N pass as a request to take N pipeline passes (pass 1 is a documented
   pre-plan when N > 1).
@@ -35,17 +36,24 @@ Use only verified workspace information gathered with Cursor's read/search tools
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), **read
-and print** `references/HELP.md` (this skill folder) and **stop**. Do
-not run the pipeline. Empty `/promptify` is the short usage below, not
-Help. `help me …` is a **task**, not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** section of that file and **stop**.
+  There is no `/pass` skill — this is flag help.
+
+Do not run the pipeline. Empty `/promptify` is the short usage below,
+not Help. `help me …` is a **task**, not Help.
 
 If the user invokes the skill with no prompt body, explain:
 
 ```text
 /promptify <prompt>   — analyze, validate, enrich, rewrite (do not execute)
 /promptify help       — full reference (also --help, /?)
+/promptify pass help  — Pass (Npass) subsection (also `pass`)
 /runnify <prompt>     — same, then execute the optimized prompt
 ```
 
@@ -421,7 +429,7 @@ except an optional one-line next-step. Prefer **table is last**.
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`, `Phase 1 — API`) |
 | **Description** | One-line what ships / exit criteria |
-| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Deferred` (fresh plans may use `Not started`) |
+| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (fresh plans may use `Not started`) |
 
 **Flags row (mandatory first row when `Nimages` and/or `Npass` is present):**
 Phase = `Flags`. Description = `Caught and correctly interpreted` plus
@@ -464,5 +472,6 @@ Rules:
   base; the last pass emits the final prompt / plan / answer. Acknowledge
   the marker so the user can see it was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Empty `/promptify` is short usage, not
-  Help. `help me …` is a task.
+  `references/HELP.md` and stop. Exact `pass` / `pass help` after
+  flag strip: print the **Pass (`Npass`)** section and stop. Empty
+  `/promptify` is short usage, not Help. `help me …` is a task.

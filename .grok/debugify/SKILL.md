@@ -170,11 +170,16 @@ If verification fails: return to analyze/instrument — do not pile speculative 
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), print
-**User help** below and **stop**. Do not instrument, fix, or start the
-loop. Empty `/debugify` is the short usage, not Help. `help me debug …`
-is a **task**, not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  print **User help** below and **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  There is no `/pass` skill.
+
+Do not instrument, fix, or start the loop. Empty `/debugify` is the
+short usage, not Help. `help me debug …` is a **task**, not Help.
 
 ## No task body
 
@@ -183,6 +188,7 @@ If there is no bug report after the command, explain:
 ```text
 /debugify <bug report>     — full Debug Mode loop (default): instrument → repro → fix → clean
 /debugify help             — full reference (also --help, /?)
+/debugify pass help        — Pass (Npass) subsection (also `pass`)
 /debug <bug report>        — alias of /debugify
 /debug-kickoff <bug report>— read-only: hypotheses + kickoff brief only (no edits)
 /askify <prompt>           — coach then answer (read-only)
@@ -262,7 +268,7 @@ Default rows (mark accurately; remaining work is **Left**):
 | Phase 6 — Verify + clean | Repro gone; probes removed | Left |
 ```
 
-Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Deferred`. Do not
+Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked`. Do not
 mark `Done` unless that phase landed. When evidence-already-sufficient skips
 instrumentation, mark Phase 2 `Deferred` and say so above.
 
@@ -287,12 +293,14 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print **User help**
-  and stop. Empty `/debugify` is short usage, not Help. `help me debug …`
-  is a task.
+  and stop. Exact `pass` / `pass help`: print the **Pass (`Npass`)**
+  subsection and stop. Empty `/debugify` is short usage, not Help.
+  `help me debug …` is a task.
 
 ## User help
 
 Print this section as the response on `help` / `--help` / `/?`.
+On `pass` / `pass help`, print only **Pass (`Npass`)** below.
 
 ### What it does
 
@@ -307,20 +315,44 @@ For a read-only kickoff brief only, use `/debug-kickoff`.
 ```text
 /debugify <bug report>      — full loop (default)
 /debugify help              — this reference (also --help / /?)
+/debugify pass              — Pass (Npass) subsection only (also pass help)
 /debug <bug report>         — alias of /debugify
 /debug-kickoff <bug report> — read-only brief (no edits)
 ```
 
-Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
-`help me debug the login` is a task.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
 
-### Flags (`Nimages`)
+### Flags (`Nimages` / `Npass`)
 
 Promptify Flag parse order: first numbered instance left to right;
-skip unnumbered `image` / `pass`. Strip before Help vs task.
+skip unnumbered `image` / `pass`. Strip before Help vs task. Cite
+promptify — do not fork.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence during
 Phase 0. Lead with the caught-and-interpreted ack.
+
+**`Npass`:** see **Pass (`Npass`)** below.
+
+### Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this subsection** and stops.
+Cite promptify **Flag parse order** — do not fork. Full reference:
+`/promptify pass help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right. Default **1**. Extra pass(es) deepen investigation /
+hypothesis quality (pre-plan when N > 1); last pass runs this
+invocation’s loop work. Acknowledge after the scratch ack when both
+appear.
+
+```text
+/debugify pass
+/debugify pass help
+/debugify 2pass <bug>
+/promptify pass help
+```
 
 ### Loop (mandatory order)
 
@@ -376,7 +408,8 @@ one-line after the table). Do not proceed to fix.
 - If `/debug-kickoff` was requested, do not run this full loop.
 - Trailing phase table is mandatory and last.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not start the loop.
+  do not start the loop. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only.
 
 ### Related
 

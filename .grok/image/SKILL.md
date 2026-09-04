@@ -9,7 +9,8 @@ description: >
   (e.g. "Tell me what I am seeing in these images 2image"). This skill
   reads existing scratch images; it does not generate or edit images
   (that is imagine / image_gen). Print a complete reference with
-  `/image help` or `/image --help` (also `/?`).
+  `/image help` or `/image --help` (also `/?`). `/image pass help`
+  (or `pass`) prints the Pass (`Npass`) note (ify flag; see promptify).
 metadata:
   short-description: "Read N newest scratch-source images and answer"
 ---
@@ -27,10 +28,18 @@ image files.
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `/image N` and `Nimage` / `Nimages` tokens first (Flag parse
-order). If the **remaining body is exactly** `help`, `--help`, or `/?`
-(case-insensitive), **read and print** `references/HELP.md` (this
-skill folder) and **stop**. Do not attach images or answer.
+Strip `/image N` and `Nimage` / `Nimages` tokens first, then
+`Npass` (promptify Flag parse order — do not fork). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** section of that file and **stop**.
+  There is no `/pass` skill. `/image` does not take `Npass` as a
+  pipeline flag.
+
+Do not attach images or answer.
 
 Empty `/image` is **not** Help — default N = 1 and look at the newest
 scratch image. `help me …` is a **task**, not Help.
@@ -158,5 +167,7 @@ After the ack (and any missing-folder / missing-image note):
 - Never create `scratch/`.
 - First printed content is the caught-and-interpreted ack.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop.
+  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
+  the **Pass (`Npass`)** section and stop (ify-family flag; see
+  promptify).
 - Do not generate or edit images. That is **imagine**.

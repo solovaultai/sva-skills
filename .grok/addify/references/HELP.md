@@ -3,6 +3,10 @@
 Print this file as the response when the user runs `/addify help`,
 `/addify --help`, or `/addify /?`. Do not recover or dispatch.
 
+If the remaining body after flag strip is exactly `pass` or
+`pass help` (case-insensitive), print only the **Pass (`Npass`)**
+section below and stop. There is no `/pass` skill.
+
 Empty `/addify` is the short usage cheat, not this page.
 `help me …` (or any longer body) is a **task**, not Help.
 
@@ -17,6 +21,7 @@ skill. Does not optimize or plan by itself.
 ```text
 /addify <text>     — append <text> to the last ify and restart/continue that skill
 /addify help       — this reference (also --help / /?)
+/addify pass       — Pass (Npass) subsection only (also pass help)
 ```
 
 Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
@@ -29,6 +34,7 @@ Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
 /addify also handle empty folders
 /addify 1image check the screenshot too
 /addify help
+/addify pass help
 ```
 
 The text to append is everything after the command, or the free-text
@@ -43,9 +49,11 @@ when they said “addify this” / “add this to the last ify”.
 | `/addify <text>` | **Append + dispatch** | Recover last ify; combine; run that skill |
 | `/addify` *(empty)* | Short usage | No recover, no dispatch |
 | `/addify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/addify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
-Exact remaining body after flag strip must be `help`, `--help`, or
-`/?`. `help me write a login form` is a task (append that text).
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me write a login form` is a
+task (append that text).
 
 ---
 
@@ -91,7 +99,7 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 | Last ify | Action |
 |----------|--------|
 | **plannify** / **promptify** | Restart that skill from scratch on the combined text. **Not** fromhere. |
-| **phasify** | `/plannify fromhere` + new prompt. Keep Done/Deferred. Task = old Task + append. AskQuestion: Keep vs Continue. |
+| **phasify** | `/plannify fromhere` + new prompt. Keep Done/Deferred/Def-Blocked. Task = old Task + append. AskQuestion: Keep vs Continue. |
 | **debugify** | Restart this platform’s debugify (Grok: **full loop**; alias `/debug`) + prior-run learnings. |
 | **runnify — planning** | No Results / no mutating work → re-runnify from scratch. |
 | **runnify — mid-run** | Continue from current phase statuses + new text (not greenfield). |
@@ -106,12 +114,35 @@ If phasify is last and no current plan exists, say `/plannify` first.
 
 Same parse order as promptify: first numbered instance left to
 right; skip unnumbered `image` / `pass`. Strip **before** deciding
-Help vs task.
+Help vs task. Cite promptify **Flag parse order** — do not fork.
 
 Flags on the addify line apply to the restarted skill. **Addify-line
 wins** the same family. If only one line sets a family, that value
 applies. Lead with the scratch / Npass acknowledgments when markers
 are present.
+
+---
+
+## Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this section** and stops.
+Full reference: `/promptify pass help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right. Default **1**.
+
+**Meaning:** flags apply to the **restarted** skill (addify-line
+wins the same family). If N > 1 on the restarted skill, pass 1 is
+a documented pre-plan; the last pass emits that skill’s
+deliverable. Acknowledge after the scratch ack when both appear.
+
+```text
+/addify pass
+/addify pass help
+/addify 2pass also handle empty folders
+/promptify pass help
+```
 
 ---
 
@@ -137,7 +168,8 @@ when that skill requires one).
 - Addify-line flags win the same family. Acks first when present.
 - Empty `/addify` is short usage, **not** Next.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  stop.
+  stop. Exact `pass` / `pass help`: print **Pass (`Npass`)** only.
+  There is no `/pass` skill.
 
 ---
 

@@ -3,6 +3,10 @@
 Print this file as the response when the user runs `/promptify help`,
 `/promptify --help`, or `/promptify /?`. Do not run the pipeline.
 
+If the remaining body after flag strip is exactly `pass` or
+`pass help` (case-insensitive), print only the **Pass (`Npass`)**
+section below and stop. There is no `/pass` skill.
+
 Empty `/promptify` is the short usage cheat, not this page.
 `help me …` (or any longer body) is a **task**, not Help.
 
@@ -26,6 +30,7 @@ or datasets.
 ```text
 /promptify <prompt>    — analyze / validate / enrich / rewrite (no execute)
 /promptify help        — this reference (also --help / /?)
+/promptify pass        — Pass (Npass) subsection only (also pass help)
 /runnify <prompt>      — same pipeline, then EXECUTE the optimized prompt
 /promptify-run <prompt>— alias of /runnify
 ```
@@ -44,9 +49,11 @@ when they said “promptify this” / “optimize this prompt”.
 | `/promptify-run <prompt>` | **Execution (alias)** | Same as `/runnify` |
 | `/promptify` *(empty)* | Short usage | No pipeline |
 | `/promptify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/promptify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
-Exact remaining body after flag strip must be `help`, `--help`, or
-`/?`. `help me write a login form` is a task.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me write a login form` is a
+task. Unnumbered `pass` in a longer body is not this Help.
 
 ---
 
@@ -95,14 +102,29 @@ say what was missing.
 
 ---
 
-## Multi-pass (`Npass`)
+## Pass (`Npass`)
 
-`Npass` / `N-pass` / `N pass`. Pass-count marker. Default **1**.
+There is **no** `/pass` skill. `Npass` is a shared flag. After flag
+strip, remaining body exactly `pass` or `pass help` prints **this
+section** and stops. Full reference: `/promptify help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass` (e.g. `2pass`, `2-pass`,
+`2 pass`). Parse per **Flag parse order** above — first numbered
+instance left to right; skip unnumbered `pass` / `passes`. Default
+**1** if absent.
 
 **Meaning:** take N pipeline passes **before** the final optimized
-prompt (promptify), plan (plannify), or answer (askify).
+prompt (promptify), plan (plannify), answer (askify), or this
+mode’s deliverable (runnify / phasify / debugify). Not task
+wording. Not a phase selector.
 
 Acknowledge after the scratch ack when both appear.
+
+```markdown
+**Npass — caught and correctly interpreted.**
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
+passes 2–N use that base for the final deliverable.
+```
 
 | N | Behavior |
 |---|----------|
@@ -110,6 +132,14 @@ Acknowledge after the scratch ack when both appear.
 | **> 1** | Pass 1 = documented `## Pre-plan (pass 1)` only (inventories, capabilities, external tools, approach, gaps, light planning). **Do not** emit the final prompt / plan / answer on pass 1. Passes 2–N use that base. **Last pass** emits the deliverable. |
 
 Independent of `Nimages` — both may appear.
+
+```text
+/promptify pass
+/promptify pass help
+/promptify 2pass <task>
+/runnify pass help
+/phasify pass help
+```
 
 ---
 
@@ -166,7 +196,7 @@ GitHub markdown:
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`) |
 | **Description** | One-line exit criteria |
-| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Deferred` (fresh plans may use `Not started`) |
+| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (fresh plans may use `Not started`) |
 
 **Flags row** (first row when either marker is present): Phase =
 `Flags`. Description = `Caught and correctly interpreted` + exact
@@ -203,7 +233,8 @@ one-line next-step.
 - `Nimages`: read N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`; lead with the ack (name the source).
 - `Npass`: N passes; pass 1 is pre-plan only when N > 1.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not run the pipeline.
+  do not run the pipeline. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only. There is no `/pass` skill.
 
 ---
 

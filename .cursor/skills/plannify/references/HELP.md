@@ -3,6 +3,10 @@
 Print this file as the response when the user runs `/plannify help`,
 `/plannify --help`, or `/plannify /?`. Do not plan or replan.
 
+If the remaining body after flag strip is exactly `pass` or
+`pass help` (case-insensitive), print only the **Pass (`Npass`)**
+section below and stop. There is no `/pass` skill.
+
 Empty `/plannify` is the short usage cheat, not this page.
 `fromhere` is a task body (replan), not help.
 `help me …` (or any longer body) is a **task**, not Help.
@@ -25,6 +29,7 @@ Alias: `/promptify-plan`.
 /plannify <prompt>     — coach, then produce a plan (read-only)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
 /plannify help         — this reference (also --help / /?)
+/plannify pass         — Pass (Npass) subsection only (also pass help)
 /promptify-plan <prompt>— alias of /plannify
 ```
 
@@ -41,9 +46,10 @@ when they said “plannify this” / “plan this prompt”.
 | `/plannify fromhere` / `planify fromhere` | **fromhere** | Replan from current statuses |
 | `/plannify` *(empty)* | Short usage | No plan. `fromhere` is **not** empty. |
 | `/plannify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/plannify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
-Exact remaining body after flag strip must be `help`, `--help`, or
-`/?`. `fromhere` is never treated as help.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `fromhere` is never treated as help.
 
 ---
 
@@ -55,11 +61,13 @@ greenfield plan. If no current plan exists, tell the user to
 
 1. Recover Task row text (original ify wording) and Flags
    (`Nimages` / `Npass` or none). Same outcome; same flags.
-2. List phases already `Done` (landed) and `Deferred` (skip + reason).
+2. List phases already `Done` (landed) and `Deferred` / `Def-Blocked`
+   (skip + reason).
    Do not treat them as greenfield.
 3. Run the normal plannify pipeline (including Npass / scratch
    images if Flags has them).
-4. Emit a **candidate** plan that keeps Done/Deferred constraints
+4. Emit a **candidate** plan that keeps Done/Deferred/Def-Blocked
+   constraints
    and aims at the same Task.
 
 Then **AskQuestion**: Keep new plan vs Continue original. If it
@@ -73,18 +81,40 @@ becomes current for later `/phasify`.
 
 Same parse order as promptify: first numbered instance left to
 right; skip unnumbered `image` / `pass`. Strip **before** deciding
-Help vs fromhere vs plan.
+Help vs fromhere vs plan. Cite promptify **Flag parse order** —
+do not fork.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`. Attachment marker,
 not task wording. Lead with the caught-and-interpreted ack. Carry
 what they show into the Planning-Kickoff Prompt and the plan.
 
-**`Npass`:** take N passes before producing the plan. If **N > 1**,
+**`Npass`:** see **Pass (`Npass`)** below.
+
+---
+
+## Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this section** and stops.
+Full reference: `/promptify pass help` (canonical) or
+`/plannify help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right (promptify Flag parse order). Default **1**.
+
+**Meaning:** take N passes before producing the plan. If **N > 1**,
 pass 1 is a documented `## Pre-plan (pass 1)` only — inventories,
 capabilities, external tools, approach, gaps, light planning. Do
 **not** emit the final plan on pass 1. Passes 2–N use that base;
 the **last pass** produces the Planning-Kickoff Prompt and the
 **Plan**. Acknowledge after the scratch ack when both appear.
+
+```text
+/plannify pass
+/plannify pass help
+/plannify 2pass <prompt>
+/promptify pass help
+```
 
 ---
 
@@ -133,7 +163,7 @@ GitHub markdown. Users scroll to the bottom for completed vs left.
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`) |
 | **Description** | One-line what ships / exit criteria |
-| **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Deferred` when known |
+| **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add it so it matches phasify deferrals |
 
 **Flags row** first when `Nimages` and/or `Npass` is present:
@@ -163,13 +193,14 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 - Kickoff prompt is copy-pasteable and says “plan, do not implement.”
 - Trailing `## Phased plan` table is mandatory and last.
 - Status `Deferred` + optional reason is allowed.
-- `fromhere`: same Task and Flags; keep Done/Deferred; then
+- `fromhere`: same Task and Flags; keep Done/Deferred/Def-Blocked; then
   AskQuestion Keep vs Continue.
 - `Nimages` / `Npass`: strip first; acknowledge; N > 1 ⇒ pass 1
   is pre-plan only.
 - Exact `help` / `--help` / `/?` after flag strip: print this
-  page; do not plan. Empty is short usage, not help. `fromhere`
-  is not help.
+  page; do not plan. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only. There is no `/pass` skill. Empty is short
+  usage, not help. `fromhere` is not help.
 
 ---
 
@@ -179,6 +210,7 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 |---------|------|
 | `/phasify` | Execute the next incomplete phase |
 | `/phasify help` | Phasify reference |
+| `/promptify pass help` | Canonical Pass (`Npass`) reference |
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/runnify <prompt>` | Optimize then execute |
 | `/askify <prompt>` | Optimize then answer (read-only) |

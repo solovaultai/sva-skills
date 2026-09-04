@@ -10,11 +10,21 @@ description: >-
   or stop before the last N work phases (`/phasify -`, `/phasify -0`,
   `/phasify -N`). Defer a phase (`/phasify defer`, `Ndefer`, `defer N`
   [reason]). Undefer a phase (`/phasify undefer`, `Nundefer`,
-  `undefer N`). Unblock advice (`/phasify unblock`, `Nunblock`,
-  `unblock N`) — read-only report for the next Blocked phase. Show
-  the current table (`/phasify show`, `/phasify refresh`).
+  `undefer N`). Todo a phase (`/phasify todo`, `Ntodo`,
+  `todo N`) — detailed actionable list; no execute, no Status
+  change. Todone a phase (`/phasify todone`, `Ntodone`,
+  `todone pN`, `todone N`) — Todo-depth briefing, then Status
+  `Done` (no execute, no ack wait). Manually block a phase
+  (`/phasify block`, `Nblock`,
+  `block pN` [reason]) — Status `Blocked` or `Def-Blocked`.
+  Unblock a Blocked / Def-Blocked phase after verification
+  (`/phasify unblock`, `Nunblock`, `unblock N`) — Status
+  `Unblocked` on pass (`Blocked`) or `Deferred` on pass
+  (`Def-Blocked`).
+  Show the current table (`/phasify show`, `/phasify refresh`).
   Empty `/phasify` is Next (count = 1), not help. Print the full
   reference with `/phasify help` or `/phasify --help` (also `/?`).
+  `/phasify pass help` (or `pass`) prints the Pass (`Npass`) section.
   Replan from current
   statuses with `/plannify fromhere` (plannify skill). When phase(s)
   complete, put the user's original ify Task text
@@ -28,16 +38,17 @@ description: >-
   "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
   finish", "phasify end", "phasify all", "phasify close", "phasify
   toend", "phasify to-end", "phasify to end", "phasify -",
-  "phasify -2", "phasify defer", "phasify undefer", "phasify unblock",
-  "phasify show",
+  "phasify -2", "phasify defer", "phasify undefer", "phasify todo",
+  "phasify todone", "phasify block", "phasify unblock", "phasify show",
   "phasify refresh", "phasify help", "phasify --help", "run phase p0",
   "run next phase",
   or "run next n phases". Recognizes
   Nimages / N images / N-images (also Nimage / N image / N-image; e.g.
   1image, 3images) as a pointer to the newest N images from the
-  configured scratch source (or workspace scratch/). Recognizes Npass / N-pass / N pass as a pass-count
-  flag to record (not a phase selector). `-2pass` is a pass flag, not
-  stop-before-end.
+  configured scratch source (or workspace scratch/). Recognizes Npass / N-pass / N pass as N
+  pipeline passes of this mode's work (not a phase selector; not a whole-table
+  replan). Flags work in all modes; strip before dispatch. `-2pass` is a pass
+  flag, not stop-before-end.
 ---
 
 # Phasify (= execute plannified phase(s))
@@ -54,7 +65,38 @@ Print the recap / between-phase table using **Table layout**
 
 ---
 
-## Scratch images (`Nimages` / `Nimage`)
+## Flags (`Nimages` / `Npass`)
+
+Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end,
+Stop-before-end, Defer, Undefer, Todo, Todone, Block, Unblock, Show,
+Help). Parse and strip **before** mode dispatch.
+
+**Intent (short):** Flags are optional mid-walk. Prefer setting
+images/pass on promptify/plannify **before** `/phasify`. Use on
+phasify when a **specific phase** needs visual clarification or a
+multi-pass definition/execution.
+
+### Flag parse order
+
+Cite promptify **Flag parse order** — do not fork a different parse.
+Read left to right. Each family independently. **First numbered
+instance** wins.
+
+- Numbered tokens count: `1image`, `2pass`, `2-pass`, `1images`,
+  `N images`, `N-images` (also `Nimage` / `N-image` / `N pass`).
+- Skip unnumbered `image` / `images` / `pass` / `passes`.
+- Several numbered → first only (not the largest N).
+- No numbered instance → that flag is absent.
+
+Strip flags **before** deciding Help vs task (`help` / `--help` /
+`/?`) and **before** taking defer/block reason text. Flags are
+**not** part of the task wording or reason — `2pass` must not be
+swallowed as a defer/block reason.
+
+**`-2pass` is Npass, not Stop-before-end `-2`.** Strip the pass
+flag first. Leftover `-2` (no `pass`) is Stop-before-end.
+
+### Scratch images (`Nimages` / `Nimage`)
 
 When the user text includes **`Nimages`**, **`N images`**, **`N-images`**,
 or singular **`Nimage`** / **`N image`** / **`N-image`** (case-insensitive;
@@ -63,12 +105,13 @@ examples: `1image`, `1 image`, `1-image`, `3images`), that token is an
 
 Follow promptify **Scratch images**: if `scratch.env` exists, run
 `scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
-**read those paths**. Else workspace `scratch/` (do not create). Parse
-image/pass flags per promptify **Flag parse order**. Use what they show
-while executing the phase(s).
+**read those paths**. Else workspace `scratch/` (do not create). Use
+what the images show (blocker evidence, UI state, phase
+clarification). Do not treat the marker as phase-selection.
 
 **Tell the user (mandatory, first printed content when a marker is present):**
 Name the source (`local …` or `remote conn:dir` or workspace `scratch/`).
+Then run the chosen phasify mode.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
@@ -81,19 +124,48 @@ parsing the phasify mode so `phasify 3 2images` means **next 3 phases** +
 2 scratch images, not phase 2; `/phasify 1image` is **Next** + 1 image;
 empty `/phasify` is **Next**; and `2pass` is never a phase count.
 
-When **`Npass`** / **`N-pass`** / **`N pass`** is present (same Flag parse
-order), it is a **pass-count flag** to record in the Flags row — not a
-phase selector and not part of the Task wording. Default N = 1 if absent.
-Print the promptify Npass acknowledgment after the scratch ack when both
-appear. Capture whichever flags the user included (both, one, or none)
-in the table — see **Capture Task and Flags**.
+### Multi-pass (`Npass`)
+
+Inherited from promptify **Multi-pass**. When **`Npass`** /
+**`N-pass`** / **`N pass`** is present (same Flag parse order), take
+**N** pipeline passes on **this invocation's mode work**. Default
+N = 1 if absent. Not a phase selector and not Task wording.
+
+When **N > 1**, pass 1 is a documented pre-plan only (`## Pre-plan
+(pass 1)` — inventories, approach, gaps for **this mode**). Passes
+2–N use that base; the last pass produces the mode's deliverable
+(execute, Todo briefing, Unblock test, Block/Defer reason, Show
+table, …).
+
+**Npass on a single phase** is a multi-pass run of **that phase's
+work** (definition, clarification, verification, or execute) — not
+a re-plan of the whole table. Whole-table replan remains
+`/plannify fromhere`. Extra pass(es) are especially for Todo
+briefing quality, Unblock test design, Block/Defer reason quality,
+or execute of a complex / complete phase.
+
+Print the promptify Npass acknowledgment after the scratch ack
+when both appear:
+
+```markdown
+**Npass — caught and correctly interpreted.**
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan;
+passes 2–N use that base for the final deliverable.
+```
+
+Capture whichever flags the user included (both, one, or none)
+in the table — see **Capture Task and Flags**. If the work is
+multi-phase **or** `Nimages` / `Npass` is present, Flags is the
+**first row** of the trailing phase status table. Last printed
+item is that table (plus optional one-line next-step).
 
 ---
 
 ## Invocation (parse after stripping image and pass tokens)
 
-Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
-`-2pass` is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
+Parse **after** stripping `Nimages` / `Npass` (promptify Flag parse
+order — see **Flags**). Any mode may take optional flags. `-2pass`
+is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 
 | User text | Mode | What to run |
 |-----------|------|-------------|
@@ -106,9 +178,13 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
 | `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | Clear Deferred → `Left`; do not execute |
-| `unblock`, `Nunblock`, `unblock N` | **Unblock** | Advise on the next Blocked phase (read-only; no implementation) |
+| `todo`, `Ntodo`, `todo N` | **Todo** | Detailed actionable list for that phase (no execute; no Status change) |
+| `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | Todo-depth list, then Status `Done` (no execute; no ack wait) |
+| `block`, `Nblock`, `block pN` [reason] | **Block** | Manually set eligible phase(s) `Blocked` / `Def-Blocked`; do not execute |
+| `unblock`, `Nunblock`, `unblock N` | **Unblock** | Verify a Blocked / Def-Blocked phase; on pass `Unblocked` or `Deferred` |
 | `show` / `refresh` | **Show** | Print the current table (read-only; no implementation) |
 | `help` / `--help` / `/?` | **Help** | Print `references/HELP.md`; do not execute |
+| `pass` / `pass help` | **Pass help** | Print the Pass (`Npass`) section; do not execute |
 | `/plannify fromhere` | **fromhere** | Replan from current statuses (plannify skill) |
 
 **Disambiguation (required):**
@@ -122,16 +198,37 @@ Parse **after** stripping `Nimages` / `Npass` (existing Flag parse order).
   `--help`, or `/?` (case-insensitive), that is **Help** — print
   `references/HELP.md` and **stop**. Extra tokens after a help trigger
   are ignored. Help is not a phase selector.
+- After stripping flags, remaining body exactly `pass` or `pass help`
+  (case-insensitive) is **Pass help** — print the **Pass (`Npass`)**
+  section of `references/HELP.md` and **stop**. Not a phase selector.
+  There is no `/pass` skill.
 - After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
 - Bare `3` is still Next-3. New tokens must be words (`done`, `toend`,
-  `defer`, `undefer`, `unblock`) or a **leading minus** (`-2`), never
-  collide with `2pass`.
+  `defer`, `undefer`, `todo`, `todone`, `block`, `unblock`) or a
+  **leading minus** (`-2`), never collide with `2pass`.
 - Match **`undefer` / `Nundefer`** as **Undefer**, not Defer. Do not treat
   the suffix `defer` inside `undefer` as Defer.
-- Match **`unblock` / `Nunblock`** as **Unblock**, not Undefer. Do not
-  treat a shared `un` prefix as the other mode.
+- Match **`todo` / `Ntodo`** as **Todo**, not `todone`, not `toend`, and
+  not Unblock. Do not collapse a shared `to` / `todo` prefix with
+  `todone` or `toend`.
+  **`todo N` / `todo 3` means named P3** (not next 3).
+- Match **`todone` / `Ntodone`** as **Todone**, not Todo, not `toend`,
+  not `done`. Do not collapse a shared `to` / `todo` prefix.
+  **`todone N` / `todone 3` means next N eligible** (like `block N`),
+  not named PN. Named todone is only `pN` / `Ntodone` / `pN todone`
+  (and `todone pN`). `todone 0` / `0todone` is named P0.
+  `todo` ≠ `todone` ≠ `toend` / `to-end` / `done`.
+- Match **`block` / `Nblock`** as **Block**, not Unblock, not Next-N.
+  `block N` (bare integer N ≥ 1) is **next N eligible**, not named PN.
+  Named block is only `pN` / `Nblock` / `pN block`. `2block` = named P2
+  (same family as `Ntodo` / `Ntodone` / `Ndefer`). Do not treat `block` as
+  `unblock` (shared `block` suffix / `un` prefix).
+- Match **`unblock` / `Nunblock`** as **Unblock**, not Undefer, not Todo,
+  not Todone, not Block. Do not treat a shared `un` prefix or shared
+  `block` suffix as the other mode.
+  `unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
 - `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` /
   `to end` are case-insensitive **Run-to-end** aliases. After flag
   strip, remaining body exactly `toend`, `to-end`, or `to end` is
@@ -146,17 +243,26 @@ is Next.
 
 ### Help (`help` / `--help` / `/?`)
 
-Strip image/pass tokens first. If the remaining selector is `help`,
-`--help`, or `/?` (case-insensitive), **read and print**
-`references/HELP.md` (this skill folder) and **stop**. Do not execute,
-defer, undefer, unblock, or show. Do not invent extra modes. Help is not
-a phase selector. Empty `/phasify` is **Next**, not Help.
+Strip image/pass tokens first. Then:
+
+- Remaining selector exactly `help`, `--help`, or `/?`
+  (case-insensitive): **read and print** `references/HELP.md` (this
+  skill folder) and **stop**.
+- Remaining selector exactly `pass` or `pass help`
+  (case-insensitive): print the **Pass (`Npass`)** section of that
+  file and **stop**. There is no `/pass` skill.
+
+Do not execute, defer, undefer, todo, todone, block, unblock, or
+show. Do not invent extra modes. Help is not a phase selector.
+Empty `/phasify` is **Next**, not Help.
 
 **Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end are
-**execute** modes (mutating). **Defer** and **Undefer** update status only
-(no implementation). **Show**, **Unblock**, and **Help** are read-only (no
-implementation). Handle Defer, Undefer, Unblock, Show, and Help without
-entering Execute.
+**execute** modes (mutating). **Defer**, **Undefer**, **Block**,
+**Unblock** (on verified pass), and **Todone** update status only (no
+implementation). **Todone** also prints a Todo-depth briefing, then sets
+Status `Done` (no ack wait). **Todo**, **Show**, and **Help** are
+read-only (no implementation). Handle Defer, Undefer, Todo, Todone,
+Block, Unblock, Show, and Help without entering Execute.
 
 ### Run-to-end
 
@@ -165,13 +271,20 @@ One mode. Aliases (case-insensitive): `done`, `finish`, `end`, `all`,
 exactly `toend`, `to-end`, or `to end` selects this mode (not empty
 Next; `to-end` is not `-N`).
 
+If `Nimages` is present: acknowledge first (see **Flags**), then run.
+If `Npass` is present: extra pass(es) apply to this run's remaining
+phases (not a whole-table replan).
+
 Run every remaining incomplete phase through the end of the plan. Last
 executed phase of the plan gets the full recap.
 
 ### Stop-before-end (`-N`)
 
 After stripping flags, a token that is `-`, `-0`, or `-N` (N = 0–9) is
-**Stop-before-end**, not Next-N.
+**Stop-before-end**, not Next-N. **`-2pass` is Npass**, not this
+mode — `/phasify -2` stops before the last 2 work phases;
+`/phasify -2pass` is Next + `2pass` (unless another selector remains).
+If `Nimages` is present: acknowledge first, then run.
 
 Let `C` = work-phase count (not Task/Flags). 1-based index `i` maps to
 `P(i-1)` (so phase 1 = P0).
@@ -186,13 +299,14 @@ Examples:
 - 6 phases (P0–P5), `-2`: `C - N = 4` → run through P3; do not run P4 or P5 (“up to but not including” 1-based phase 5)
 
 If every remaining incomplete phase is past that cutoff, print the table
-and say there is nothing to run. Still skip Deferred/Done inside the
-allowed window.
+and say there is nothing to run. Still skip Deferred / Def-Blocked /
+Done inside the allowed window.
 
 ### Defer
 
 Non-executing. Update the current plan’s status and keep the reason on
-that row.
+that row. If `Nimages` is present: acknowledge first (see **Flags**),
+then Defer. Strip flags **before** taking the reason.
 
 | Text | Effect |
 |------|--------|
@@ -205,54 +319,286 @@ Invalid id (not a number, negative, higher than last phase, unknown id):
 bold `Error:`).
 
 Optional reason: remainder of the line after the defer token
-(`defer API freeze` / `2defer waiting on legal`). Store on the phase
+**and after flag strip** (`defer API freeze` / `2defer waiting on legal`).
+`2pass` / `1image` are flags, never reason text. Store on the phase
 permanently for this plan (reprint on every recap/show). Empty reason
 is allowed.
 
-Future execute modes **skip** `Deferred` unless the user explicitly
-says to run that phase (`pN`, `redo`, `--force`).
+Future execute modes **skip** `Deferred` and `Def-Blocked` unless the
+user explicitly says to run that phase (`pN`, `redo`, `--force`).
 
 ### Undefer
 
 Non-executing. Inverse of Defer. Clear `Deferred` so Next / Next-N /
 done will pick the phase up again. Parse after stripping `Nimages` /
-`Npass`. Match `undefer` / `Nundefer` as this mode — do **not** treat
+`Npass`. If `Nimages` is present: acknowledge first, then Undefer.
+Match `undefer` / `Nundefer` as this mode — do **not** treat
 them as `defer` / `Ndefer`.
 
 | Text | Effect |
 |------|--------|
-| `undefer` | Undefer the **next Deferred** phase in plan order (first status `Deferred`). If none, say so — do not invent a target. |
+| `undefer` | Undefer the **next Deferred** phase in plan order (first status `Deferred` or `Def-Blocked`). If none, say so — do not invent a target. |
 | `Nundefer` / `pN undefer` / `undefer N` / `undefer pN` | Undefer that **table id** (`0`/`p0` = P0). |
 
-If that phase is not `Deferred`: **do not change it**. Print a clear
-**Error:** line (same red/bold style as invalid defer).
+If that phase is not `Deferred` and not `Def-Blocked`: **do not change
+it**. Print a clear **Error:** line (same red/bold style as invalid
+defer).
 
 Invalid id (not a number, negative, higher than last phase, unknown id):
 **do not undefer**. Print the same **Error:** style as invalid defer.
 
-After success: set Status to `Left`. **Clear** the stored Reason so
-`show` no longer lists it as deferred-with-reason. Print the updated
-table (show-style). Do not execute the phase.
+After success:
+- `Deferred` → Status `Left`. **Clear** the stored Reason so `show` no
+  longer lists it as deferred-with-reason.
+- `Def-Blocked` → Status `Blocked` (clear defer, keep the block). Keep
+  the blocker Reason.
 
-### Unblock
+Print the updated table (show-style). Do not execute the phase.
+
+### Todo
 
 Read-only / advisory (like Show). **No implementation.** **Do not**
-change Status (do not mark the phase unblocked). The human unblocks
-in the real world, then runs `/phasify` again. Do **not** execute
-the blocked phase and do **not** start later phases.
+change Status. Do **not** execute the phase and do **not** start
+later phases. This is a detailed actionable list of what that phase
+requires — far more than a one-liner.
 
-Parse after stripping `Nimages` / `Npass`. Match `unblock` /
-`Nunblock` as this mode — do **not** treat them as `undefer` /
-`Nundefer` (and vice versa). Do not treat a shared `un` prefix as
-the other mode.
+Parse after stripping `Nimages` / `Npass`. Match `todo` /
+`Ntodo` as this mode — do **not** treat them as `todone`,
+`toend`, or `unblock`. Do not collapse a shared `to` / `todo`
+prefix with `todone` or `toend`.
+`unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+**`todo N` / `todo 3` means named P3** (not next 3).
+**`todone N` / `todone 3` means next N eligible** (like `block N`).
 
 | Text | Effect |
 |------|--------|
-| `unblock` | Advise on the **next Blocked** phase in plan order (first status `Blocked`). If none, say so and print the current table (show-style). Do not invent a target. |
-| `Nunblock` / `pN unblock` / `unblock N` / `unblock pN` | Advise on that **table id** (`0`/`p0` = P0). |
+| `todo` | Detail the **next not-done, not-deferred** phase in plan order (first Status that is not `Done`, not `Deferred`, and not `Def-Blocked`). Include `Left`, `Blocked`, `Unblocked`, `Progress` / in-progress, `Planned`, `Not started`, etc. Skip `Done`, `Deferred`, and `Def-Blocked` (treat `Def-Blocked` as deferred). If none (all `Done`, or only `Deferred` / `Def-Blocked` left), say so and print the current table (show-style). Do not invent a target. |
+| `Ntodo` / `pN todo` / `todo N` / `todo pN` | Detail that **table id** (`0`/`p0` = P0) **no matter the Status except `Done`**. Named todo may todo a `Def-Blocked` phase (not `Done`). |
 
-If that phase is not `Blocked`: **do not change it**. Print a clear
-**Error:** line (same red/bold style as invalid defer).
+If that phase is already `Done`: **do not change it**. Print a clear
+**Error:** line (same red/bold style as invalid defer): cannot todo a
+completed phase.
+
+Invalid id (not a number, negative, higher than last phase, unknown id):
+**do not invent a target**. Print the same **Error:** style as invalid
+defer.
+
+If `Nimages` is present: acknowledge first (promptify scratch ack),
+then Todo. **Read** those images when they may explain the work; use
+only what they show (never invent APIs/files). If `Npass` > 1: extra
+pass(es) improve briefing quality (see **Flags**) — not a whole-table
+replan.
+
+**Todo report** (required when a target exists). Be incredibly
+detailed and practical. Numbered tasks; mark each **manual / human**
+vs **agent**. Cite files, APIs, and commands **only** when known from
+this conversation and verified workspace facts — never invent. For
+`Blocked` / `Def-Blocked` phases, include **both** the remaining
+phase work **and** the blocker / manual-human tasks.
+
+```text
+## Todo — PN — <title>
+
+**Phase:** PN — <title>
+**Status:** <current Status>
+**Description:** <phase description from the plan>
+
+### Why this phase
+<why this is next (first not-Done, not-Deferred, not-Def-Blocked) / why named>
+
+### Tasks
+1. <manual | agent> — <implementation step; files/APIs/commands when known>
+2. …
+
+### Done looks like
+<exit criteria the human or later /phasify can verify>
+
+### Do not
+- Do not execute this phase from this command
+- Do not change Status
+- Do not invent files, APIs, or commands
+
+/phasify pN
+```
+
+The last line is an optional one-line next-step (`/phasify pN` or
+`/phasify next`). Do not print it as if the work already ran.
+
+### Todone
+
+Todo + close. **No implementation.** Print the same detailed
+actionable list as **Todo**, then set that phase Status to
+**`Done`**. Do **not** wait for user acknowledgement. Using
+`todone` means the user already did (or is asserting) the work.
+Do **not** execute the phase and do **not** start later phases.
+
+Parse after stripping `Nimages` / `Npass`. Match `todone` /
+`Ntodone` as this mode — do **not** treat them as `todo` /
+`Ntodo`, `toend`, or `done`. Do not collapse a shared `to` /
+`todo` prefix. `todo` ≠ `todone` ≠ `toend` / `to-end` / `done`.
+`unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+**`todo N` / `todo 3` means named P3.** **`todone N` /
+`todone 3` means next N eligible** (like `block N`), not named
+PN.
+
+| Text | Effect |
+|------|--------|
+| `todone` | Todo+close the **next 1 eligible** phase (same selection as bare `todo`: first Status that is not `Done`, not `Deferred`, and not `Def-Blocked`). Include `Left`, `Blocked`, `Unblocked`, `Progress` / in-progress, `Planned`, `Not started`. Skip `Done`, `Deferred`, and `Def-Blocked`. If none, say so and print the current table (show-style). Do not invent a target. |
+| `todone pN` / `pN todone` / `Ntodone` | Todo+close that **table id** (`0`/`p0` = P0) **no matter the Status except `Done`**. Named todone may todone a `Deferred` / `Def-Blocked` / `Blocked` / `Left` / etc. phase (not `Done`). |
+| `todone N` (bare integer N ≥ 1, not `pN`) | Todo+close the **next N eligible** phases (same eligibility as bare `todone`). |
+| `todone 0` / `0todone` | Named P0 (like `block 0` / `0block`). You cannot todone “next 0”. |
+
+**Parse collision (required):** `todo N` / `todo 3` means named P3.
+`todone 2` / `todone N` means **next N**, not phase N. Named todone
+is only `pN` / `Ntodone` / `pN todone` (and `todone pN`).
+`2todone` = named P2 (same family as `Ntodo` / `Ndefer` / `Nblock`).
+`todo` ≠ `todone` ≠ `toend` / `to-end` / `done`.
+`unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+
+If that phase is already `Done`: **do not change it**. Print a clear
+**Error:** line (same red/bold style as invalid defer / todo-on-Done /
+block-on-Done): cannot todone a completed phase.
+
+Invalid id (not a number, negative, higher than last phase, unknown id):
+**do not invent a target**. Print the same **Error:** style as invalid
+defer.
+
+Bare `todone` / `todone N` when fewer eligible than requested: todone
+all eligible, say how many were todone'd vs requested, print the
+table. None eligible: say so and print the current table.
+
+If `Nimages` is present: acknowledge first (promptify scratch ack),
+then Todone. **Read** those images when they may explain the work; use
+only what they show (never invent APIs/files). If `Npass` > 1: extra
+pass(es) improve briefing quality (see **Flags**) — not a whole-table
+replan.
+
+**Report + close** (required when a target exists). For each phase
+todone'd, in plan order:
+
+1. Print the **Todo report** (same depth as **Todo**): heading,
+   id + title + **status-before**, description, why this phase,
+   numbered tasks (manual / agent), done-looks-like. Keep it
+   detailed. For `Blocked` / `Def-Blocked` phases, include **both**
+   the remaining phase work **and** the blocker / manual-human
+   tasks. Cite files, APIs, and commands **only** when known from
+   this conversation and verified workspace facts — never invent.
+2. Then set Status **`Done`**. Clear or update Reason (e.g. closed
+   by todone). Do **not** wait for acknowledgement.
+3. After **all** targets: reprint the full phase table
+   (last-of-run / show-style).
+
+```text
+## Todone — PN — <title>
+
+**Phase:** PN — <title>
+**Status:** <status-before>
+**Description:** <phase description from the plan>
+
+### Why this phase
+<why this is next (first not-Done, not-Deferred, not-Def-Blocked) / why named>
+
+### Tasks
+1. <manual | agent> — <implementation step; files/APIs/commands when known>
+2. …
+
+### Done looks like
+<exit criteria the human asserted or a later /phasify show can verify>
+
+### Do not
+- Do not execute this phase from this command
+- Do not wait for acknowledgement
+- Do not invent files, APIs, or commands
+```
+
+Then set Status `Done` (Reason: closed by todone, or clear). After
+every target in this run, print the aligned table last.
+
+### Block
+
+Non-executing. Manually set phase(s) to `Blocked` (or `Def-Blocked`
+if already `Deferred`). Status mutation + table reprint only — like
+defer / undefer, **not** a briefing and **not** Unblock. Do **not**
+execute the phase.
+
+Parse after stripping `Nimages` / `Npass`. If `Nimages` is
+present: acknowledge first, then Block. Strip flags **before**
+taking the reason. Match `block` /
+`Nblock` as this mode — do **not** treat them as `unblock` /
+`Nunblock`. Do not collapse a shared `block` suffix or `un`
+prefix. `unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+
+| Text | Effect |
+|------|--------|
+| `block` | Manually block the **next 1 eligible** phase (plan order). If none, say so and print the current table (show-style). Do not invent a target. |
+| `block pN` / `pN block` / `Nblock` | Manually block that **table id** (`0`/`p0` = P0). `block 0` / `0block` is named P0 (you cannot block “next 0”). |
+| `block N` (bare integer N ≥ 1, not `pN`) | Manually block the **next N eligible** open phases. |
+
+**Parse collision (required):** `todo N` / `todo 3` means named P3.
+`block 2` / `block N` means **next N**, not phase N. Named block is
+only `pN` / `Nblock` / `pN block`. `2block` = named P2 (same family
+as `Ntodo` / `Ntodone` / `Ndefer`). `unblock` ≠ `undefer` ≠
+`todo` ≠ `todone` ≠ `block`. `block` is not `unblock`.
+
+**Eligible** for bare `block` / `block N`: not `Done`, not already
+`Blocked`, not already `Def-Blocked`. Include `Left`, `Unblocked`,
+`Progress`, `Planned`, `Not started`, **`Deferred`** (→
+`Def-Blocked`). Skip `Done`. Skip already-blocked so `block 2`
+blocks two phases that are not yet blocked.
+
+Named can target `Deferred` (→ `Def-Blocked`). Named already
+`Blocked` / `Def-Blocked`: update Reason if a reason is given;
+stay blocked; do not error.
+
+Named `Done`: **do not change it**. Print a clear **Error:** line
+(same red/bold style as invalid defer / todo-on-Done): cannot
+block a completed phase.
+
+Invalid id (not a number, negative, higher than last phase, unknown
+id): **do not invent a target**. Print the same **Error:** style as
+invalid defer.
+
+Bare `block` / `block N` when fewer eligible than requested: block
+all eligible, say how many were blocked vs requested, print the
+table. None eligible: say so and print the current table.
+
+Optional reason: remainder of the line after the block token
+**and after flag strip** (`block waiting on legal` / `2block API freeze`
+/ `block p3 creds`). `2pass` / `1image` are flags, never reason text.
+Store on the phase (like defer). If no reason, still block; Reason
+should state it was manually blocked (short).
+
+**Status:**
+- Not `Deferred` → **`Blocked`**
+- `Deferred` → **`Def-Blocked`** in the table Status cell. Canonical
+  name **Deferred-Blocked** / **Def-Blocked**. `Deferred-Blocked` is
+  16 characters and does not fit the 12-wide Status inner width;
+  `Def-Blocked` is 11 and fits (` Def-Blocked`).
+
+Do not execute the phase.
+
+### Unblock
+
+Status-updating after verification (like Defer / Undefer). **No
+implementation of the phase work.** Do **not** execute the blocked
+phase and do **not** start later phases. Success means the unblock
+*operation* is done — **not** that the phase work is `Done`.
+
+Parse after stripping `Nimages` / `Npass`. Match `unblock` /
+`Nunblock` as this mode — do **not** treat them as `undefer` /
+`Nundefer`, `todo` / `Ntodo`, `todone` / `Ntodone`, or `block` /
+`Nblock`. Do not treat a shared `un` prefix or shared `block`
+suffix as the other mode.
+`unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+
+| Text | Effect |
+|------|--------|
+| `unblock` | Target the **next** phase whose Status is `Blocked` **or** `Def-Blocked` (plan order). If none, say so and print the current table (show-style). Do not invent a target. |
+| `Nunblock` / `pN unblock` / `unblock N` / `unblock pN` | Target that **table id** (`0`/`p0` = P0). |
+
+If that phase is neither `Blocked` nor `Def-Blocked`: **do not
+change it**. Print a clear **Error:** line (same red/bold style as
+invalid defer).
 
 Invalid id (not a number, negative, higher than last phase, unknown id):
 **do not invent a target**. Print the same **Error:** style as invalid
@@ -260,43 +606,51 @@ defer.
 
 If `Nimages` is present: acknowledge first, then Unblock. **Read**
 those images when they may explain the blocker; use only what they
-show (never invent APIs/files).
+show (never invent APIs/files). If `Npass` > 1: extra pass(es)
+improve test design / verification (see **Flags**).
 
-**Unblock report** (required when a Blocked target exists). Be
-incredibly detailed and practical. This is usually **manual / human**
-work — not “run grok/cursor and hope.” Use only this conversation
-and verified workspace facts.
+**Verification loop** (required):
 
-```text
-## Unblock — PN — <title>
+1. Identify the target Blocked or Def-Blocked phase.
+2. Infer from this conversation + verified workspace what the blocker
+   was (facts only; never invent APIs/files).
+3. Design the cheapest honest test (API, CLI, file exists, HTTP,
+   dashboard-equivalent command already in the repo). If no test is
+   possible, say so and do **not** flip Status unless the user
+   explicitly asserted the work is done **and** there is nothing to
+   test. Prefer leaving `Blocked` / `Def-Blocked` and asking for
+   evidence when a test is possible but unrunnable (missing creds).
+4. Run the test when tools/creds exist.
+5. **Pass:**
+   - `Blocked` → set Status to **`Unblocked`**. Treat `Unblocked`
+     like `Left` for Next / Todo selection (ready to run, not
+     complete). Clear or update Reason so it no longer reads as
+     blocked.
+   - `Def-Blocked` → set Status back to **`Deferred`** (not
+     `Unblocked`); they asked to stay deferred. Clear the blocker
+     Reason (keep a remaining defer reason if one is stored and
+     distinct; otherwise clear).
+   Print what was verified and the updated table (show-style). Do
+   **not** mark the phase `Done`.
+6. **Fail** → leave Status **`Blocked`** or **`Def-Blocked`**. State
+   the failure with evidence. Give the best remaining manual unblock
+   instructions (same depth as the Todo report: why blocked, numbered
+   manual tasks, what unblocked looks like, what not to do).
 
-**Phase:** PN — <title>
-**Description:** <phase description from the plan>
+Example (only when these facts are in the conversation): a phase
+blocked because an Eleven Labs agent must be deleted manually (no
+programmatic delete in the story) — Unblock must check whether that
+agent is gone. If still present: do not unblock; explain; leave
+`Blocked`.
 
-### Why it is blocked
-<facts from this conversation / workspace only; never invent APIs/files>
-
-### Manual tasks
-1. <credentials / access / decisions / ops / wait-on-vendor / docker chown / …>
-2. …
-
-### Unblocked looks like
-<exit criteria the human can verify>
-
-### Do not
-- Do not ask an agent to fake the missing access
-- Do not execute this phase or later phases from this command
-
-/phasify next
-```
-
-The last line is an optional one-line next-step after the human
-finishes (`/phasify next` or `/phasify pN`). Do not print it as if
-the work is already unblocked.
+Display Status string on success: **`Unblocked`** (from `Blocked`)
+or **`Deferred`** (from `Def-Blocked`). `Unblocked` fits the
+12-wide Status column (` Unblocked  `).
 
 ### Show / refresh
 
 Aliases: `show`, `refresh`. **Read-only.** No implementation.
+If `Nimages` is present: acknowledge first (see **Flags**), then Show.
 
 Print the current aligned table (Task, Flags if present, all phase
 statuses). Include Reason if any deferral has one. If no plan, tell the
@@ -376,14 +730,18 @@ Each present flag is its own Description line:
 
 This row is not a work phase.
 
-**Next incomplete** = first phase whose Status is not `Done` or `Deferred`
-(treat `Not started`, `Left`, `In progress`, `Blocked` as eligible; if
-`Blocked`, try it only if this run can unblock it, otherwise skip and say
-so).
+**Next incomplete** = first phase whose Status is not `Done`, not
+`Deferred`, and not `Def-Blocked` (treat `Not started`, `Left`,
+`Unblocked`, `In progress` / `Progress`, `Planned`, `Blocked` as
+eligible). `Unblocked` is like `Left` (ready to run, not complete).
+If `Blocked`, try it only if this run can unblock it, otherwise skip
+and say so. `Def-Blocked` is **skipped** (deferred) — not “run until
+blocked.”
 
-Skip `Done` and `Deferred` unless `--force` / explicit redo. Named `pN`
-is an explicit request to run that phase (even if Deferred). Stop the
-sequence on `Blocked`.
+Skip `Done`, `Deferred`, and `Def-Blocked` unless `--force` / explicit
+redo. Named `pN` is an explicit request to run that phase (even if
+Deferred / Def-Blocked). Stop the sequence on `Blocked`. Do **not**
+stop the sequence on `Def-Blocked` — skip it like `Deferred`.
 
 If the named phase does not exist, stop and list the real phase ids.
 If **Next-N** asks for more phases than remain, run the remainder and say
@@ -396,8 +754,9 @@ If the named phase is already `Done`, do not redo it unless the user said
 ## Execute (mutating, phase-scoped)
 
 All multi-phase execute modes stay **sequential, synchronous, in plan
-order**. No parallel/fan-out. Skip `Done` and `Deferred` unless
-`--force` / explicit redo. Stop the sequence on `Blocked`. Between
+order**. No parallel/fan-out. Skip `Done`, `Deferred`, and
+`Def-Blocked` unless `--force` / explicit redo. Stop the sequence on
+`Blocked` (not on `Def-Blocked` — skip it). Between
 phases, re-read Task + Flags and confirm the next phase still serves
 that goal; if not, stop and say why.
 
@@ -415,7 +774,10 @@ that goal; if not, stop and say why.
    after a partial run is **`Left`**.
 5. If a phase is **Blocked**, stop the sequence. Do not start x+1.
 
-Use scratch images (when marked) as extra detail while implementing.
+If `Nimages` is present: acknowledge first, then execute. Use scratch
+images (when marked) as extra detail while implementing. If `Npass` >
+1: extra pass(es) apply to **this phase's work** (see **Flags**), not
+a whole-table replan.
 
 ---
 
@@ -531,9 +893,14 @@ present, keep every line the same width.
 
 ### Status words (must fit in 12 with the leading space)
 
-Use exactly: `Planned` · `Done` · `Left` · `Blocked` · `Deferred` ·
-`Progress` · `Understood`. Do **not** write `In progress` (too long).
-Mark from this run + prior **verified** work only.
+Use exactly: `Planned` · `Done` · `Left` · `Blocked` · `Unblocked` ·
+`Deferred` · `Def-Blocked` · `Progress` · `Understood`. Do **not**
+write `In progress` (too long). `Unblocked` fits the 12-wide Status
+column (` Unblocked  `). `Def-Blocked` is the table spelling of
+canonical **Deferred-Blocked** (16 chars; does not fit). `Def-Blocked`
+is 11 and fits (` Def-Blocked`). Treat `Unblocked` like `Left` for
+Next / Todo selection. Skip `Def-Blocked` like `Deferred` for Next /
+bare Todo. Mark from this run + prior **verified** work only.
 
 ### Canonical example (copy these widths)
 
@@ -596,6 +963,7 @@ full table.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, if marker present
+**Npass — caught and correctly interpreted.**   ← after scratch ack, if marker present
 
 ## Phase P0 — Spec
 (short: what you implemented)
@@ -617,11 +985,25 @@ full table.
 ```
 
 `show` / `refresh` print only the table (plus Reason if any deferral has
-one). `unblock` prints the Unblock report (or “none blocked” + table).
-Invalid unblock id, or named unblock of a non-Blocked phase: **Error:**
-(same style as defer). `defer` and `undefer` print **Error:** on invalid
-id (or undefer of a non-Deferred phase), otherwise the updated table.
-`help` / `--help` / `/?` print `references/HELP.md` only.
+one). `todo` prints the Todo report (or “nothing eligible” + table).
+Invalid todo id, or named todo of a `Done` phase: **Error:** (same style
+as defer). `todone` prints the Todo-depth briefing for each target, sets
+Status `Done` (no ack wait), then the full table. Invalid todone id, or
+named todone of a `Done` phase: **Error:** (same style as defer /
+todo-on-Done). Bare `todone` / `todone N` with none eligible: say so +
+table. Fewer than N eligible: todone all eligible, say the shortfall,
+print the table. `block` prints the updated table (or “none eligible” / shortfall
++ table). Named block of a `Done` phase: **Error:** cannot block a
+completed phase. Invalid block id: **Error:** (same style as defer).
+`unblock` prints verification + updated table on pass, or stays
+`Blocked` / `Def-Blocked` with evidence + manual instructions on fail
+(or “none blocked” + table). Invalid unblock id, or named unblock of a
+phase that is neither `Blocked` nor `Def-Blocked`: **Error:** (same
+style as defer). `defer` and `undefer` print **Error:** on invalid id
+(or undefer of a phase that is neither `Deferred` nor `Def-Blocked`),
+otherwise the updated table. `help` / `--help` / `/?` print
+`references/HELP.md` only. `pass` / `pass help` print the **Pass
+(`Npass`)** section only.
 
 ---
 
@@ -633,34 +1015,86 @@ id (or undefer of a non-Deferred phase), otherwise the updated table.
 - Empty `/phasify` (no selector after stripping image/pass tokens) is
   **Next** (count = 1), same as `next`. Never print help/usage for an
   empty invocation. After flag strip, `help` / `--help` / `/?` prints
-  `references/HELP.md` and stops — do not execute.
+  `references/HELP.md` and stops — do not execute. After flag strip,
+  `pass` / `pass help` prints the **Pass (`Npass`)** section and
+  stops.
 - All multi-phase execute modes are **sequential, synchronous, in plan
   order**. No parallel/fan-out. Next-N, Run-to-end, and Stop-before-end:
   x finishes, then x+1 begins.
-- Skip `Done` and `Deferred` unless `--force` / explicit redo / named
-  `pN`. Stop the sequence on `Blocked`.
+- Skip `Done`, `Deferred`, and `Def-Blocked` unless `--force` /
+  explicit redo / named `pN`. Stop the sequence on `Blocked`. Skip
+  `Def-Blocked` (do not “run until blocked”).
 - After every finished phase except the last of this run: banner only.
   After the last phase of this run: banner + full table. Single-phase
   Next stays banner + table.
+- Flags (`Nimages` / `Npass`) work in **all** modes. Strip first
+  (promptify Flag parse order). `-2pass` is Npass, not
+  Stop-before-end. Npass on a phase is multi-pass of **that
+  phase's work**, not `/plannify fromhere`.
 - `-` / `-0` / `-N` is **Stop-before-end** (`C - N`). `-2pass` is a pass
   flag, not stop-before-end. Bare `3` is still Next-3.
 - Invalid defer id: **do not defer**. Print a clear **Error:** line
   (red via HTML `<span style="color:red">` when the client will render
   it; otherwise bold `Error:`).
-- Invalid undefer id, or undefer of a phase that is not `Deferred`:
-  **do not change it**. Print the same **Error:** style. Bare `undefer`
-  with no Deferred phase: say so — do not invent a target. Success:
-  Status `Left`, clear Reason, print the table; do not execute. Parse
-  `undefer` / `Nundefer` as Undefer, not Defer.
+- Invalid undefer id, or undefer of a phase that is neither `Deferred`
+  nor `Def-Blocked`: **do not change it**. Print the same **Error:**
+  style. Bare `undefer` with no Deferred / Def-Blocked phase: say so
+  — do not invent a target. Success: `Deferred` → `Left` (clear
+  Reason); `Def-Blocked` → `Blocked` (keep blocker Reason). Print the
+  table; do not execute. Parse `undefer` / `Nundefer` as Undefer, not
+  Defer.
 - `show` / `refresh` are read-only. No implementation.
-- `unblock` / `Nunblock` / `unblock N` are read-only / advisory. No
-  implementation. Do not change Status. Do not execute the blocked
-  phase or later phases. Bare `unblock` with no Blocked phase: say so
-  and print the table. Invalid id: same **Error:** as defer. Named
-  phase that is not `Blocked`: **Error:** (same style). Parse
-  `unblock` / `Nunblock` as Unblock, not Undefer.
+- `todo` / `Ntodo` / `todo N` are read-only / advisory. No
+  implementation. Do not change Status. Do not execute the phase or
+  later phases. Bare `todo` with nothing eligible (all `Done` or only
+  `Deferred` / `Def-Blocked` left): say so and print the table. Invalid
+  id: same **Error:** as defer. Named todo of a `Done` phase:
+  **Error:** cannot todo a completed phase. Named todo may todo a
+  `Def-Blocked` phase. Parse `todo` / `Ntodo` as Todo, not `todone`,
+  not `toend`. `todo N` means named PN (not next N).
+- `todone` / `Ntodone` / `todone pN` / `todone N` print the Todo-depth
+  briefing, then set Status `Done`. Do not execute. Do not wait for
+  ack. Bare `todone` = next 1 eligible (same as bare `todo`: not
+  `Done`, not `Deferred`, not `Def-Blocked`; include `Left`,
+  `Blocked`, `Unblocked`, `Progress`, `Planned`, `Not started`).
+  `todone N` (N ≥ 1) = next N eligible (like `block N`, **not** named
+  PN). Named is only `pN` / `Ntodone` / `pN todone` (and `todone pN`).
+  `todone 0` / `0todone` is named P0. Named may todone any status
+  except `Done`. Named `Done`: **Error:** cannot todone a completed
+  phase (same style as todo-on-Done / block-on-Done). Invalid id:
+  same **Error:** as defer. Fewer eligible than requested: todone
+  all eligible, say the shortfall, print the table. None eligible:
+  say so + table. After each target: print the briefing, then close
+  (`Done`; Reason closed by todone or clear). After all targets:
+  reprint the table. Parse `todone` / `Ntodone` as Todone, not Todo,
+  not `toend`, not `done`.
+- `block` / `Nblock` / `block pN` / `block N` update Status only. Do
+  not execute. Not `Done` → `Blocked`; `Deferred` → `Def-Blocked`.
+  Bare `block` = next 1 eligible; `block N` (N ≥ 1) = next N eligible
+  (not named PN); named is only `pN` / `Nblock` / `pN block`. Skip
+  already `Blocked` / `Def-Blocked` on bare / `block N`. Named already
+  blocked: update Reason if given; do not error. Named `Done`:
+  **Error:** cannot block a completed phase. Invalid id: same
+  **Error:** as defer. Fewer eligible than requested: block all
+  eligible, say the shortfall, print the table. None eligible: say so
+  + table. Optional reason like defer; if none, Reason says manually
+  blocked. Parse `block` / `Nblock` as Block, not Unblock.
+- `unblock` / `Nunblock` / `unblock N` verify then update Status.
+  Do not execute the blocked phase or later phases. On passing test:
+  `Blocked` → `Unblocked` (like `Left` for Next / Todo; not `Done`);
+  `Def-Blocked` → `Deferred` (not `Unblocked`); clear blocker Reason.
+  On fail or when a test cannot be confirmed: leave `Blocked` /
+  `Def-Blocked`, state evidence, give remaining manual instructions.
+  Bare `unblock`: next `Blocked` or `Def-Blocked`. None: say so and
+  print the table. Invalid id: same **Error:** as defer. Named phase
+  that is neither `Blocked` nor `Def-Blocked`: **Error:** (same
+  style). Parse `unblock` / `Nunblock` as Unblock, not Undefer, not
+  Todo, not Todone, not Block. Do not mark `Unblocked` without a
+  passing test when a test can exist.
 - Never invent a plan, phases, or workspace resources.
-- Do not mark `Done` unless the work landed.
+- Do not mark `Done` unless the work landed, **except Todone** (user
+  asserts the work; briefing then Status `Done`; no execute; no ack
+  wait).
 - Last printed section is the **Phased plan** table in the
   `phase_layout.txt` layout (execute recap / show). Original ify Task
   text is the **Task** row (three columns, wrapped) — never a separate
@@ -670,4 +1104,5 @@ id (or undefer of a non-Deferred phase), otherwise the updated table.
 - Every 3-column table line is exactly 89 characters with `│` at 0, 16,
   75, 88.
 - Image and pass markers are not phase selectors; acknowledge them first
-  when present. Parse per promptify Flag parse order.
+  when present. Parse per promptify Flag parse order. Flags work in
+  all modes; defer/block reasons must not swallow `2pass`.

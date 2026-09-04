@@ -95,12 +95,12 @@ If no current plan exists, tell the user to `/plannify` first.
 
 1. Recover Task row text (original ify wording) and Flags (`Nimages` /
    `Npass` or none). Same outcome as that Task; same flags.
-2. List phases already `Done` (landed) and `Deferred` (skip + reason).
-   Do not treat them as greenfield.
+2. List phases already `Done` (landed) and `Deferred` / `Def-Blocked`
+   (skip + reason). Do not treat them as greenfield.
 3. Run the normal plannify pipeline (including Npass if the Flags row
    has it; read scratch images if Nimages is set).
-4. Emit a **candidate** plan that keeps Done/Deferred constraints and
-   aims at the same Task.
+4. Emit a **candidate** plan that keeps Done/Deferred/Def-Blocked
+   constraints and aims at the same Task.
 
 Then **AskQuestion**: Keep new plan vs Continue original. If it fits,
 show the two phased tables **side by side** (or stacked labeled Original /
@@ -160,7 +160,7 @@ Required columns:
 |--------|---------|
 | **Phase** | Short id + title (e.g. `P0 — Spec`, `Phase 1 — API list/detail`) |
 | **Description** | One-line what ships / exit criteria (keep scannable) |
-| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Deferred` when known. Status `Deferred` is allowed on new plans for future-consideration slices. |
+| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. Status `Deferred` is allowed on new plans for future-consideration slices. `Unblocked` is like `Left` (ready to run, not complete). `Def-Blocked` is the table spelling of canonical Deferred-Blocked (fits the 12-wide Status column). |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add a Reason note on that row so it matches phasify deferrals. |
 
 Example (last thing in the response):
@@ -211,12 +211,18 @@ After optimize + scoring:
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), **read
-and print** `references/HELP.md` (this skill folder) and **stop**. Do
-not plan or replan. Empty `/plannify` is the short usage below, not
-Help. `fromhere` is a task body, not Help. `help me …` is a **task**,
-not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** section of that file and **stop**.
+  There is no `/pass` skill.
+
+Do not plan or replan. Empty `/plannify` is the short usage below,
+not Help. `fromhere` is a task body, not Help. `help me …` is a
+**task**, not Help.
 
 ## No task body
 
@@ -229,6 +235,7 @@ If there is no task after the command, explain:
 /plannify <prompt>    — coach into a planning-kickoff prompt, then produce the plan
 /plannify fromhere    — replan from current statuses (Keep new vs Continue original)
 /plannify help        — full reference (also --help, /?)
+/plannify pass help   — Pass (Npass) subsection (also `pass`)
 /promptify <prompt>   — analyze/optimize only (no run)
 /runnify <prompt>     — optimize then EXECUTE the work (mutating)
 ```
@@ -307,7 +314,8 @@ see Trailing phase table)
   `Not started`. Status `Deferred` and an optional reason note are allowed
   so new plans can mark future-consideration slices the same way.
 - `/plannify fromhere` (alias `planify fromhere`): read-only replan from
-  current statuses. Same Task and Flags. Keep Done/Deferred constraints.
+  current statuses. Same Task and Flags. Keep Done/Deferred/Def-Blocked
+  constraints.
   Then **AskQuestion**: Keep new plan vs Continue original. Side by side
   (or stacked labeled Original / Candidate if width fails). The chosen
   plan becomes current for later `/phasify`.
@@ -319,5 +327,7 @@ see Trailing phase table)
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the plan. Acknowledge the marker.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Empty `/plannify` is short usage, not
-  Help. `fromhere` is not Help. `help me …` is a task.
+  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
+  the **Pass (`Npass`)** section and stop. Empty `/plannify` is
+  short usage, not Help. `fromhere` is not Help. `help me …` is a
+  task.

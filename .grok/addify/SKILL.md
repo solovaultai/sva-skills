@@ -37,17 +37,24 @@ source of truth; never invent files/APIs/tools/DBs). Mutability is
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (Flag parse order). If the **remaining
-body is exactly** `help`, `--help`, or `/?` (case-insensitive), **read
-and print** `references/HELP.md` (this skill folder) and **stop**. Do
-not recover or dispatch. Empty `/addify` is the short usage below, not
-Help. `help me …` is a **task**, not Help.
+Strip `Nimages` / `Npass` first (Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** section of that file and **stop**.
+  There is no `/pass` skill.
+
+Do not recover or dispatch. Empty `/addify` is the short usage below,
+not Help. `help me …` is a **task**, not Help.
 
 If the user invokes the skill with no prompt body, explain:
 
 ```text
 /addify <text>     — append <text> to the last ify and restart/continue that skill
 /addify help       — full reference (also --help, /?)
+/addify pass help  — Pass (Npass) subsection (also `pass`)
 ```
 
 Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
@@ -167,10 +174,10 @@ table when that skill requires one).
 |----------|--------|
 | **plannify** | Restart `/plannify` **from scratch** on the combined text. New Planning-Kickoff + new plan. **Not** fromhere. Discard old phase statuses. |
 | **promptify** | Restart `/promptify` on the combined text (new optimize only; do not execute). **Not** fromhere. |
-| **phasify** | Run **`/plannify fromhere` + new prompt**. Keep Done/Deferred (+ reasons). Task = original Task (verbatim ify wording) **plus** appended addify text. Same Flags plus addify-line flags (addify-line wins the same family). Then AskQuestion: Keep new plan vs Continue original. |
+| **phasify** | Run **`/plannify fromhere` + new prompt**. Keep Done/Deferred/Def-Blocked (+ reasons). Task = original Task (verbatim ify wording) **plus** appended addify text. Same Flags plus addify-line flags (addify-line wins the same family). Then AskQuestion: Keep new plan vs Continue original. |
 | **debugify** | Restart **this platform’s** debugify (Grok: **full Debug Mode loop**) on combined bug text **plus prior-run learnings** (falsified/confirmed hypotheses, evidence, suspect paths already ruled out). Restart the loop; do not throw away evidence. Alias `/debug` maps here. |
 | **runnify — planning** | No `## Results` and no mutating work started → re-runnify from scratch: optimize + execute on the combined prompt. |
-| **runnify — mid-run** | Results and/or phase work started → **not** greenfield. Continue from current phase statuses with new knowledge + appended text (Done stays Done; resume Left / In progress / Blocked as the current table shows). |
+| **runnify — mid-run** | Results and/or phase work started → **not** greenfield. Continue from current phase statuses with new knowledge + appended text (Done stays Done; resume Left / Unblocked / In progress / Blocked / Def-Blocked as the current table shows). |
 | **addify** | Not a leaf. Resolve ancestor + concatenate addify texts; dispatch on the ancestor type. |
 | **askify** | Restart `/askify` on combined text (new Ask-Kickoff + new answer). No fromhere exists. |
 
@@ -206,7 +213,8 @@ the banner.
   debugify = full loop (alias `/debug`). runnify planning = from
   scratch; mid-run = continue. askify = restart.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Empty `/addify` is short usage,
-  **not** Next. `help me …` is a task.
+  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
+  the **Pass (`Npass`)** section and stop. Empty `/addify` is
+  short usage, **not** Next. `help me …` is a task.
 - Inherit mutability from the target. Last printed content is
   whatever the target skill requires (often its trailing phase table).

@@ -6,8 +6,11 @@ description: >-
   execute only the optimized prompt and return Results. Use when the user runs
   /runnify, /promptify-run, "runnify", or wants prompt QA plus immediate
   execution. Print a complete reference with `/runnify help` or
-  `/runnify --help` (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the
+  `/runnify --help` (also `/?`). `/runnify pass help` prints the Pass
+  (`Npass`) subsection. Recognizes Nimages / N images / N-images as a pointer to the
   newest N images from the configured scratch source (or workspace scratch/).
+  Recognizes Npass / N-pass / N pass as N pipeline passes (promptify Flag
+  parse order).
 ---
 
 # Runnify (= Promptify execution mode)
@@ -44,16 +47,23 @@ image(s) from <source> for extra detail on the issue under review.
 
 ## Help (`help` / `--help` / `/?`)
 
-Strip `Nimages` / `Npass` first (promptify Flag parse order). If the
-**remaining body is exactly** `help`, `--help`, or `/?` (case-insensitive),
-print **User help** below and **stop**. Do not execute. Empty `/runnify`
-is the short usage, not Help. `help me …` is a **task**, not Help.
+Strip `Nimages` / `Npass` first (promptify Flag parse order). Then:
+
+- Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
+  print **User help** below and **stop**.
+- Remaining body exactly `pass` or `pass help` (case-insensitive):
+  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  There is no `/pass` skill.
+
+Do not execute. Empty `/runnify` is the short usage, not Help.
+`help me …` is a **task**, not Help.
 
 If the user message has no task body after `/runnify`, explain:
 
 ```text
 /runnify <prompt>     — analyze, validate, enrich, rewrite, then execute
 /runnify help         — full reference (also --help, /?)
+/runnify pass help    — Pass (Npass) subsection (also `pass`)
 /promptify <prompt>   — analyze only (no execute)
 ```
 
@@ -64,6 +74,7 @@ Scores · Results · **Phased plan last** when the work is multi-phase).
 ## User help
 
 Print this section as the response on `help` / `--help` / `/?`.
+On `pass` / `pass help`, print only **Pass (`Npass`)** below.
 
 ### What it does
 
@@ -78,12 +89,14 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 ```text
 /runnify <prompt>      — optimize, then EXECUTE
 /runnify help          — this reference (also --help / /?)
+/runnify pass          — Pass (Npass) subsection only (also pass help)
 /promptify-run <prompt>— alias of /runnify
 /promptify <prompt>    — analyze only (no execute)
 ```
 
-Exact remaining body after flag strip must be `help`, `--help`, or `/?`.
-`help me write a login form` is a task.
+Exact remaining body after flag strip must be `help`, `--help`,
+`/?`, `pass`, or `pass help`. `help me write a login form` is a
+task.
 
 ### Flags (`Nimages` / `Npass`)
 
@@ -101,9 +114,27 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
-**`Npass`:** inherited from promptify — N pipeline passes; pass 1 is a
-documented pre-plan when N > 1. Acknowledge after the scratch ack when
-both appear.
+**`Npass`:** see **Pass (`Npass`)** below.
+
+### Pass (`Npass`)
+
+There is **no** `/pass` skill. After flag strip, remaining body
+exactly `pass` or `pass help` prints **this subsection** and stops.
+Cite promptify **Flag parse order** and **Pass (`Npass`)** — do not
+fork. Full reference: `/promptify pass help`.
+
+**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
+left to right. Default **1**. N pipeline passes of this execution
+run. If N > 1, pass 1 is a documented pre-plan; the last pass
+emits the optimized prompt, then execute + Results. Acknowledge
+after the scratch ack when both appear.
+
+```text
+/runnify pass
+/runnify pass help
+/runnify 2pass <prompt>
+/promptify pass help
+```
 
 ### Pipeline then execute
 
@@ -131,7 +162,8 @@ except an optional one-line next-step.
 - Never invent workspace resources.
 - Multi-phase / flag runs end with the phase table.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not execute. Empty `/runnify` is short usage, not Help.
+  do not execute. Exact `pass` / `pass help`: print **Pass
+  (`Npass`)** only. Empty `/runnify` is short usage, not Help.
 
 ### Related
 
