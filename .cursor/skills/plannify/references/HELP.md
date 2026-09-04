@@ -182,3 +182,4 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/runnify <prompt>` | Optimize then execute |
 | `/askify <prompt>` | Optimize then answer (read-only) |
+| `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |

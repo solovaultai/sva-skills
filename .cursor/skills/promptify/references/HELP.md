@@ -216,3 +216,4 @@ one-line next-step.
 | `/plannify <prompt>` | Optimize then plan (read-only) |
 | `/phasify` | Execute the next plan phase |
 | `/debugify <bug>` | Debug Mode kickoff prompt (paste into Cursor Debug Mode) |
+| `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |

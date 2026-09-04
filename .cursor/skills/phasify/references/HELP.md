@@ -259,7 +259,9 @@ Examples after strip:
 Three columns. No extra box. No spanning cell.
 
 **Task Description** = verbatim original ify request (the words after
-promptify / askify / runnify / plannify / debugify). Not Intent
+promptify / askify / runnify / plannify / debugify / addify). When
+the current plan came from `/addify`, Task is the **combined** text
+(ancestor body + addify bodies), not generated plan text. Not Intent
 Analysis, not the Kickoff/Optimized Prompt, not `## Plan`. Strip
 image/pass tokens from Task (they belong in Flags). If the raw request
 cannot be recovered: `(original ify text not found)` — do not
@@ -391,3 +393,4 @@ is the **plannify** skill. Phasify does not replan.
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify help` | Plannify reference |
 | `/runnify <prompt>` | Execute a whole optimized task (not phase-scoped) |
+| `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |

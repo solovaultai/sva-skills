@@ -15,8 +15,9 @@ description: >
   Replan from current
   statuses with `/plannify fromhere` (plannify skill). When phase(s)
   complete, put the user's original ify Task text
-  (promptify / askify / runnify / plannify / debugify — verbatim user
-  request, not generated plan text) in the Task row of the aligned
+  (promptify / askify / runnify / plannify / debugify / addify —
+  verbatim user request, or addify-extended combined text, not
+  generated plan text) in the Task row of the aligned
   phased-plan table (docs/phase_layout.txt). Capture Flags as specified:
   both Nimages and Npass, one of them, or no Flags row. Not a separate
   box, not a spanning cell, not plannify's interpreted or projected text.
@@ -240,11 +241,12 @@ Keep two things separate:
    Do not invent phases.
 2. **Original ify text** (what you put in the **Task** row) — the user's
    **raw request** that kicked off promptify, askify, runnify, plannify,
-   debugify, or whatever ify produced this plan. That is the text they
-   typed after the slash command (or the free-text they asked to ify).
-   It is **not** Intent Analysis, not the Kickoff/Optimized Prompt, not
-   `## Plan`, and not any interpreted, projected, or updated text the
-   ify created.
+   debugify, addify, or whatever ify produced this plan. That is the
+   text they typed after the slash command (or the free-text they asked
+   to ify). When the plan came from `/addify`, use the **combined**
+   text (ancestor body + addify bodies). It is **not** Intent Analysis,
+   not the Kickoff/Optimized Prompt, not `## Plan`, and not any
+   interpreted, projected, or updated text the ify created.
 
 If the raw request is not in this conversation, recover it from the ify
 invocation that created the plan. If it cannot be recovered, put
@@ -260,10 +262,12 @@ spanning cell.
 ### Task
 
 **Description** = the verbatim original ify Task text (the words the
-user typed for promptify / askify / runnify / plannify / debugify).
-Not `## Plan`, not Intent Analysis, not the Kickoff/Optimized Prompt,
-not scores, not any interpreted / projected / updated text an ify
-generated. Do not rewrite or summarize.
+user typed for promptify / askify / runnify / plannify / debugify /
+addify). When the plan came from `/addify`, this is the **combined**
+text (ancestor body + addify bodies). Not `## Plan`, not Intent
+Analysis, not the Kickoff/Optimized Prompt, not scores, not any
+interpreted / projected / updated text an ify generated. Do not
+rewrite or summarize.
 
 Strip `Nimages` / `Npass` marker tokens from the Task text (they belong
 in Flags). Leave the rest unchanged.
@@ -447,8 +451,9 @@ present, keep every line the same width.
 1. Column titles: `Phase` / `Description` / `Status` (and **Reason** when
    any phase has a stored reason)
 2. **Task** — verbatim original ify Task text (promptify / askify /
-   runnify / plannify / debugify). No generated plan text. See **Capture
-   Task and Flags**.
+   runnify / plannify / debugify / addify). When the plan came from
+   `/addify`, use the combined text. No generated plan text. See
+   **Capture Task and Flags**.
 3. **Flags** — both flags, one flag, or omit the row (neither present)
 4. Work phases in order, current statuses (Reason on that row when stored)
 

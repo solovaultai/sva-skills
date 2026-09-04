@@ -133,3 +133,8 @@ except an optional one-line next-step.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
   do not execute. Empty `/runnify` is short usage, not Help.
 
+### Related
+
+`/addify <text>` — append `<text>` to the last ify and restart/continue
+that skill.
+

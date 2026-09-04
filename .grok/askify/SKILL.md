@@ -326,3 +326,8 @@ Phased plan (when required).
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
   do not answer.
 
+### Related
+
+`/addify <text>` — append `<text>` to the last ify and restart/continue
+that skill.
+

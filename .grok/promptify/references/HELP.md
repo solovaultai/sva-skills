@@ -217,3 +217,4 @@ one-line next-step.
 | `/phasify` | Execute the next plan phase |
 | `/debugify <bug>` | Full Debug Mode loop |
 | `/debug-kickoff <bug>` | Read-only debug brief |
+| `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |

@@ -1,0 +1,156 @@
+# Addify — user reference
+
+Print this file as the response when the user runs `/addify help`,
+`/addify --help`, or `/addify /?`. Do not recover or dispatch.
+
+Empty `/addify` is the short usage cheat, not this page.
+`help me …` (or any longer body) is a **task**, not Help.
+
+---
+
+## What it does
+
+A **thin conversation router**. Recovers the last ify in **this
+chat**, verbatim-appends the addify body, and dispatches to that
+skill. Does not optimize or plan by itself.
+
+```text
+/addify <text>     — append <text> to the last ify and restart/continue that skill
+/addify help       — this reference (also --help / /?)
+```
+
+Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
+
+---
+
+## How to invoke
+
+```text
+/addify also handle empty folders
+/addify 1image check the screenshot too
+/addify help
+```
+
+The text to append is everything after the command, or the free-text
+when they said “addify this” / “add this to the last ify”.
+
+---
+
+## Modes
+
+| Invocation | Mode | What happens |
+|------------|------|----------------|
+| `/addify <text>` | **Append + dispatch** | Recover last ify; combine; run that skill |
+| `/addify` *(empty)* | Short usage | No recover, no dispatch |
+| `/addify help` / `--help` / `/?` | **Help** | Print this page; stop |
+
+Exact remaining body after flag strip must be `help`, `--help`, or
+`/?`. `help me write a login form` is a task (append that text).
+
+---
+
+## Last-ify recovery
+
+Scan **this conversation** newest-first. Chat only — no disk store.
+
+**Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
+`debugify` · `askify` · `addify`.
+
+**Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
+`/promptify-run` → runnify; `/promptify-ask` → askify;
+`/debug` → debugify.
+
+**Skip:** help-only turns; empty-usage turns (not a task). **Do not
+skip** empty `/phasify` (that is Next).
+
+**If last is addify:** walk back to the last non-addify ancestor.
+Combined body = ancestor + every later addify body in order.
+
+**If none / body unrecoverable:** stop and show short usage. Do
+**not** substitute Intent Analysis, Kickoff, or `## Plan` text.
+
+Not ify: `/image`, `/imagine`, `/help`, `/create-skill`,
+`/check-work`, `/code-review`, `/debug-kickoff`.
+
+---
+
+## Combined prompt
+
+```text
+<original last-ify body>
+<addify body>
+```
+
+Append **verbatim**. One newline so tokens do not glue. Strip
+`Nimages` / `Npass` from the **addify** portion after parse.
+
+---
+
+## Dispatch
+
+| Last ify | Action |
+|----------|--------|
+| **plannify** / **promptify** | Restart that skill from scratch on the combined text. **Not** fromhere. |
+| **phasify** | `/plannify fromhere` + new prompt. Keep Done/Deferred. Task = old Task + append. AskQuestion: Keep vs Continue. |
+| **debugify** | Restart this platform’s debugify (Grok: **full loop**; alias `/debug`) + prior-run learnings. |
+| **runnify — planning** | No Results / no mutating work → re-runnify from scratch. |
+| **runnify — mid-run** | Continue from current phase statuses + new text (not greenfield). |
+| **askify** | Restart askify on the combined text. |
+| **addify** | Resolve ancestor, then dispatch. |
+
+If phasify is last and no current plan exists, say `/plannify` first.
+
+---
+
+## Flags (`Nimages` / `Npass`)
+
+Same parse order as promptify: first numbered instance left to
+right; skip unnumbered `image` / `pass`. Strip **before** deciding
+Help vs task.
+
+Flags on the addify line apply to the restarted skill. **Addify-line
+wins** the same family. If only one line sets a family, that value
+applies. Lead with the scratch / Npass acknowledgments when markers
+are present.
+
+---
+
+## Banner then target pipeline
+
+```markdown
+**Addify — last ify: <name>.**
+Appending your text to the previous `<slash or alias>` body and dispatching to <skill> (<scratch|fromhere|mid-run|from scratch>).
+```
+
+Then the target skill’s full response (including its trailing table
+when that skill requires one).
+
+---
+
+## Hard rules (short)
+
+- Thin router: recover, append verbatim, dispatch. No second pipeline
+  of your own.
+- Conversation only. No last-ify file or CLI store.
+- Skip help-only / empty-usage last ify except empty phasify = Next.
+- Do not substitute Intent / Kickoff / Plan for the original body.
+- Addify-line flags win the same family. Acks first when present.
+- Empty `/addify` is short usage, **not** Next.
+- Exact `help` / `--help` / `/?` after flag strip: print this page;
+  stop.
+
+---
+
+## Related
+
+| Command | Role |
+|---------|------|
+| `/plannify <prompt>` | Optimize then plan (read-only) |
+| `/plannify fromhere` | Replan from current statuses |
+| `/phasify` | Execute the next plan phase |
+| `/runnify <prompt>` | Optimize then execute |
+| `/promptify <prompt>` | Analyze / optimize only |
+| `/askify <prompt>` | Optimize then answer (read-only) |
+| `/debugify <bug>` | Full Debug Mode loop |
+| `/debug` | Alias of `/debugify` |
+| `/debug-kickoff <bug>` | Read-only debug brief |

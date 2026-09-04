@@ -378,3 +378,8 @@ one-line after the table). Do not proceed to fix.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
   do not start the loop.
 
+### Related
+
+`/addify <text>` — append `<text>` to the last ify and restart/continue
+that skill.
+
