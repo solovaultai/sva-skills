@@ -1,7 +1,8 @@
 # Phasify — user reference
 
 Print this file as the response when the user runs `/phasify help`,
-`/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer, or show.
+`/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer,
+unblock, or show.
 
 Empty `/phasify` is **Next**, not this page.
 
@@ -31,6 +32,7 @@ Need a new plan from current statuses? Use **`/plannify fromhere`**
 /phasify -               — Stop-before-end (also -0 / -N)
 /phasify defer [reason]  — Defer next open phase (also Ndefer / defer N)
 /phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)
+/phasify unblock         — Advise on next Blocked phase (also Nunblock / unblock N)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
 ```
@@ -53,13 +55,14 @@ pass flag, not stop-before-end. Help is **not** a phase selector.
 | `-` / `-0` / `-N` | **Stop-before-end** | Yes — through 1-based index `C − N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | No — status only |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | No — status only (`Left`) |
+| `unblock`, `Nunblock`, `unblock N` | **Unblock** | No — advisory report only |
 | `show` / `refresh` | **Show** | No — print table only |
 | `help` / `--help` / `/?` | **Help** | No — print this reference |
 | `/plannify fromhere` | **fromhere** | Replan (plannify skill, not phasify) |
 
 **Execute modes** (mutating): Named · Next · Next-N · Run-to-end ·
-Stop-before-end. **Defer** and **Undefer** update status only. **Show**
-and **Help** are read-only.
+Stop-before-end. **Defer** and **Undefer** update status only. **Show**,
+**Unblock**, and **Help** are read-only.
 
 ---
 
@@ -77,9 +80,10 @@ and **Help** are read-only.
 | `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | Run-to-end (case-insensitive) |
 | `toend` / `to-end` / `to end` after flag strip | Run-to-end (not empty Next; `to-end` is not `-N`) |
 
-New tokens are words (`done`, `toend`, `defer`, `undefer`) or a **leading minus**
-(`-2`), never something that collides with `2pass`. Match `undefer` /
-`Nundefer` as **Undefer**, not Defer.
+New tokens are words (`done`, `toend`, `defer`, `undefer`, `unblock`) or a
+**leading minus** (`-2`), never something that collides with `2pass`.
+Match `undefer` / `Nundefer` as **Undefer**, not Defer. Match `unblock` /
+`Nunblock` as **Unblock**, not Undefer.
 
 ---
 
@@ -211,6 +215,73 @@ table (show-style). Do not execute the phase.
 
 ---
 
+## Unblock
+
+Read-only / advisory (like Show). **No implementation.** **Do not**
+change Status (do not mark the phase unblocked). The human unblocks
+in the real world, then runs `/phasify` again. Do **not** execute
+the blocked phase and do **not** start later phases.
+
+Parse after stripping `Nimages` / `Npass`. Match `unblock` /
+`Nunblock` as this mode — not `undefer` / `Nundefer`. Do not treat
+a shared `un` prefix as the other mode.
+
+| Text | Effect |
+|------|--------|
+| `unblock` | Advise on the **next Blocked** phase in plan order (first status `Blocked`). If none, say so and print the current table (show-style). Do not invent a target. |
+| `Nunblock` / `pN unblock` / `unblock N` / `unblock pN` | Advise on that table id (`0` / `p0` = P0) |
+
+If that phase is not `Blocked`: **do not change it**. Print **Error:**
+(same red/bold style as invalid defer).
+
+Invalid id (not a number, negative, past last phase, unknown): **do not
+invent a target**. Print the same **Error:** style as invalid defer.
+
+If `Nimages` is present: acknowledge first, then Unblock. **Read**
+those images when they may explain the blocker; use only what they
+show (never invent APIs/files).
+
+**Unblock report** (required when a Blocked target exists). Be
+incredibly detailed and practical. This is usually **manual / human**
+work — not “run grok/cursor and hope.” Use only this conversation
+and verified workspace facts.
+
+```text
+## Unblock — PN — <title>
+
+**Phase:** PN — <title>
+**Description:** <phase description from the plan>
+
+### Why it is blocked
+<facts from this conversation / workspace only; never invent APIs/files>
+
+### Manual tasks
+1. <credentials / access / decisions / ops / wait-on-vendor / docker chown / …>
+2. …
+
+### Unblocked looks like
+<exit criteria the human can verify>
+
+### Do not
+- Do not ask an agent to fake the missing access
+- Do not execute this phase or later phases from this command
+
+/phasify next
+```
+
+The last line is an optional one-line next-step after the human
+finishes (`/phasify next` or `/phasify pN`). Do not print it as if
+the work is already unblocked.
+
+```text
+/phasify unblock
+/phasify 2unblock
+/phasify unblock p1
+/phasify p1 unblock
+```
+
+---
+
 ## Show / refresh
 
 Aliases: `show`, `refresh`. **Read-only.** No implementation.
@@ -261,6 +332,7 @@ Examples after strip:
 | `/phasify to-end` | Run-to-end | none |
 | `/phasify to end` | Run-to-end | none |
 | `/phasify toend 1image` | Run-to-end | 1 image |
+| `/phasify unblock 1image` | Unblock | 1 image |
 
 ---
 
@@ -359,7 +431,8 @@ line the same width.
 Closing recap: after the last banner of this run, print only
 `## Phased plan` plus the aligned table (last section). Optional
 one-line next-step (e.g. `/phasify next`). `show` prints only the
-table. `defer` and `undefer` print **Error:** on invalid id (or undefer
+table. `unblock` prints the Unblock report (or “none blocked” + table).
+`defer` and `undefer` print **Error:** on invalid id (or undefer
 of a non-Deferred phase), otherwise the updated table.
 
 ---
@@ -387,6 +460,12 @@ is the **plannify** skill. Phasify does not replan.
   Success: Status `Left`, clear Reason, print the table; do not execute.
   Parse `undefer` / `Nundefer` as Undefer, not Defer.
 - `show` / `refresh` are read-only.
+- `unblock` / `Nunblock` / `unblock N` are read-only / advisory. Do not
+  change Status. Do not execute the blocked phase or later phases.
+  Bare `unblock` with no Blocked phase: say so and print the table.
+  Invalid id: same **Error:** as defer. Named phase that is not
+  `Blocked`: **Error:** (same style). Parse `unblock` / `Nunblock` as
+  Unblock, not Undefer.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed.
 - Task row = verbatim original ify text. Flags = both / one / none.
