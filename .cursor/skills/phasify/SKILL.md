@@ -10,7 +10,11 @@ description: >-
   or stop before the last N work phases (`/phasify -`, `/phasify -0`,
   `/phasify -N`). Defer a phase (`/phasify defer`, `Ndefer`, `defer N`
   [reason]). Undefer a phase (`/phasify undefer`, `Nundefer`,
-  `undefer N`). Todo a phase (`/phasify todo`, `Ntodo`,
+  `undefer N`). Rundefer a phase (`/phasify rundefer`,
+  `Nrundefer`, `rundefer N`, `rundeferN`) — undefer then
+  execute those Deferred / Def-Blocked phases (`rundefer N` /
+  `Nrundefer` / `2rundefer` = next N deferred, not named PN;
+  named is `rundefer pN` / `pN rundefer`). Todo a phase (`/phasify todo`, `Ntodo`,
   `todo N`) — detailed actionable list; no execute, no Status
   change. Todone a phase (`/phasify todone`, `Ntodone`,
   `todone pN`, `todone N`) — Todo-depth briefing, then Status
@@ -38,7 +42,8 @@ description: >-
   "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
   finish", "phasify end", "phasify all", "phasify close", "phasify
   toend", "phasify to-end", "phasify to end", "phasify -",
-  "phasify -2", "phasify defer", "phasify undefer", "phasify todo",
+  "phasify -2", "phasify defer", "phasify undefer", "phasify rundefer",
+  "phasify todo",
   "phasify todone", "phasify block", "phasify unblock", "phasify show",
   "phasify refresh", "phasify help", "phasify --help", "run phase p0",
   "run next phase",
@@ -63,13 +68,18 @@ section. Follow `~/.cursor/skills/plannify/SKILL.md` for phase ids.
 Print the recap / between-phase table using **Table layout**
 (`phase_layout.txt`) — not a markdown table.
 
+User-facing meanings of **Deferred phase**, **Todo**, **Block**, and
+**Addify to plannify** live in `references/HELP.md` (**Concepts**),
+near the top after “what it does.” Agents follow this SKILL for parse
+and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
+
 ---
 
 ## Flags (`Nimages` / `Npass`)
 
 Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end,
-Stop-before-end, Defer, Undefer, Todo, Todone, Block, Unblock, Show,
-Help). Parse and strip **before** mode dispatch.
+Stop-before-end, Defer, Undefer, Rundefer, Todo, Todone, Block,
+Unblock, Show, Help). Parse and strip **before** mode dispatch.
 
 **Intent (short):** Flags are optional mid-walk. Prefer setting
 images/pass on promptify/plannify **before** `/phasify`. Use on
@@ -134,15 +144,15 @@ N = 1 if absent. Not a phase selector and not Task wording.
 When **N > 1**, pass 1 is a documented pre-plan only (`## Pre-plan
 (pass 1)` — inventories, approach, gaps for **this mode**). Passes
 2–N use that base; the last pass produces the mode's deliverable
-(execute, Todo briefing, Unblock test, Block/Defer reason, Show
-table, …).
+(execute, Rundefer undefer+execute, Todo briefing, Unblock test,
+Block/Defer reason, Show table, …).
 
 **Npass on a single phase** is a multi-pass run of **that phase's
 work** (definition, clarification, verification, or execute) — not
 a re-plan of the whole table. Whole-table replan remains
 `/plannify fromhere`. Extra pass(es) are especially for Todo
 briefing quality, Unblock test design, Block/Defer reason quality,
-or execute of a complex / complete phase.
+or execute / Rundefer of a complex / complete phase.
 
 Print the promptify Npass acknowledgment after the scratch ack
 when both appear:
@@ -178,6 +188,7 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 | `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | Clear Deferred → `Left`; do not execute |
+| `rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` | **Rundefer** | Undefer then execute those Deferred / Def-Blocked phases |
 | `todo`, `Ntodo`, `todo N` | **Todo** | Detailed actionable list for that phase (no execute; no Status change) |
 | `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | Todo-depth list, then Status `Done` (no execute; no ack wait) |
 | `block`, `Nblock`, `block pN` [reason] | **Block** | Manually set eligible phase(s) `Blocked` / `Def-Blocked`; do not execute |
@@ -206,10 +217,18 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
 - Bare `3` is still Next-3. New tokens must be words (`done`, `toend`,
-  `defer`, `undefer`, `todo`, `todone`, `block`, `unblock`) or a
-  **leading minus** (`-2`), never collide with `2pass`.
-- Match **`undefer` / `Nundefer`** as **Undefer**, not Defer. Do not treat
-  the suffix `defer` inside `undefer` as Defer.
+  `defer`, `undefer`, `rundefer`, `todo`, `todone`, `block`, `unblock`)
+  or a **leading minus** (`-2`), never collide with `2pass`.
+- Match **`rundefer` / `Nrundefer` / `rundeferN`** as **Rundefer**
+  **first** (the token contains `undefer` / `defer`). Do not collapse
+  on `run` / `un` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
+  `todo` ≠ `todone`. **`rundefer N` / `Nrundefer` / `rundeferN` /
+  `2rundefer` / `rundefer2` means next N Deferred / Def-Blocked**,
+  then execute — **not** named PN (unlike `Nundefer` / `2undefer` /
+  `Nblock` / `2block`). Named rundefer is only `pN` (`rundefer pN` /
+  `pN rundefer`).
+- Match **`undefer` / `Nundefer`** as **Undefer**, not Defer, not
+  Rundefer. Do not treat the suffix `defer` inside `undefer` as Defer.
 - Match **`todo` / `Ntodo`** as **Todo**, not `todone`, not `toend`, and
   not Unblock. Do not collapse a shared `to` / `todo` prefix with
   `todone` or `toend`.
@@ -228,7 +247,7 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 - Match **`unblock` / `Nunblock`** as **Unblock**, not Undefer, not Todo,
   not Todone, not Block. Do not treat a shared `un` prefix or shared
   `block` suffix as the other mode.
-  `unblock` ≠ `undefer` ≠ `todo` ≠ `todone` ≠ `block`.
+  `unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `block`.
 - `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` /
   `to end` are case-insensitive **Run-to-end** aliases. After flag
   strip, remaining body exactly `toend`, `to-end`, or `to end` is
@@ -252,17 +271,20 @@ Strip image/pass tokens first. Then:
   (case-insensitive): print the **Pass (`Npass`)** section of that
   file and **stop**. There is no `/pass` skill.
 
-Do not execute, defer, undefer, todo, todone, block, unblock, or
-show. Do not invent extra modes. Help is not a phase selector.
+Do not execute, defer, undefer, rundefer, todo, todone, block, unblock,
+or show. Do not invent extra modes. Help is not a phase selector.
 Empty `/phasify` is **Next**, not Help.
 
-**Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end are
-**execute** modes (mutating). **Defer**, **Undefer**, **Block**,
+**Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end /
+**Rundefer** are **execute** modes (mutating). **Rundefer** undefer
+then execute (single step). **Defer**, **Undefer**, **Block**,
 **Unblock** (on verified pass), and **Todone** update status only (no
-implementation). **Todone** also prints a Todo-depth briefing, then sets
-Status `Done` (no ack wait). **Todo**, **Show**, and **Help** are
-read-only (no implementation). Handle Defer, Undefer, Todo, Todone,
-Block, Unblock, Show, and Help without entering Execute.
+implementation). **Undefer** does **not** execute. **Todone** also
+prints a Todo-depth briefing, then sets Status `Done` (no ack wait).
+**Todo**, **Show**, and **Help** are read-only (no implementation).
+Handle Defer, Undefer, Todo, Todone, Block, Unblock, Show, and Help
+without entering Execute. Handle Rundefer as undefer-then-Execute
+(do not treat it as status-only).
 
 ### Run-to-end
 
@@ -354,6 +376,67 @@ After success:
   the blocker Reason.
 
 Print the updated table (show-style). Do not execute the phase.
+
+### Rundefer
+
+**Undefer then execute** those phases in one step — as if `/phasify`
+ran after the undefer, but only on the just-undeferred ids. Do **not**
+wait for ack. `rundefer` ≠ `undefer` ≠ `toend` ≠ `todo` ≠ `todone`.
+Do not collapse on `un` / `defer` / `run`. **`undefer` still only
+changes Status** (no execute). **`rundefer` = undefer + execute.**
+
+Parse after stripping `Nimages` / `Npass`. If `Nimages` is present:
+acknowledge first, then Rundefer. Match `rundefer` / `Nrundefer` /
+`rundeferN` as this mode **first** — the token contains `undefer` /
+`defer`. Do **not** treat them as `undefer` / `Nundefer` or `defer` /
+`Ndefer`.
+
+| Text | Effect |
+|------|--------|
+| `rundefer` | Undefer the **next 1** Deferred or Def-Blocked phase (plan order), then execute it. |
+| `rundefer N` / `Nrundefer` / `rundeferN` (N ≥ 1) | Undefer the **next N** Deferred / Def-Blocked phases, then execute them in plan order (like Next-N on those just-undeferred phases). |
+| `2rundefer` / `rundefer2` / `Rundefer2` | Same as `rundefer 2` — **next 2** deferred, **not** named P2. |
+| `rundefer pN` / `pN rundefer` | Named: that phase **only if** it is `Deferred` or `Def-Blocked`; else **Error:** |
+
+**Parse collision (required):** `rundefer N` / `Nrundefer` / `rundeferN`
+/ `2rundefer` / `rundefer2` means **next N deferred**, not named PN
+(like `block 2` / `todone 2` — and **unlike** `Nundefer` / `2undefer` /
+`Nblock` / `2block`, which are named PN). Named rundefer is only `pN`.
+`rundefer 0` / `0rundefer` is not “next 0” — **Error:** (use
+`rundefer p0` to target P0). `rundefer` ≠ `undefer` ≠ `toend` ≠
+`todo` ≠ `todone`.
+
+**Semantics:**
+
+1. Find targets: next N phases with Status `Deferred` or `Def-Blocked`
+   (skip Done, Left, Blocked-without-defer, Unblocked, Progress,
+   Planned, Not started, etc.).
+2. If **none**: say so and print the table (show-style). Do **not**
+   execute some other open phase.
+3. If **fewer than N**: undefer+run all found; say the shortfall.
+4. **Undefer first** (same transitions as **Undefer** — do not change
+   Undefer’s no-execute behavior):
+   - `Deferred` → `Left` (clear defer Reason)
+   - `Def-Blocked` → `Blocked` (keep blocker Reason) — then execute
+     **stops** on that phase like any Blocked phase. Do **not** pretend
+     it became runnable.
+5. **Then execute** the just-undeferred phases that are now `Left` /
+   `Unblocked` / runnable, in plan order, as a normal phasify execute
+   (Named / Next semantics on those ids). Stop at `Blocked`. Skip if
+   somehow still `Deferred`. Print COMPLETED / BLOCKED banners and the
+   last-of-run table per **Execute** / **Phase COMPLETED banner**.
+6. Do not wait for ack. Nimages ack first if present. `Npass` = multi-pass
+   of **this rundefer run** (that mode’s work), not a whole-table replan.
+
+If the first just-undeferred phase is `Blocked` (was `Def-Blocked`):
+print the BLOCKED banner and the last-of-run table; do not start later
+just-undeferred phases; do not pick some other Left phase that was
+never a target.
+
+Invalid named id, or named rundefer of a phase that is neither
+`Deferred` nor `Def-Blocked`: **do not change it** and **do not
+execute**. Print a clear **Error:** line (same red/bold style as
+invalid undefer).
 
 ### Todo
 
@@ -768,7 +851,7 @@ that goal; if not, stop and say why.
    (work landed or explicitly Blocked) **before** phase x+1 begins.
    Do **not** run phases in parallel, as background agents, or as a batch
    of simultaneous todos. No async fan-out. Applies to Next-N,
-   Run-to-end, and Stop-before-end.
+   Run-to-end, Stop-before-end, and Rundefer.
 4. Mark status accurately: `Done` only if the work **landed**; else
    `In progress`, `Blocked`, or leave as `Left`. Remaining unstarted work
    after a partial run is **`Left`**.
@@ -808,9 +891,11 @@ Use `✓` and `COMPLETED` for Done. If Blocked:
 - After the **last phase of this run:** banner + full `phase_layout.txt`
   recap (Task, Flags if any, statuses).
 
-Apply this to Next-N, Run-to-end, and Stop-before-end. Single-phase Next
-stays banner + table. Named single-phase (`0` / `pN`) also stays banner +
-table.
+Apply this to Next-N, Run-to-end, Stop-before-end, and Rundefer.
+Single-phase Next stays banner + table. Named single-phase (`0` / `pN`)
+also stays banner + table. Rundefer of one deferred phase stays banner
++ table. A Def-Blocked target that becomes `Blocked` uses the BLOCKED
+banner (execute stops; do not pretend it became runnable).
 
 ---
 
@@ -957,9 +1042,9 @@ Include Reason if any phase has a stored reason.
 ## Response shape
 
 Empty `/phasify` and `next` use the single-phase path (one phase, then
-the table). Next-N / Run-to-end / Stop-before-end add later phases after
-each prior phase finishes. Mid-run: banner only. Last-of-run: banner +
-full table.
+the table). Next-N / Run-to-end / Stop-before-end / Rundefer add later
+phases after each prior phase finishes. Mid-run: banner only.
+Last-of-run: banner + full table.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, if marker present
@@ -1001,9 +1086,14 @@ completed phase. Invalid block id: **Error:** (same style as defer).
 phase that is neither `Blocked` nor `Def-Blocked`: **Error:** (same
 style as defer). `defer` and `undefer` print **Error:** on invalid id
 (or undefer of a phase that is neither `Deferred` nor `Def-Blocked`),
-otherwise the updated table. `help` / `--help` / `/?` print
-`references/HELP.md` only. `pass` / `pass help` print the **Pass
-(`Npass`)** section only.
+otherwise the updated table (undefer does **not** execute). `rundefer`
+undefer then execute; none deferred: say so + table (do not execute
+some other open phase). Named rundefer of a phase that is neither
+`Deferred` nor `Def-Blocked`: **Error:**. Fewer than N: undefer+run
+all found; say the shortfall. A `Def-Blocked` target becomes `Blocked`
+and stops execute (BLOCKED banner + last-of-run table). `help` /
+`--help` / `/?` print `references/HELP.md` only. `pass` / `pass help`
+print the **Pass (`Npass`)** section only.
 
 ---
 
@@ -1019,8 +1109,8 @@ otherwise the updated table. `help` / `--help` / `/?` print
   `pass` / `pass help` prints the **Pass (`Npass`)** section and
   stops.
 - All multi-phase execute modes are **sequential, synchronous, in plan
-  order**. No parallel/fan-out. Next-N, Run-to-end, and Stop-before-end:
-  x finishes, then x+1 begins.
+  order**. No parallel/fan-out. Next-N, Run-to-end, Stop-before-end,
+  and Rundefer: x finishes, then x+1 begins.
 - Skip `Done`, `Deferred`, and `Def-Blocked` unless `--force` /
   explicit redo / named `pN`. Stop the sequence on `Blocked`. Skip
   `Def-Blocked` (do not “run until blocked”).
@@ -1042,7 +1132,24 @@ otherwise the updated table. `help` / `--help` / `/?` print
   — do not invent a target. Success: `Deferred` → `Left` (clear
   Reason); `Def-Blocked` → `Blocked` (keep blocker Reason). Print the
   table; do not execute. Parse `undefer` / `Nundefer` as Undefer, not
-  Defer.
+  Defer, not Rundefer.
+- `rundefer` / `Nrundefer` / `rundefer N` / `rundeferN` undefer then
+  execute those phases. Bare `rundefer` = next 1 Deferred /
+  Def-Blocked. `rundefer N` / `Nrundefer` / `rundeferN` / `2rundefer`
+  / `rundefer2` (N ≥ 1) = next N deferred, **not** named PN (unlike
+  `Nundefer` / `2undefer` / `Nblock` / `2block`). Named is only `pN`
+  (`rundefer pN` / `pN rundefer`); else **Error:** if that phase is
+  neither `Deferred` nor `Def-Blocked`. None: say so + table; do
+  **not** execute some other open phase. Fewer than N: undefer+run
+  all found; say the shortfall. Undefer first (`Deferred` → `Left`,
+  clear Reason; `Def-Blocked` → `Blocked`, keep blocker Reason) then
+  execute just-undeferred runnable phases; **stop on Blocked** (do
+  not pretend Def-Blocked became runnable). Skip if still Deferred.
+  Banners / last-of-run table like other execute modes. No ack wait.
+  Npass = this rundefer run, not whole-table replan. Parse `rundefer`
+  **before** `undefer` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
+  `todo` ≠ `todone`. Do not collapse on `un` / `defer` / `run`.
+  **Undefer stays status-only** (no execute).
 - `show` / `refresh` are read-only. No implementation.
 - `todo` / `Ntodo` / `todo N` are read-only / advisory. No
   implementation. Do not change Status. Do not execute the phase or
