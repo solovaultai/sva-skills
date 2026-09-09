@@ -2,7 +2,7 @@
 
 Print this file as the response when the user runs `/phasify help`,
 `/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer,
-rundefer, todo, todone, block, unblock, or show.
+rundefer, todo, todone, explain, block, unblock, or show.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -28,12 +28,97 @@ Need a new plan from current statuses? Use **`/plannify fromhere`**
 Plain-language meanings. Token tables and parse rules follow below.
 Agents: this is the user-facing page — keep these definitions in view.
 
+### Status words
+
+Cite phasify `SKILL.md` (Status words / Execute / Undefer / Block /
+Unblock / Todone). Do **not** invent statuses.
+
+| Status | Where it appears | Meaning |
+|--------|------------------|---------|
+| `Not started` | Markdown plan tables (plannify / promptify) | Fresh / not-yet-executed. Not a 12-wide recap spelling — use `Left` there. |
+| `Left` | Aligned recap + work phases | Still to do. Next picks it up. Remaining unstarted work after a partial run. |
+| `Unblocked` | Work phases | Blocker cleared. Ready **like** `Left`, not complete. |
+| `Progress` | Aligned 12-wide table | Started, not finished. **Never** write `In progress` here (too long). |
+| `In progress` | Markdown plan tables only | Same meaning as `Progress`. Spelling split: markdown vs 12-wide recap. |
+| `Deferred` | Work phases | Parked on purpose (“not now”). Next / bare todo skip it. |
+| `Blocked` | Work phases | Hard stop. Execute-next cannot proceed through it. |
+| `Def-Blocked` | Work phases | Table spelling of **Deferred-Blocked** (11 chars; fits 12-wide). Parked **and** blocked. |
+| `Done` | Work phases | Finished. Only if the work **landed**, or closed by **todone**. |
+| `Planned` | **Task** row only | Task-row / not-started planning state. Not a work-phase Status. |
+| `Understood` | **Flags** row only | Flags captured. Not a work-phase Status. |
+
+**Not statuses:** `todo` and `todone` are **commands**. Todo prints a
+list and does not change Status. Todone prints the list, then sets
+Status `Done` (no execute, no ack wait).
+
+### How statuses tie together
+
+Park vs stop vs ready vs closed. Transitions below are the ones
+already in phasify `SKILL.md` — do not add others.
+
+```mermaid
+flowchart LR
+  subgraph ready [Ready — Next picks up]
+    NS["Not started"]
+    Left
+    Unblocked
+    Prog["Progress / In progress"]
+  end
+  subgraph park [Park — Next skips]
+    Deferred
+    DefB["Def-Blocked"]
+  end
+  subgraph stop [Stop]
+    Blocked
+  end
+  subgraph closed [Closed]
+    Done
+  end
+  Deferred -->|undefer| Left
+  Deferred -->|block| DefB
+  DefB -->|undefer / rundefer| Blocked
+  DefB -->|unblock| Deferred
+  Blocked -->|unblock| Unblocked
+  Unblocked -.->|like Left| Left
+  Left -->|work landed / todone| Done
+  Prog -->|work landed| Done
+```
+
+- `Deferred` → `Left` (undefer; clear defer Reason)
+- `Deferred` → `Def-Blocked` (block)
+- `Def-Blocked` → `Blocked` (undefer / rundefer; keep blocker Reason)
+- `Def-Blocked` → `Deferred` (unblock; stay parked)
+- `Blocked` → `Unblocked` (unblock)
+- `Unblocked` is treated like `Left` (ready, not complete)
+- `Done` only if work landed, or **todone** asserted it
+- **Next** skips `Done`, `Deferred`, and `Def-Blocked`
+
+Task `Planned` and Flags `Understood` sit outside this work-phase
+graph.
+
+### Not yet executed
+
+`Not started` (markdown tables) and `Left` (aligned recap) both mean
+the phase has not finished. Fresh plannify rows often say `Not
+started`. After a run starts, remaining unstarted work is **`Left`**.
+Next treats both as eligible (not `Done`, not `Deferred`, not
+`Def-Blocked`). `Unblocked` is the same “ready” bucket after a
+blocker clears.
+
+### Done
+
+Status **`Done`** means the phase finished. Mark `Done` only if the
+work **landed**. Exception: **todone** (user asserts the work; briefing
+then `Done`; no execute). Explain / named todo / named block of a
+`Done` phase is an **Error:**. Next and bare todo skip `Done`.
+
 ### Deferred phase
 
 A phase with Status **`Deferred`** (or **`Def-Blocked`**) is parked on
 purpose. Next, execute (`/phasify` / `next` / Next-N / done / `-N`),
 bare todo, bare todone, and bare rundefer-eligibility **skip** it until
-you **undefer** or **rundefer**.
+you **undefer** or **rundefer**. Bare **explain** / `explain N` do
+**not** skip Deferred / Def-Blocked — they explain the park.
 
 This is **not** the same as **Blocked**. Blocked is a hard stop:
 execute-next cannot proceed through it. Deferred means “not now” —
@@ -60,11 +145,25 @@ does **not** execute the phase and does **not** change Status.
 | Command | List? | Status? | Execute? |
 |---------|-------|---------|----------|
 | `/phasify todo` | Yes | No change | No |
+| `/phasify explain` | No (write-up + glossary + TL/DR) | No change | No |
 | `/phasify todone` | Same list | Then `Done` (no ack wait) | No |
 | `/phasify` / `next` / named `pN` | No | After work | **Yes** — implement the phase |
 
 Todone means you already did (or are asserting) the work. Execute
 (`/phasify` / next) is what actually implements a phase.
+
+### Explain
+
+`/phasify explain` prints a **full explanation** of a phase: what is
+in it, why it exists, what its Status means (defer / todo / blocked
+glossary), and a mandatory **TL/DR**. It does **not** execute the
+phase and does **not** change Status.
+
+Todo is a numbered checklist (manual vs agent). Explain is a
+write-up + status glossary + TL/DR — not a task list. Bare explain
+targets the next not-`Done` phase **including** Deferred /
+Def-Blocked (unlike bare todo). `explain N` / `Nexplain` /
+`explainN` = next N; named is only the `P`/`p` family.
 
 ### Block
 
@@ -113,6 +212,7 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)
 /phasify rundefer        — Undefer+execute next Deferred phase (also Nrundefer / rundefer N / rundeferN)
 /phasify todo            — Todo next not-done / not-deferred phase (also Ntodo / todo N)
+/phasify explain         — Explain next not-Done phase (includes Deferred; also Nexplain / explain N / explainN)
 /phasify todone          — Todo+close next eligible phase (also Ntodone / todone pN; todone N = next N)
 /phasify block [reason]  — Block next 1 eligible phase (also Nblock / block pN / block N)
 /phasify unblock         — Verify next Blocked / Def-Blocked phase (also Nunblock / unblock N)
@@ -143,6 +243,7 @@ Pass help, not a task.
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | No — status only (`Left`) |
 | `rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` | **Rundefer** | Yes — undefer then execute those phases |
 | `todo`, `Ntodo`, `todo N` | **Todo** | No — detailed list only (no Status change) |
+| `explain`, `Nexplain`, `explain N`, `explainN` | **Explain** | No — full explanation + glossary + TL/DR (no Status change) |
 | `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | No phase work — Todo-depth list, then Status `Done` |
 | `block`, `Nblock`, `block pN` [reason] | **Block** | No — Status `Blocked` / `Def-Blocked` only |
 | `unblock`, `Nunblock`, `unblock N` | **Unblock** | No phase work — verify, then `Unblocked` or `Deferred` on pass |
@@ -156,7 +257,7 @@ Stop-before-end · **Rundefer** (undefer then execute). **Defer**,
 **Undefer**, **Block**, **Unblock** (on verified pass), and **Todone**
 update status only. **Undefer** does **not** execute. **Todone**
 also prints a Todo-depth briefing, then sets `Done` (no ack wait).
-**Todo**, **Show**, and **Help** are read-only.
+**Todo**, **Explain**, **Show**, and **Help** are read-only.
 
 ---
 
@@ -176,7 +277,7 @@ also prints a Todo-depth briefing, then sets `Done` (no ack wait).
 | `toend` / `to-end` / `to end` after flag strip | Run-to-end (not empty Next; `to-end` is not `-N`) |
 
 New tokens are words (`done`, `toend`, `defer`, `undefer`, `rundefer`,
-`todo`, `todone`, `block`, `unblock`) or a **leading minus** (`-2`),
+`todo`, `todone`, `explain`, `block`, `unblock`) or a **leading minus** (`-2`),
 never something that collides with `2pass`. Match `rundefer` /
 `Nrundefer` / `rundeferN` as **Rundefer** first (the token contains
 `undefer` / `defer` — do not collapse on `run` / `un` / `defer`).
@@ -196,7 +297,13 @@ not `done`. **`todone N` / `todone 3` means next N eligible** (like
 eligible**, not named PN. Named block is only `pN` / `Nblock` /
 `pN block`. `2block` = named P2. Match `unblock` / `Nunblock` as
 **Unblock**, not Undefer, not Rundefer, not Todo, not Todone, not Block.
-`unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `block`.
+`unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
+Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
+not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
+`explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
+means next N not-Done** (like `rundefer N`), **not** named PN.
+Named explain is only the `P`/`p` family. `explain 0` /
+`0explain` / `explain0` is **Error:** (use `explain p0`).
 
 ### Parse collisions
 
@@ -204,23 +311,36 @@ eligible**, not named PN. Named block is only `pN` / `Nblock` /
 |-------|--------|-----|
 | `todo N` / `todo 3` | Named **P3** | Next-N |
 | `todone N` / `todone 3` | **Next N** eligible (like `block N`) | Named PN |
+| `explain N` / `explain 3` / `explain3` / `3explain` / `Nexplain` / `explainN` | **Next N** not-Done (includes Deferred) | Named PN |
+| `explain P3` / `explainP3` / `P3explain` / `explain p3` | Named **P3** | Next-3 |
 | `block N` / `block 2` | **Next N** eligible | Named PN |
 | `rundefer N` / `rundefer 2` / `Nrundefer` / `rundeferN` / `2rundefer` / `rundefer2` | **Next N** Deferred / Def-Blocked, then execute | Named PN |
 | `unblock N` / `defer N` / `undefer N` | Named **PN** (table id) | Next-N |
 | `Ntodo` / `Ntodone` / `Nblock` / `Ndefer` / `Nundefer` | Named **PN** | Next-N |
 | `todone 0` / `0todone` / `block 0` | Named **P0** | “next 0” |
+| `explain 0` / `0explain` / `explain0` | **Error:** (use `explain p0`) | Named P0 · “next 0” |
 | `2todone` / `2block` / `2todo` / `2undefer` | Named **P2** | Next-2 |
+| `2explain` / `explain2` | **Next 2** not-Done | Named P2 |
 | `2rundefer` / `rundefer2` / `Rundefer2` | **Next 2** deferred + execute | Named P2 |
 | `undefer` | **Undefer** (status only) | Defer · rundefer |
-| `rundefer` | **Rundefer** (undefer + execute) | Undefer · defer · toend · todo · todone |
-| `unblock` | **Unblock** | Block · undefer · rundefer · todo · todone |
-| `toend` / `to-end` / `to end` | Run-to-end | Todo · todone · `-N` |
+| `rundefer` | **Rundefer** (undefer + execute) | Undefer · defer · toend · todo · todone · explain |
+| `explain` | **Explain** (read-only write-up + TL/DR) | Todo · todone · toend · end · rundefer |
+| `unblock` | **Unblock** | Block · undefer · rundefer · todo · todone · explain |
+| `toend` / `to-end` / `to end` | Run-to-end | Todo · todone · explain · `-N` |
 | `-2pass` | **Npass** flag | Stop-before-end `-2` |
 | `pass` / `pass help` after strip | **Pass help** | A task · a phase |
 
-`unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `block`.
-`todo` ≠ `todone` ≠ `toend` / `to-end` / `done`.
-`rundefer` ≠ `undefer` ≠ `toend` ≠ `todo` ≠ `todone`.
+`unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
+`todo` ≠ `todone` ≠ `explain` ≠ `toend` / `to-end` / `done`.
+`rundefer` ≠ `undefer` ≠ `toend` ≠ `todo` ≠ `todone` ≠ `explain`.
+Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
+not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
+`explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
+means next N not-Done** (like `rundefer N` / `block N` /
+`todone N`), **not** named PN. Named explain is only the `P`/`p`
+family. `explain 0` / `0explain` / `explain0` is **Error:** (use
+`explain p0`). Bare `explain` includes Deferred / Def-Blocked
+(unlike bare todo).
 
 ---
 
@@ -507,6 +627,95 @@ The last line is an optional one-line next-step (`/phasify pN` or
 /phasify 2todo
 /phasify todo p1
 /phasify p1 todo
+```
+
+---
+
+## Explain
+
+Read-only / advisory (like Todo / Show). **No implementation.**
+**Do not** change Status. Do **not** execute the phase. A full
+explanation of what the phase is, why it exists, and what its
+Status means — not a numbered Todo checklist.
+
+Parse after stripping `Nimages` / `Npass`. Match `explain` /
+`Nexplain` / `explainN` as this mode — not `todo`, `todone`,
+`toend`, `end`, or `rundefer`. Do not collapse a shared `end`
+suffix as Run-to-end.
+`explain` ≠ `todo` ≠ `todone` ≠ `toend` / `end`.
+**`explain N` / `explain 3` / `explain3` / `3explain` /
+`Nexplain` / `explainN` / `2explain` means next N not-Done**
+(like `rundefer N` / `block N` / `todone N`), **not** named PN
+(unlike `todo N` / `Ntodo` / `2todo`). Named explain is only
+the `P`/`p` family.
+
+| Text | Effect |
+|------|--------|
+| `explain` / `explain 1` | Explain the **next 1 not-Done** phase (include `Deferred`, `Def-Blocked`, `Blocked`, `Left`, `Unblocked`, `Progress`, `Planned`, `Not started`). Unlike bare todo: do **not** skip Deferred. If none (all `Done`), say so and print the table. |
+| `explain N` / `explainN` / `Nexplain` / glued (`explain3` / `3explain` / `2explain`) (N ≥ 1) | Explain the **next N not-Done** phases (same eligibility as bare). |
+| `explain pN` / `explainP3` / `P3explain` / `p3explain` / `p3 explain` | Named that table id (`p0` = P0) except `Done`. |
+| `explain 0` / `0explain` / `explain0` | **Error:** (use `explain p0`). Not named P0. |
+
+**Parse collision:** `explain 3` ≠ `explain P3`. `3explain` /
+`explain3` = next 3; `P3explain` / `explainP3` = named P3.
+`2explain` / `explain2` = next 2, **not** named P2 (unlike
+`2todo` / `2block`). Named Done: **Error:** cannot explain a
+completed phase. Invalid id: same **Error:** as invalid defer.
+
+Fewer than N not-Done: explain all found, say the shortfall,
+print the table. None not-Done: say so + table. Next-N Explain
+does **not** stop on Blocked (explains and continues).
+
+If `Nimages` is present: acknowledge first, then Explain. If
+`Npass` > 1: extra pass(es) improve explanation quality — not a
+whole-table replan. `Npass` = this explain run.
+
+**Explain report** (when a target exists). For each phase, in
+plan order: heading, Status, Description, Reason if any, **What
+these statuses mean** (glossary tied to this phase), **What is
+in this phase**, **Why this phase**, **TL/DR** (1–2
+non-technical paragraphs — last subsection of that phase before
+Do not), Do not. After **all** explanations: 89-char
+`phase_layout.txt` table last. No COMPLETED banners for Explain
+itself (advisory).
+
+```text
+## Explain — PN — <title>
+
+**Phase:** PN — <title>
+**Status:** <current Status>
+**Description:** <phase description from the plan>
+**Reason:** <stored defer/block reason if any; omit if none>
+
+### What these statuses mean
+<glossary tied to THIS phase: Left, Done, Blocked, Deferred,
+Def-Blocked, Unblocked, Progress, Planned>
+
+### What is in this phase
+<full narrative — not a numbered todo checklist>
+
+### Why this phase
+<why this slice / why next (first not-Done, including Deferred) / why named>
+
+### TL/DR
+<one or two non-technical paragraphs: what is in the phase and why>
+
+### Do not
+- Do not execute this phase from this command
+- Do not change Status
+- Do not invent files, APIs, or commands
+- Do not print a Todo task list (use /phasify todo for that)
+```
+
+```text
+/phasify explain
+/phasify explain 3
+/phasify explain3
+/phasify 3explain
+/phasify explain p1
+/phasify explainP1
+/phasify P1explain
+/phasify p1 explain
 ```
 
 ---
@@ -809,7 +1018,7 @@ image(s) from <source> for extra detail on the issue under review.
 mode's work**. Default N = 1 if absent. When N > 1, pass 1 is a
 documented pre-plan; passes 2–N use that base. **Npass on a single
 phase** is a multi-pass run of **that phase's work** (Todo briefing,
-Unblock test, Block/Defer reason, or execute) — not a whole-table
+Explain briefing, Unblock test, Block/Defer reason, or execute) — not a whole-table
 replan (`/plannify fromhere`). Acknowledge after the scratch ack
 when both appear.
 
@@ -830,6 +1039,7 @@ Examples after strip:
 | `/phasify p3 2pass` | Named P3 | `2pass` (that phase's work, not whole table) |
 | `/phasify next 1images` | Next | 1 image |
 | `/phasify todo 1image` | Todo | 1 image |
+| `/phasify explain 1image` | Explain | 1 image |
 | `/phasify todone 1image` | Todone | 1 image |
 | `/phasify defer 2pass waiting on legal` | Defer next | `2pass`; reason = waiting on legal |
 | `/phasify rundefer 1image` | Rundefer | 1 image |
@@ -856,7 +1066,7 @@ stops. Full reference: `/phasify help`.
 
 **Meaning on phasify:** N pipeline passes of **this invocation's
 mode work** (execute, Rundefer undefer+execute, Todo briefing,
-Unblock test, Block/Defer reason, Show). Not a phase selector. Not a
+Explain briefing, Unblock test, Block/Defer reason, Show). Not a phase selector. Not a
 whole-table replan
 (`/plannify fromhere`). Prefer setting images/pass on
 promptify/plannify **before** the walk; use on phasify when a
@@ -985,6 +1195,11 @@ Closing recap: after the last banner of this run, print only
 `## Phased plan` plus the aligned table (last section). Optional
 one-line next-step (e.g. `/phasify next`). `show` prints only the
 table. `todo` prints the Todo report (or “nothing eligible” + table).
+`explain` prints the Explain report for each target (or “nothing
+eligible” + table). Named explain of a `Done` phase: **Error:**
+cannot explain a completed phase. `explain 0` / `0explain`:
+**Error:** (use `explain p0`). No COMPLETED banners for Explain
+itself. After all explanations: table last.
 `todone` prints the Todo-depth briefing for each target, sets Status
 `Done` (no ack wait), then the full table. Named todone of a `Done`
 phase: **Error:** cannot todone a completed phase. `block` prints
@@ -1061,6 +1276,20 @@ is the **plannify** skill. Phasify does not replan.
   todo a completed phase. Named todo may todo a `Def-Blocked` phase.
   Parse `todo` / `Ntodo` as Todo, not `todone`, not `toend`. `todo N`
   means named PN (not next N).
+- `explain` / `Nexplain` / `explain N` / `explainN` are read-only
+  / advisory. Do not change Status. Do not execute. Bare `explain`
+  = next 1 not-`Done` (**include** Deferred / Def-Blocked /
+  Blocked / Left / Unblocked / Progress / Planned / Not started).
+  Unlike bare todo: do **not** skip Deferred. `explain N` /
+  `Nexplain` / `explainN` / `3explain` / `explain3` / `2explain`
+  (N ≥ 1) = next N not-Done (**not** named PN). Named is only
+  `pN` / `PN`. `explain 0` / `0explain` / `explain0`: **Error:**
+  (use `explain p0`). Named `Done`: **Error:** cannot explain a
+  completed phase. None not-Done: say so + table. Fewer than N:
+  explain all found, say the shortfall, print the table. Does
+  **not** stop on Blocked. Each phase ends with **TL/DR**. Table
+  last. No COMPLETED banners for Explain itself. Parse `explain`
+  as Explain, not Todo, not Todone, not `toend` / `end`.
 - `todone` / `Ntodone` / `todone pN` / `todone N` print the
   Todo-depth briefing, then set Status `Done`. Do not execute. Do
   not wait for ack. Bare `todone` = next 1 eligible (same as bare

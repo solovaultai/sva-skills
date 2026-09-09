@@ -173,9 +173,10 @@ If verification fails: return to analyze/instrument — do not pile speculative 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
-  print **User help** below and **stop**.
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
-  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
 
 Do not instrument, fix, or start the loop. Empty `/debugify` is the
@@ -292,127 +293,7 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
-- Exact `help` / `--help` / `/?` after flag strip: print **User help**
-  and stop. Exact `pass` / `pass help`: print the **Pass (`Npass`)**
-  subsection and stop. Empty `/debugify` is short usage, not Help.
-  `help me debug …` is a task.
-
-## User help
-
-Print this section as the response on `help` / `--help` / `/?`.
-On `pass` / `pass help`, print only **Pass (`Npass`)** below.
-
-### What it does
-
-**Grok Debug Mode — full loop** (default). Runtime evidence loop, not
-a speculative-fix loop: hypothesize → instrument → repro → analyze →
-fix → verify → clean. Alias: `/debug`.
-
-For a read-only kickoff brief only, use `/debug-kickoff`.
-
-### How to invoke
-
-```text
-/debugify <bug report>      — full loop (default)
-/debugify help              — this reference (also --help / /?)
-/debugify pass              — Pass (Npass) subsection only (also pass help)
-/debug <bug report>         — alias of /debugify
-/debug-kickoff <bug report> — read-only brief (no edits)
-```
-
-Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
-
-### Flags (`Nimages` / `Npass`)
-
-Promptify Flag parse order: first numbered instance left to right;
-skip unnumbered `image` / `pass`. Strip before Help vs task. Cite
-promptify — do not fork.
-
-**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence during
-Phase 0. Lead with the caught-and-interpreted ack.
-
-**`Npass`:** see **Pass (`Npass`)** below.
-
-### Pass (`Npass`)
-
-There is **no** `/pass` skill. After flag strip, remaining body
-exactly `pass` or `pass help` prints **this subsection** and stops.
-Cite promptify **Flag parse order** — do not fork. Full reference:
-`/promptify pass help`.
-
-**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
-left to right. Default **1**. Extra pass(es) deepen investigation /
-hypothesis quality (pre-plan when N > 1); last pass runs this
-invocation’s loop work. Acknowledge after the scratch ack when both
-appear.
-
-```text
-/debugify pass
-/debugify pass help
-/debugify 2pass <bug>
-/promptify pass help
-```
-
-### Loop (mandatory order)
-
-| Phase | Name | What happens |
-|-------|------|----------------|
-| 0 | Investigate | Symptom, expected vs actual, repro, suspects |
-| 1 | Hypotheses | 2–5 falsifiable claims before instrumenting |
-| 2 | Instrument | Temporary probes only — **no product fix** |
-| 3 | Reproduce | Agent-repro first; else pause for the user |
-| 4 | Analyze | Confirm / reject / inconclusive + root cause |
-| 5 | Fix | Only after evidence; minimal diff |
-| 6 | Verify + clean | Repro gone; **remove all probes** |
-
-**Hard gate:** do not change production logic until step 6 has
-runtime (or equivalent hard) evidence. Code reading alone is not
-enough. Stack traces, reproducing failing tests, and deterministic
-agent repro count.
-
-**Exception:** if the session already has hard evidence, you may skip
-new instrumentation (Investigate → Hypothesize → Analyze existing →
-Fix → Verify). State that skip; mark Phase 2 `Deferred`.
-
-### Instrument rules
-
-- Tag probes (`grok-debug`) so cleanup is trivial.
-- Log only what tests a hypothesis. Never log secrets / PII / huge
-  payloads.
-- Do not refactor or apply the suspected product fix while probing.
-
-### Reproduce
-
-Agent-repro first (test / CLI / curl). User-repro when UI / private
-env / hardware is required: stop mutating, give a numbered protocol,
-wait. Do not invent log lines.
-
-### Trailing phase table (mandatory)
-
-Always end with `## Phased plan` (Phase | Description | Status).
-Default rows: Investigate → Hypotheses → Instrument → Reproduce →
-Analyze → Fix → Verify + clean. Mark accurately; remaining work is
-`Left`. Flags first row if `Nimages` / `Npass` is present.
-
-When paused for user repro, say **Waiting for reproduction** (optional
-one-line after the table). Do not proceed to fix.
-
-### Hard rules (short)
-
-- Evidence before product fixes — no speculative fixes.
-- Instrument before fixing unless evidence is already sufficient.
-- Always clean up temporary probes after verify.
-- Never invent workspace resources. Redact secrets/PII.
-- Prefer minimal diffs; no unrelated refactors.
-- If `/debug-kickoff` was requested, do not run this full loop.
-- Trailing phase table is mandatory and last.
-- Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not start the loop. Exact `pass` / `pass help`: print **Pass
-  (`Npass`)** only.
-
-### Related
-
-`/addify <text>` — append `<text>` to the last ify and restart/continue
-that skill.
-
+- Exact `help` / `--help` / `/?` after flag strip: print
+  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
+  the **Pass (`Npass`)** section and stop. Empty `/debugify` is
+  short usage, not Help. `help me debug …` is a task.

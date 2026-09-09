@@ -206,9 +206,10 @@ After optimize + scoring:
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
-  print **User help** below and **stop**.
+  **read and print** `references/HELP.md` (this skill folder) and
+  **stop**.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
-  print the **Pass (`Npass`)** subsection of User help and **stop**.
+  print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
 
 Do not analyze or emit a kickoff. Empty `/debugify` is the short
@@ -337,129 +338,7 @@ work landed.
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
-- Exact `help` / `--help` / `/?` after flag strip: print **User help**
-  and stop. Exact `pass` / `pass help`: print the **Pass (`Npass`)**
-  subsection and stop. Empty `/debugify` is short usage, not Help.
-  `help me debug …` is a task.
-
-## User help
-
-Print this section as the response on `help` / `--help` / `/?`.
-On `pass` / `pass help`, print only **Pass (`Npass`)** below.
-
-### What it does
-
-Promptify in **Debug** mode — a **kickoff coach** for Cursor Debug Mode.
-Analyze the bug + related code (read-only) and emit a copy-pasteable
-Debug-Kickoff Prompt. This skill does **not** instrument, fix, or
-mutate code. Alias: `/promptify-debug`.
-
-Paste the kickoff into Cursor **Debug** mode to run the loop
-(hypotheses → instrument → repro → analyze → targeted fix → verify →
-clean).
-
-### How to invoke
-
-```text
-/debugify <bug report>  — code analysis + Debug Mode kickoff prompt
-/debugify help          — this reference (also --help / /?)
-/debugify pass          — Pass (Npass) subsection only (also pass help)
-/promptify-debug <bug>  — alias of /debugify
-```
-
-Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
-
-### Flags (`Nimages` / `Npass`)
-
-Promptify Flag parse order: first numbered instance left to right;
-skip unnumbered `image` / `pass`. Strip before Help vs task. Cite
-promptify — do not fork.
-
-**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence. Lead
-with the caught-and-interpreted ack. Carry what they show into the
-kickoff.
-
-**`Npass`:** see **Pass (`Npass`)** below.
-
-### Pass (`Npass`)
-
-There is **no** `/pass` skill. After flag strip, remaining body
-exactly `pass` or `pass help` prints **this subsection** and stops.
-Cite promptify **Flag parse order** — do not fork. Full reference:
-`/promptify pass help`.
-
-**Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
-left to right. Default **1**. Extra pass(es) deepen the kickoff /
-code analysis (pre-plan when N > 1); last pass emits the
-Debug-Kickoff Prompt. Acknowledge after the scratch ack when both
-appear.
-
-```text
-/debugify pass
-/debugify pass help
-/debugify 2pass <bug>
-/promptify pass help
-```
-
-### Bug intent fields
-
-Always extract (or mark **unknown**): Symptom · Expected vs Actual ·
-Reproduction · Frequency · Environment · Recent changes · Existing
-evidence · Blast radius.
-
-### Code analysis (read-only)
-
-Locate entry points, trace call/data flow, note logging/tests near
-suspects, identify state boundaries. Produce Suspect Code Paths,
-Evidence Already Present, Repro Feasibility, and 2–5 falsifiable
-Preliminary Hypotheses. Never invent files or APIs.
-
-### Debug-Kickoff Prompt (required sections)
-
-Copy-pasteable. Must say: hypotheses + instrument first; **no
-speculative fix**.
-
-- Objective — Debug Mode loop, not a guess-fix
-- Bug Report — symptom / expected / actual / frequency / env / changes
-- Reproduction Protocol — steps, success signal, how to confirm the fix
-- Workspace Context · Suspect Code Paths · Existing Evidence
-- Hypotheses to Test (prioritized, falsifiable: confirm / reject)
-- Instrumentation Intent — what / where / what not to log; temporary
-- Constraints — minimal diff; no fix until evidence
-- Deliverable — hypotheses + probes → root cause → targeted fix →
-  remove probes
-- Definition of Done — bug gone; probes cleaned; tests when appropriate
-
-Unknowns: write `unknown — ask user`. Do not guess.
-
-### Response shape
-
-Scratch ack (if any) → Intent Analysis → Workspace Assessment
-(including suspects / evidence / repro / hypotheses) → Code Analysis
-Brief → Debug-Kickoff Prompt → Scores → Next step (switch to Debug
-mode, paste, follow instructions) → **Phased plan** (last).
-
-### Trailing phase table (mandatory)
-
-Always end with `## Phased plan`. Default: Phase 0 Kickoff is `Done`
-when this skill finished; remaining Debug Mode steps are `Left`.
-Flags first row if `Nimages` / `Npass` is present. Do not mark later
-phases `Done` unless the workspace already shows that work landed.
-
-### Hard rules (short)
-
-- Never invent workspace resources.
-- Must **not** instrument, edit, commit, build, deploy, or apply fixes.
-- Kickoff is copy-pasteable and forbids speculative fixes.
-- Hypotheses must be falsifiable and linked to observations.
-- Trailing phase table is mandatory and last.
-- Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not emit a kickoff. Exact `pass` / `pass help`: print **Pass
-  (`Npass`)** only.
-
-### Related
-
-`/addify <text>` — append `<text>` to the last ify and restart/continue
-that skill.
-
+- Exact `help` / `--help` / `/?` after flag strip: print
+  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
+  the **Pass (`Npass`)** section and stop. Empty `/debugify` is
+  short usage, not Help. `help me debug …` is a task.

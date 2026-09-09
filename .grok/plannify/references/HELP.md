@@ -163,7 +163,7 @@ GitHub markdown. Users scroll to the bottom for completed vs left.
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`) |
 | **Description** | One-line what ships / exit criteria |
-| **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). |
+| **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress`. Do not invent statuses. |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add it so it matches phasify deferrals |
 
 **Flags row** first when `Nimages` and/or `Npass` is present:

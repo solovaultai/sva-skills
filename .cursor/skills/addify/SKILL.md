@@ -3,7 +3,7 @@ name: addify
 description: >-
   Addify — append text to the previous ify call and restart or continue
   that skill. Recovers the last ify in this conversation (promptify,
-  plannify, phasify, runnify, debugify, askify, or a prior addify),
+  plannify, phasify, runnify, debugify, askify, ify, or a prior addify),
   verbatim-appends the addify body, and dispatches to that skill.
   Use when the user runs /addify, "addify", "add this to the last ify",
   or "append this to the previous ify". Print a complete reference with
@@ -102,7 +102,7 @@ invokes an ify via slash, alias, or free-text (`"plannify this"`,
 store. Chat only.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `addify`.
+`debugify` · `askify` · `ify` · `addify`.
 
 **Aliases → canonical**
 
@@ -120,8 +120,12 @@ store. Chat only.
 
 - Exact help (`help` / `--help` / `/?` after flag strip)
 - Empty usage for skills whose empty is usage (not a task)
+- `/ify` empty usage; `/ify help` / `help <verb>`; `/ify tldr` /
+  `tldr <verb>`; `/ify pass` / `pass help`
 
 **Do not skip** empty `/phasify` (that is **Next**).
+**Do not skip** `/ify which` or bare `/ify <prompt>` (implicit
+which).
 
 **If last is addify:** keep walking to the last **non-addify** ancestor.
 Combined body = ancestor body + every later addify body **in
@@ -178,6 +182,7 @@ table when that skill requires one).
 | **runnify — mid-run** | Results and/or phase work started → **not** greenfield. Continue from current phase statuses with new knowledge + appended text (Done stays Done; resume Left / Unblocked / In progress / Blocked / Def-Blocked as the current table shows). |
 | **addify** | Not a leaf. Resolve ancestor + concatenate addify texts; dispatch on the ancestor type. |
 | **askify** | Restart `/askify` on combined text (new Ask-Kickoff + new answer). No fromhere exists. |
+| **ify** | Restart `/ify` on the combined text **from scratch** (same shape as askify / promptify). **Not** fromhere. |
 
 **fromhere + addify (phasify last):** same outcome as a user who ran
 `/plannify fromhere` but whose Task is the old Task plus the new
@@ -206,10 +211,12 @@ completely after the banner.
   after parse.
 - Flag parse order: first numbered instance per family; addify-line
   wins the same family. Acks first when markers are present.
-- Dispatch per the table. plannify / promptify restart from scratch
-  (**not** fromhere). phasify = fromhere + AskQuestion. Cursor
-  debugify = kickoff only. runnify planning = from scratch; mid-run
-  = continue. askify = restart.
+- Dispatch per the table. plannify / promptify / **ify** restart
+  from scratch (**not** fromhere). phasify = fromhere + AskQuestion.
+  Cursor debugify = kickoff only. runnify planning = from scratch;
+  mid-run = continue. askify = restart.
+- Skip ify help / tldr / pass / empty usage when walking back. Do
+  **not** skip ify `which` or bare-prompt-as-which.
 - Exact `help` / `--help` / `/?` after flag strip: print
   `references/HELP.md` and stop. Exact `pass` / `pass help`: print
   the **Pass (`Npass`)** section and stop. Empty `/addify` is

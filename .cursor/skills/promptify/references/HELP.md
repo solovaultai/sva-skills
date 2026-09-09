@@ -196,7 +196,7 @@ GitHub markdown:
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`) |
 | **Description** | One-line exit criteria |
-| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (fresh plans may use `Not started`) |
+| **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (fresh plans may use `Not started`). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress` (never `In progress` in the 12-wide table). Do not invent statuses. |
 
 **Flags row** (first row when either marker is present): Phase =
 `Flags`. Description = `Caught and correctly interpreted` + exact

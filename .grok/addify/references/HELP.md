@@ -62,14 +62,17 @@ task (append that text).
 Scan **this conversation** newest-first. Chat only — no disk store.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `addify`.
+`debugify` · `askify` · `ify` · `addify`.
 
 **Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
 `/promptify-run` → runnify; `/promptify-ask` → askify;
 `/debug` → debugify.
 
-**Skip:** help-only turns; empty-usage turns (not a task). **Do not
-skip** empty `/phasify` (that is Next).
+**Skip:** help-only turns; empty-usage turns (not a task);
+`/ify` empty; `/ify help` / `help <verb>`; `/ify tldr` /
+`tldr <verb>`; `/ify pass`. **Do not skip** empty `/phasify`
+(that is Next). **Do not skip** `/ify which` or bare
+`/ify <prompt>` (implicit which).
 
 **If last is addify:** walk back to the last non-addify ancestor.
 Combined body = ancestor + every later addify body in order.
@@ -104,6 +107,7 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 | **runnify — planning** | No Results / no mutating work → re-runnify from scratch. |
 | **runnify — mid-run** | Continue from current phase statuses + new text (not greenfield). |
 | **askify** | Restart askify on the combined text. |
+| **ify** | Restart `/ify` from scratch on the combined text. **Not** fromhere. |
 | **addify** | Resolve ancestor, then dispatch. |
 
 If phasify is last and no current plan exists, say `/plannify` first.
@@ -164,6 +168,8 @@ when that skill requires one).
   of your own.
 - Conversation only. No last-ify file or CLI store.
 - Skip help-only / empty-usage last ify except empty phasify = Next.
+  Also skip ify help / tldr / pass / empty; do **not** skip ify
+  `which` or bare-prompt-as-which.
 - Do not substitute Intent / Kickoff / Plan for the original body.
 - Addify-line flags win the same family. Acks first when present.
 - Empty `/addify` is short usage, **not** Next.
@@ -186,3 +192,4 @@ when that skill requires one).
 | `/debugify <bug>` | Full Debug Mode loop |
 | `/debug` | Alias of `/debugify` |
 | `/debug-kickoff <bug>` | Read-only debug brief |
+| `/ify` | Family catalog + help + router (`which` recommends; does not dispatch) |
