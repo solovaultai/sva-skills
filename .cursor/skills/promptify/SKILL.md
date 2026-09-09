@@ -9,7 +9,8 @@ description: >-
   prompt", "rewrite this prompt for this workspace", "prompt QA", or wants a
   prompt improved against actual files/tools before (or while) executing it.
   Print a complete reference with `/promptify help` or `/promptify --help`
-  (also `/?`). `/promptify pass help` (or `pass`) prints the Pass (`Npass`)
+  (also `/?`). `/promptify tldr` prints the short page. `/promptify pass
+  help` (or `pass`) prints the Pass (`Npass`)
   section. Recognizes Nimages / N images / N-images as a pointer to the newest N
   images from the configured scratch source (or workspace scratch/). Recognizes Npass / N-pass /
   N pass as a request to take N pipeline passes (pass 1 is a documented
@@ -34,13 +35,17 @@ Use only verified workspace information gathered with Cursor's read/search tools
 | `/runnify <prompt>` | **Execution** | **Yes** — after optimize, run the optimized prompt only |
 | `/promptify-run <prompt>` | **Execution (alias)** | Same as `/runnify` (legacy name) |
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill — this is flag help.
@@ -53,6 +58,7 @@ If the user invokes the skill with no prompt body, explain:
 ```text
 /promptify <prompt>   — analyze, validate, enrich, rewrite (do not execute)
 /promptify help       — full reference (also --help, /?)
+/promptify tldr       — short form (stop)
 /promptify pass help  — Pass (Npass) subsection (also `pass`)
 /runnify <prompt>     — same, then execute the optimized prompt
 ```
@@ -472,6 +478,8 @@ Rules:
   base; the last pass emits the final prompt / plan / answer. Acknowledge
   the marker so the user can see it was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help` after
-  flag strip: print the **Pass (`Npass`)** section and stop. Empty
-  `/promptify` is short usage, not Help. `help me …` is a task.
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`
+  after flag strip: print the **Pass (`Npass`)** section and stop.
+  Empty `/promptify` is short usage, not Help. `help me …` is a
+  task.

@@ -12,6 +12,8 @@
 .EXAMPLE
   .\scripts\cli.ps1 install
   .\scripts\cli.ps1 install grok
+  .\scripts\cli.ps1 pullinst
+  .\scripts\cli.ps1 pullinst grok
   .\scripts\cli.ps1 install --remote casai
   .\scripts\cli.ps1 status --remote
   .\scripts\cli.ps1 list
@@ -101,6 +103,15 @@ function Die {
     exit 1
 }
 
+# Always run against this repo ($Root), not the caller's cwd.
+function Invoke-GitPullMain {
+    Write-Out "git pull origin main  ($script:Root)"
+    & git -C $script:Root pull origin main
+    if ($LASTEXITCODE -ne 0) {
+        Die 'git pull origin main failed; install skipped'
+    }
+}
+
 function Show-Usage {
     $text = @'
 sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
@@ -110,6 +121,9 @@ Usage:
   .\scripts\cli.ps1 install all
   .\scripts\cli.ps1 install grok
   .\scripts\cli.ps1 install cursor
+  .\scripts\cli.ps1 pullinst              # git pull origin main, then install
+  .\scripts\cli.ps1 pullinst grok
+  .\scripts\cli.ps1 pullinst cursor
   .\scripts\cli.ps1 install --remote                 # all skills → all connections
   .\scripts\cli.ps1 install grok --remote casai      # name or alias from connections.env
   .\scripts\cli.ps1 install --remote casai CAS2SYS
@@ -992,7 +1006,10 @@ switch ($Cmd) {
         Show-SshubConnections
         exit 0
     }
-    'install' {
+    { $_ -eq 'install' -or $_ -eq 'pullinst' } {
+        if ($Cmd -eq 'pullinst') {
+            Invoke-GitPullMain
+        }
         if (-not $DoLocal -and -not $DoRemote) {
             $DoLocal = $true
         }
@@ -1013,6 +1030,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, status, list, scratch, --help)"
+        Die "unknown command: $Cmd (try: install, pullinst, status, list, scratch, --help)"
     }
 }

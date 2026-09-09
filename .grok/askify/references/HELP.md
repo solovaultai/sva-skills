@@ -2,6 +2,8 @@
 
 Print this file as the response when the user runs `/askify help`,
 `/askify --help`, or `/askify /?`. Do not answer.
+`/askify tldr` prints the short page (`references/TLDR.md`), not
+this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -25,12 +27,13 @@ implements and never emits a plan. Alias: `/promptify-ask`.
 ```text
 /askify <prompt>       — coach, then answer (read-only)
 /askify help           — this reference (also --help / /?)
+/askify tldr           — short form; stop
 /askify pass           — Pass (Npass) subsection only (also pass help)
 /promptify-ask <prompt>— alias of /askify
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me understand X` is a task.
+`/?`, `tldr`, `pass`, or `pass help`. `help me understand X` is a task.
 
 ---
 
@@ -122,7 +125,8 @@ Phased plan (when required).
 - Low readiness / missing assets: say so; answer only what the
   workspace supports.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not answer. Exact `pass` / `pass help`: print **Pass
+  do not answer. Exact `tldr`: print `references/TLDR.md` (not this
+  file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only.
 
 ---

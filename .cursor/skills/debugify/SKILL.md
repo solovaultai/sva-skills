@@ -8,7 +8,8 @@ description: >-
   /promptify-debug (alias), "debugify", "debug this prompt", "prepare for debug
   mode", "turn this into a debug prompt", or wants a prompt set up for Cursor
   Debug Mode. Print a complete reference with `/debugify help` or
-  `/debugify --help` (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the
+  `/debugify --help` (also `/?`). `/debugify tldr` prints the short
+  page. Recognizes Nimages / N images / N-images as a pointer to the
   newest N images from the configured scratch source (or workspace scratch/).
 ---
 
@@ -201,13 +202,17 @@ After optimize + scoring:
 6. **Always end the response** with the Trailing phase table (`## Phased plan`).
    No substantive content after it.
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -222,6 +227,7 @@ If there is no task after the command, explain:
 ```text
 /debugify <bug report>  — analyze code, enrich, emit a Cursor Debug Mode kickoff prompt
 /debugify help          — full reference (also --help, /?)
+/debugify tldr          — short form (stop)
 /debugify pass help     — Pass (Npass) subsection (also `pass`)
 /askify <prompt>        — coach then answer (read-only)
 /plannify <prompt>      — coach then produce a plan
@@ -339,6 +345,7 @@ work landed.
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
-  the **Pass (`Npass`)** section and stop. Empty `/debugify` is
-  short usage, not Help. `help me debug …` is a task.
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
+  print the **Pass (`Npass`)** section and stop. Empty `/debugify`
+  is short usage, not Help. `help me debug …` is a task.

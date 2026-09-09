@@ -2,7 +2,8 @@
 
 Print this file as the response when the user runs `/debugify help`,
 `/debugify --help`, or `/debugify /?`. Do not analyze or emit a
-kickoff.
+kickoff. `/debugify tldr` prints the short page
+(`references/TLDR.md`), not this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -31,12 +32,13 @@ clean).
 ```text
 /debugify <bug report>  — code analysis + Debug Mode kickoff prompt
 /debugify help          — this reference (also --help / /?)
+/debugify tldr          — short form; stop
 /debugify pass          — Pass (Npass) subsection only (also pass help)
 /promptify-debug <bug>  — alias of /debugify
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
+`/?`, `tldr`, `pass`, or `pass help`. `help me debug the login` is a task.
 
 ---
 
@@ -139,7 +141,8 @@ phases `Done` unless the workspace already shows that work landed.
 - Hypotheses must be falsifiable and linked to observations.
 - Trailing phase table is mandatory and last.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not emit a kickoff. Exact `pass` / `pass help`: print **Pass
+  do not emit a kickoff. Exact `tldr`: print `references/TLDR.md`
+  (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only.
 
 ---

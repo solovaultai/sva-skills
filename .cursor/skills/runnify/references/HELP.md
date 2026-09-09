@@ -2,6 +2,8 @@
 
 Print this file as the response when the user runs `/runnify help`,
 `/runnify --help`, or `/runnify /?`. Do not execute.
+`/runnify tldr` prints the short page (`references/TLDR.md`), not
+this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -27,13 +29,14 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 ```text
 /runnify <prompt>      — optimize, then EXECUTE
 /runnify help          — this reference (also --help / /?)
+/runnify tldr          — short form; stop
 /runnify pass          — Pass (Npass) subsection only (also pass help)
 /promptify-run <prompt>— alias of /runnify
 /promptify <prompt>    — analyze only (no execute)
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me write a login form` is a
+`/?`, `tldr`, `pass`, or `pass help`. `help me write a login form` is a
 task.
 
 ---
@@ -110,7 +113,8 @@ except an optional one-line next-step.
 - Never invent workspace resources.
 - Multi-phase / flag runs end with the phase table.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not execute. Exact `pass` / `pass help`: print **Pass
+  do not execute. Exact `tldr`: print `references/TLDR.md` (not this
+  file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only. Empty `/runnify` is short usage, not Help.
 
 ---

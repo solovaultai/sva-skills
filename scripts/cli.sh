@@ -7,6 +7,9 @@
 #   ./scripts/cli.sh install all
 #   ./scripts/cli.sh install grok
 #   ./scripts/cli.sh install cursor
+#   ./scripts/cli.sh pullinst             # git pull origin main, then install
+#   ./scripts/cli.sh pullinst grok
+#   ./scripts/cli.sh pullinst cursor
 #   ./scripts/cli.sh install --remote                 # all skills → all connections
 #   ./scripts/cli.sh install grok --remote casai      # grok skills → one host (name or alias)
 #   ./scripts/cli.sh install --remote casai cas2      # all skills → listed hosts
@@ -61,6 +64,9 @@ Usage:
   ./scripts/cli.sh install all
   ./scripts/cli.sh install grok
   ./scripts/cli.sh install cursor
+  ./scripts/cli.sh pullinst              # git pull origin main, then install
+  ./scripts/cli.sh pullinst grok
+  ./scripts/cli.sh pullinst cursor
   ./scripts/cli.sh install --remote                 # all skills → all connections
   ./scripts/cli.sh install grok --remote casai      # name or alias from connections.env
   ./scripts/cli.sh install --remote casai CAS2SYS
@@ -108,6 +114,12 @@ EOF
 die() {
   echo "error: $*" >&2
   exit 1
+}
+
+# Always run against this repo (ROOT), not the caller's cwd.
+pull_origin_main() {
+  echo "git pull origin main  (${ROOT})"
+  git -C "$ROOT" pull origin main || die "git pull origin main failed; install skipped"
 }
 
 # ── sshub integration (mirrors sshot) ─────────────────────────
@@ -832,7 +844,10 @@ case "$CMD" in
     list_conns
     exit 0
     ;;
-  install)
+  install | pullinst)
+    if [[ "$CMD" == "pullinst" ]]; then
+      pull_origin_main
+    fi
     if [[ "$DO_LOCAL" -eq 0 && "$DO_REMOTE" -eq 0 ]]; then
       DO_LOCAL=1
     fi
@@ -853,6 +868,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, status, list, scratch, --help)"
+    die "unknown command: $CMD (try: install, pullinst, status, list, scratch, --help)"
     ;;
 esac

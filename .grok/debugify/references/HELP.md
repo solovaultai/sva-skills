@@ -2,7 +2,8 @@
 
 Print this file as the response when the user runs `/debugify help`,
 `/debugify --help`, or `/debugify /?`. Do not instrument, fix, or
-start the loop.
+start the loop. `/debugify tldr` prints the short page
+(`references/TLDR.md`), not this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -28,13 +29,14 @@ For a read-only kickoff brief only, use `/debug-kickoff`.
 ```text
 /debugify <bug report>      — full loop (default)
 /debugify help              — this reference (also --help / /?)
+/debugify tldr              — short form; stop
 /debugify pass              — Pass (Npass) subsection only (also pass help)
 /debug <bug report>         — alias of /debugify
 /debug-kickoff <bug report> — read-only brief (no edits)
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me debug the login` is a task.
+`/?`, `tldr`, `pass`, or `pass help`. `help me debug the login` is a task.
 
 ---
 
@@ -135,7 +137,8 @@ one-line after the table). Do not proceed to fix.
 - If `/debug-kickoff` was requested, do not run this full loop.
 - Trailing phase table is mandatory and last.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not start the loop. Exact `pass` / `pass help`: print **Pass
+  do not start the loop. Exact `tldr`: print `references/TLDR.md`
+  (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only.
 
 ---

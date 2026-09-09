@@ -15,6 +15,7 @@ description: >
   request to take N passes (pass 1 is a documented pre-plan when N > 1)
   before producing the plan. Print a complete reference with
   `/plannify help` or `/plannify --help` (also `/?`).
+  `/plannify tldr` prints the short page.
 metadata:
   short-description: "Promptify planning mode — optimize then plan read-only"
 ---
@@ -213,13 +214,17 @@ After optimize + scoring:
 6. **Always end the response** with the Trailing phase table (`## Phased plan` +
    markdown table: Phase | Description | Status). No substantive content after it.
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -239,6 +244,7 @@ If there is no task after the command, explain:
 /plannify <prompt>    — coach into a planning-kickoff prompt, then produce the plan
 /plannify fromhere    — replan from current statuses (Keep new vs Continue original)
 /plannify help        — full reference (also --help, /?)
+/plannify tldr        — short form (stop)
 /plannify pass help   — Pass (Npass) subsection (also `pass`)
 /askify <prompt>      — coach then answer (read-only)
 /promptify <prompt>   — analyze/optimize only (no run)
@@ -332,7 +338,8 @@ see Trailing phase table)
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the plan. Acknowledge the marker.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
-  the **Pass (`Npass`)** section and stop. Empty `/plannify` is
-  short usage, not Help. `fromhere` is not Help. `help me …` is a
-  task.
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
+  print the **Pass (`Npass`)** section and stop. Empty `/plannify`
+  is short usage, not Help. `fromhere` is not Help. `help me …` is
+  a task.

@@ -6,7 +6,8 @@ description: >
   only the optimized prompt and return Results. Use when the user runs /runnify,
   /promptify-run, "runnify", or wants prompt QA plus immediate execution.
   Print a complete reference with `/runnify help` or `/runnify --help`
-  (also `/?`). `/runnify pass help` prints the Pass (`Npass`) subsection.
+  (also `/?`). `/runnify tldr` prints the short page. `/runnify pass
+  help` prints the Pass (`Npass`) subsection.
   Recognizes Nimages / N images / N-images as a pointer to the newest N
   images from the configured scratch source (or workspace scratch/).
   Recognizes Npass / N-pass / N pass as N pipeline passes (promptify Flag
@@ -47,13 +48,17 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (promptify Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -66,6 +71,7 @@ If the user message has no task body after `/runnify`, explain:
 ```text
 /runnify <prompt>     — analyze, validate, enrich, rewrite, then execute
 /runnify help         — full reference (also --help, /?)
+/runnify tldr         — short form (stop)
 /runnify pass help    — Pass (Npass) subsection (also `pass`)
 /promptify <prompt>   — analyze only (no execute)
 ```

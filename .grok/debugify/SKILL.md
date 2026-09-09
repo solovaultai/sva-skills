@@ -8,7 +8,8 @@ description: >
   "why is this failing", "instrument and fix", or wants Cursor-style Debug Mode
   behavior inside Grok. Prefer this over /debug-kickoff unless they only want a
   kickoff brief. Print a complete reference with `/debugify help` or
-  `/debugify --help` (also `/?`). Recognizes Nimages / N images / N-images as a pointer to the
+  `/debugify --help` (also `/?`). `/debugify tldr` prints the short
+  page. Recognizes Nimages / N images / N-images as a pointer to the
   newest N images from the configured scratch source (or workspace scratch/).
 metadata:
   short-description: "Debug Mode full loop — instrument, repro, fix, clean"
@@ -168,13 +169,17 @@ Only after a supported root cause:
 
 If verification fails: return to analyze/instrument — do not pile speculative fixes.
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -189,6 +194,7 @@ If there is no bug report after the command, explain:
 ```text
 /debugify <bug report>     — full Debug Mode loop (default): instrument → repro → fix → clean
 /debugify help             — full reference (also --help, /?)
+/debugify tldr             — short form (stop)
 /debugify pass help        — Pass (Npass) subsection (also `pass`)
 /debug <bug report>        — alias of /debugify
 /debug-kickoff <bug report>— read-only: hypotheses + kickoff brief only (no edits)
@@ -294,6 +300,7 @@ instrumentation, mark Phase 2 `Deferred` and say so above.
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
-  the **Pass (`Npass`)** section and stop. Empty `/debugify` is
-  short usage, not Help. `help me debug …` is a task.
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
+  print the **Pass (`Npass`)** section and stop. Empty `/debugify`
+  is short usage, not Help. `help me debug …` is a task.

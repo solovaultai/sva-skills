@@ -2,6 +2,8 @@
 
 Print this file as the response when the user runs `/addify help`,
 `/addify --help`, or `/addify /?`. Do not recover or dispatch.
+`/addify tldr` prints the short page (`references/TLDR.md`), not
+this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -21,6 +23,7 @@ skill. Does not optimize or plan by itself.
 ```text
 /addify <text>     — append <text> to the last ify and restart/continue that skill
 /addify help       — this reference (also --help / /?)
+/addify tldr       — short form; stop
 /addify pass       — Pass (Npass) subsection only (also pass help)
 ```
 
@@ -34,6 +37,7 @@ Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
 /addify also handle empty folders
 /addify 1image check the screenshot too
 /addify help
+/addify tldr
 /addify pass help
 ```
 
@@ -49,10 +53,11 @@ when they said “addify this” / “add this to the last ify”.
 | `/addify <text>` | **Append + dispatch** | Recover last ify; combine; run that skill |
 | `/addify` *(empty)* | Short usage | No recover, no dispatch |
 | `/addify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/addify tldr` | **tldr** | Print the short page; stop |
 | `/addify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me write a login form` is a
+`/?`, `tldr`, `pass`, or `pass help`. `help me write a login form` is a
 task (append that text).
 
 ---
@@ -68,11 +73,12 @@ Scan **this conversation** newest-first. Chat only — no disk store.
 `/promptify-run` → runnify; `/promptify-ask` → askify;
 `/promptify-debug` → debugify.
 
-**Skip:** help-only turns; empty-usage turns (not a task);
+**Skip:** help-only turns; exact `tldr` on any ify verb (same as
+help); empty-usage turns (not a task);
 `/ify` empty; `/ify help` / `help <verb>`; `/ify tldr` /
 `tldr <verb>`; `/ify pass`. **Do not skip** empty `/phasify`
-(that is Next). **Do not skip** `/ify which` or bare
-`/ify <prompt>` (implicit which).
+(that is Next). **Do not skip** `/ify smart`, `/ify which`,
+or bare `/ify <prompt>` (implicit smart).
 
 **If last is addify:** walk back to the last non-addify ancestor.
 Combined body = ancestor + every later addify body in order.
@@ -168,13 +174,15 @@ when that skill requires one).
   of your own.
 - Conversation only. No last-ify file or CLI store.
 - Skip help-only / empty-usage last ify except empty phasify = Next.
-  Also skip ify help / tldr / pass / empty; do **not** skip ify
-  `which` or bare-prompt-as-which.
+  Skip exact `tldr` on any ify verb (same as help). Also skip ify
+  help / tldr / pass / empty; do **not** skip ify
+  `smart`, `which`, or bare `/ify <prompt>`.
 - Do not substitute Intent / Kickoff / Plan for the original body.
 - Addify-line flags win the same family. Acks first when present.
 - Empty `/addify` is short usage, **not** Next.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  stop. Exact `pass` / `pass help`: print **Pass (`Npass`)** only.
+  stop. Exact `tldr`: print `references/TLDR.md` (not this file).
+  Exact `pass` / `pass help`: print **Pass (`Npass`)** only.
   There is no `/pass` skill.
 
 ---
@@ -190,4 +198,4 @@ when that skill requires one).
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/askify <prompt>` | Optimize then answer (read-only) |
 | `/debugify <bug>` | Debug Mode kickoff prompt (paste into Cursor Debug Mode) |
-| `/ify` | Family catalog + help + router (`which` recommends; does not dispatch) |
+| `/ify` | Family catalog + help + router (`smart` recommends; `which` alias; does not dispatch) |

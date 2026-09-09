@@ -25,6 +25,12 @@ description: >-
   (`/phasify unblock`, `Nunblock`, `unblock N`) — Status
   `Unblocked` on pass (`Blocked`) or `Deferred` on pass
   (`Def-Blocked`).
+  Runblock a Blocked / Def-Blocked phase
+  (`/phasify runblock`, `Nrunblock`, `runblock N`,
+  `runblockN`) — user-asserted unblock then execute remaining
+  work or mark `Done` when nothing is automatable (`runblock N`
+  / `Nrunblock` / `2runblock` = next N blocked, not named PN;
+  named is `runblock pN` / `pN runblock`).
   Explain a phase (`/phasify explain`, `Nexplain`,
   `explain N`, `explainN`) — full explanation + status
   glossary + TL/DR; no execute, no Status
@@ -32,8 +38,12 @@ description: >-
   `2explain` = next N not-Done, including Deferred;
   named is only `explain pN` / `pNexplain`).
   Show the current table (`/phasify show`, `/phasify refresh`).
+  Smart (`/phasify smart <prompt>`) selects a real mode from the
+  live plan, prints the family preamble (`docs/smart_contract.md`),
+  then dispatches (not Next; not implicit NL).
   Empty `/phasify` is Next (count = 1), not help. Print the full
   reference with `/phasify help` or `/phasify --help` (also `/?`).
+  `/phasify tldr` prints the short page.
   `/phasify pass help` (or `pass`) prints the Pass (`Npass`) section.
   Replan from current
   statuses with `/plannify fromhere` (plannify skill). When phase(s)
@@ -51,8 +61,10 @@ description: >-
   "phasify -2", "phasify defer", "phasify undefer", "phasify rundefer",
   "phasify todo",
   "phasify explain",
-  "phasify todone", "phasify block", "phasify unblock", "phasify show",
-  "phasify refresh", "phasify help", "phasify --help", "run phase p0",
+  "phasify todone", "phasify block", "phasify unblock",
+  "phasify runblock", "phasify smart", "phasify show",
+  "phasify refresh", "phasify help", "phasify --help", "phasify tldr",
+  "run phase p0",
   "run next phase",
   or "run next n phases". Recognizes
   Nimages / N images / N-images (also Nimage / N image / N-image; e.g.
@@ -75,7 +87,8 @@ section. Follow `~/.cursor/skills/plannify/SKILL.md` for phase ids.
 Print the recap / between-phase table using **Table layout**
 (`phase_layout.txt`) — not a markdown table.
 
-User-facing meanings of **Deferred phase**, **Todo**, **Explain**, **Block**, and
+User-facing meanings of **Deferred phase**, **Todo**, **Explain**, **Block**,
+**Runblock**, and
 **Addify to plannify** live in `references/HELP.md` (**Concepts**),
 near the top after “what it does.” Agents follow this SKILL for parse
 and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
@@ -86,7 +99,7 @@ and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
 
 Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end,
 Stop-before-end, Defer, Undefer, Rundefer, Todo, Explain, Todone, Block,
-Unblock, Show, Help). Parse and strip **before** mode dispatch.
+Unblock, Runblock, Smart, Show, Help). Parse and strip **before** mode dispatch.
 
 **Intent (short):** Flags are optional mid-walk. Prefer setting
 images/pass on promptify/plannify **before** `/phasify`. Use on
@@ -151,7 +164,8 @@ N = 1 if absent. Not a phase selector and not Task wording.
 When **N > 1**, pass 1 is a documented pre-plan only (`## Pre-plan
 (pass 1)` — inventories, approach, gaps for **this mode**). Passes
 2–N use that base; the last pass produces the mode's deliverable
-(execute, Rundefer undefer+execute, Todo briefing, Explain
+(execute, Rundefer undefer+execute, Runblock unblock+execute-or-Done,
+Todo briefing, Explain
 briefing, Unblock test,
 Block/Defer reason, Show table, …).
 
@@ -160,7 +174,7 @@ work** (definition, clarification, verification, or execute) — not
 a re-plan of the whole table. Whole-table replan remains
 `/plannify fromhere`. Extra pass(es) are especially for Todo
 briefing quality, Explain briefing quality, Unblock test design, Block/Defer reason quality,
-or execute / Rundefer of a complex / complete phase.
+or execute / Rundefer / Runblock of a complex / complete phase.
 
 Print the promptify Npass acknowledgment after the scratch ack
 when both appear:
@@ -202,8 +216,11 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 | `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | Todo-depth list, then Status `Done` (no execute; no ack wait) |
 | `block`, `Nblock`, `block pN` [reason] | **Block** | Manually set eligible phase(s) `Blocked` / `Def-Blocked`; do not execute |
 | `unblock`, `Nunblock`, `unblock N` | **Unblock** | Verify a Blocked / Def-Blocked phase; on pass `Unblocked` or `Deferred` |
+| `runblock`, `Nrunblock`, `runblock N`, `runblockN` | **Runblock** | User-asserted unblock then execute remaining work or mark `Done` |
+| `smart <prompt>` | **Smart** | Select a mode from the live plan; print preamble; dispatch. Not Next. |
 | `show` / `refresh` | **Show** | Print the current table (read-only; no implementation) |
 | `help` / `--help` / `/?` | **Help** | Print `references/HELP.md`; do not execute |
+| `tldr` | **tldr** | Print `references/TLDR.md`; do not execute. Never a phase id |
 | `pass` / `pass help` | **Pass help** | Print the Pass (`Npass`) section; do not execute |
 | `/plannify fromhere` | **fromhere** | Replan from current statuses (plannify skill) |
 
@@ -213,11 +230,19 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 - Bare integer **N ≥ 1** is **next N phases** (`phasify 3` = next 3, not P3).
 - To run a specific phase that is not P0, require the **`p` / `phase` prefix**
   (`phasify p3`, `run phase 3`).
+- After stripping flags, first token `smart` is **Smart** —
+  remainder is the prompt. Not Next. Not implicit on other tokens.
+  Empty `smart`: short usage + “smart needs a prompt.” `which` is
+  **not** a phasify mode.
 - Empty `/phasify` (no selector) is **Next**, not help.
 - After stripping flags, if the remaining selector is exactly `help`,
   `--help`, or `/?` (case-insensitive), that is **Help** — print
   `references/HELP.md` and **stop**. Extra tokens after a help trigger
   are ignored. Help is not a phase selector.
+- After stripping flags, remaining body exactly `tldr`
+  (case-insensitive) is **tldr** — print `references/TLDR.md` and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is no
+  `tldr help` alias. `tldr` is never a phase id.
 - After stripping flags, remaining body exactly `pass` or `pass help`
   (case-insensitive) is **Pass help** — print the **Pass (`Npass`)**
   section of `references/HELP.md` and **stop**. Not a phase selector.
@@ -226,8 +251,18 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
 - Bare `3` is still Next-3. New tokens must be words (`done`, `toend`,
-  `defer`, `undefer`, `rundefer`, `todo`, `todone`, `explain`, `block`, `unblock`)
+  `defer`, `undefer`, `rundefer`, `todo`, `todone`, `explain`, `block`, `unblock`, `runblock`)
   or a **leading minus** (`-2`), never collide with `2pass`.
+- Match **`runblock` / `Nrunblock` / `runblockN`** as **Runblock**
+  **first** (the token contains `block` and `run`). Do not collapse
+  to `block`, `unblock`, `rundefer`, or Next-N. `runblock` ≠
+  `unblock` ≠ `block` ≠ `rundefer`. **`runblock N` / `Nrunblock` /
+  `runblockN` / `2runblock` / `runblock2` means next N Blocked /
+  Def-Blocked**, then run-or-mark — **not** named PN (unlike
+  `Nblock` / `2block` / `Nunblock` / `2unblock`). Named runblock is
+  only the `P`/`p` family (`runblock pN` / `pN runblock` /
+  `runblockPN` / `PNrunblock`). `runblock 0` / `0runblock` /
+  `runblock0` is **Error:** (use `runblock p0`).
 - Match **`rundefer` / `Nrundefer` / `rundeferN`** as **Rundefer**
   **first** (the token contains `undefer` / `defer`). Do not collapse
   on `run` / `un` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
@@ -256,7 +291,7 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 - Match **`unblock` / `Nunblock`** as **Unblock**, not Undefer, not Todo,
   not Todone, not Block. Do not treat a shared `un` prefix or shared
   `block` suffix as the other mode.
-  `unblock` ≠ `undefer` ≠ `rundefer` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
+  `unblock` ≠ `undefer` ≠ `rundefer` ≠ `runblock` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
 - Match **`explain` / `Nexplain` / `explainN`** as **Explain**, not
   Todo, not Todone, not `toend` / `end`, not Rundefer. Do not
   collapse a shared `end` suffix as Run-to-end.
@@ -281,31 +316,59 @@ print a help/usage block. Strip image/pass tokens before this parse, so
 `/phasify 1image` is still Next + 1 image, and `/phasify` with nothing
 is Next.
 
-### Help (`help` / `--help` / `/?`)
+### Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip image/pass tokens first. Then:
 
 - Remaining selector exactly `help`, `--help`, or `/?`
   (case-insensitive): **read and print** `references/HELP.md` (this
   skill folder) and **stop**.
+- Remaining selector exactly `tldr` (case-insensitive): **read and
+  print** `references/TLDR.md` (this skill folder) and **stop**.
+  Extra tokens after `tldr` stay a **task**. There is no `tldr
+  help` alias. `tldr` is never a phase id.
 - Remaining selector exactly `pass` or `pass help`
   (case-insensitive): print the **Pass (`Npass`)** section of that
   file and **stop**. There is no `/pass` skill.
 
 Do not execute, defer, undefer, rundefer, todo, todone, explain, block, unblock,
-or show. Do not invent extra modes. Help is not a phase selector.
-Empty `/phasify` is **Next**, not Help.
+runblock, or show. Do not invent extra modes. Help and `tldr` are not
+phase selectors. Empty `/phasify` is **Next**, not Help.
 
 **Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end /
-**Rundefer** are **execute** modes (mutating). **Rundefer** undefer
-then execute (single step). **Defer**, **Undefer**, **Block**,
-**Unblock** (on verified pass), and **Todone** update status only (no
-implementation). **Undefer** does **not** execute. **Todone** also
-prints a Todo-depth briefing, then sets Status `Done` (no ack wait).
-**Todo**, **Explain**, **Show**, and **Help** are read-only (no implementation).
-Handle Defer, Undefer, Todo, Explain, Todone, Block, Unblock, Show, and Help
-without entering Execute. Handle Rundefer as undefer-then-Execute
-(do not treat it as status-only).
+**Rundefer** / **Runblock** are **execute** modes (mutating).
+**Rundefer** undefer then execute (single step). **Runblock**
+unblock then execute-or-mark-Done (single step). **Defer**,
+**Undefer**, **Block**, **Unblock** (on verified pass), and
+**Todone** update status only (no implementation). **Undefer**
+does **not** execute. **Todone** also prints a Todo-depth briefing,
+then sets Status `Done` (no ack wait). **Todo**, **Explain**,
+**Show**, **Help**, and **tldr** are read-only (no implementation). Handle
+Defer, Undefer, Todo, Explain, Todone, Block, Unblock, Show, and
+Help without entering Execute. Handle Rundefer as
+undefer-then-Execute (do not treat it as status-only). Handle
+Runblock as unblock-then-Execute-or-Done (do not treat it as
+Unblock / status-only). **Smart** is a router: preamble then
+dispatch the selected mode (not an execute dialect of its own).
+
+### Smart (`smart <prompt>`)
+
+Cite `docs/smart_contract.md`. Decision table + frozen EX-1/2/3:
+`references/SMART.md`. Thin dispatch only.
+
+After flag strip, first token `smart` (case-insensitive) is this
+mode. Remainder is the prompt. **Not** Next. **Not** implicit on
+other tokens. `which` is not a phasify mode.
+
+1. Empty `smart`: short usage + “smart needs a prompt.” Stop.
+2. Recover the current plan (same locate-plan rules). No plan →
+   **Error:** `/plannify` first. No dispatch.
+3. Live-resolve the prompt against the current table
+   (`references/SMART.md`). Ambiguity → **Error:** + current
+   table. No dispatch.
+4. Print the family preamble (after scratch / Npass acks).
+5. **Dispatch** the selected invocation as if the user typed it.
+   No ack. Do not implement runblock here — only select it.
 
 ### Run-to-end
 
@@ -881,6 +944,94 @@ Display Status string on success: **`Unblocked`** (from `Blocked`)
 or **`Deferred`** (from `Def-Blocked`). `Unblocked` fits the
 12-wide Status column (` Unblocked  `).
 
+### Runblock
+
+**User-asserted unblock then run-or-mark-Done** those phases in one
+step. Skip Unblock’s verification loop (no ack wait; same
+assertiveness as rundefer / todone). `runblock` ≠ `unblock` ≠
+`block` ≠ `rundefer`. Do not collapse on `run` / `un` / `block`.
+**`unblock` still only verifies** (no execute). **`runblock` =
+unblock + execute remaining work, or mark `Done` when nothing is
+automatable.**
+
+Parse after stripping `Nimages` / `Npass`. If `Nimages` is present:
+acknowledge first, then Runblock. Match `runblock` / `Nrunblock` /
+`runblockN` as this mode **first** — the token contains `block` and
+`run`. Do **not** treat them as `block` / `Nblock`, `unblock` /
+`Nunblock`, or `rundefer` / `Nrundefer`.
+
+| Text | Effect |
+|------|--------|
+| `runblock` | Unblock the **next 1** Blocked or Def-Blocked phase (plan order), then run remaining work or mark `Done`. |
+| `runblock N` / `Nrunblock` / `runblockN` (N ≥ 1) | Unblock the **next N** Blocked / Def-Blocked phases, then run-or-mark them in plan order (like Next-N on those just-unblocked phases). |
+| `2runblock` / `runblock2` / `Runblock2` | Same as `runblock 2` — **next 2** blocked, **not** named P2. |
+| `runblock pN` / `runblock PN` / `runblockpN` / `runblockPN` / `pN runblock` / `PNrunblock` | Named: that phase **only if** it is `Blocked` or `Def-Blocked`; else **Error:** |
+| `runblock 0` / `0runblock` / `runblock0` | **Error:** (cannot “next 0”; use `runblock p0`). Not named P0. |
+
+**Parse collision (required):** `runblock N` / `Nrunblock` /
+`runblockN` / `2runblock` / `runblock2` means **next N blocked**,
+not named PN (like `rundefer N` / `explain N` — and **unlike**
+`Nblock` / `2block` / `Nunblock` / `2unblock`, which are named PN).
+Named runblock is only the `P`/`p` family. `runblock 0` /
+`0runblock` / `runblock0` is not “next 0” — **Error:** (use
+`runblock p0` to target P0). `runblock` ≠ `unblock` ≠ `block` ≠
+`rundefer`.
+
+**Semantics:**
+
+1. Find targets: next N phases with Status `Blocked` or
+   `Def-Blocked` (skip Done, Left, Deferred-without-block,
+   Unblocked, Progress, Planned, Not started, etc.).
+2. If **none**: say so and print the table (show-style). Do **not**
+   execute some other open phase.
+3. If **fewer than N**: unblock+run-or-mark all found; say the
+   shortfall.
+4. **Unblock first** so the phase is runnable (skip Unblock’s
+   verification loop — user-asserted; no ack wait):
+   - `Blocked` → treat as cleared (`Unblocked` / ready)
+   - `Def-Blocked` → clear **both** block and defer (`Left` /
+     ready) so it can actually run (unlike **unblock** →
+     `Deferred`, unlike **rundefer** → `Blocked` and stop)
+5. **Then run or mark as run:**
+   - Remaining **agent-automatable** work → normal phasify
+     **Execute** (banners + last-of-run table). `Done` only if
+     work landed.
+   - **No remaining automation** (typical blocked gate: human
+     work already done, nothing for the agent) → mark Status
+     **`Done`**, short note, no Todo briefing, no fake implement.
+     Clear blocker Reason (e.g. closed by runblock).
+6. Sequential, plan order, like rundefer. Stop the sequence if a
+   just-runblocked phase becomes `Blocked` again. Do not wait for
+   ack. Nimages ack first if present. `Npass` = multi-pass of
+   **this runblock run** (that mode’s work), not a whole-table
+   replan.
+
+Invalid named id, or named runblock of a phase that is neither
+`Blocked` nor `Def-Blocked`: **do not change it** and **do not
+execute**. Print a clear **Error:** line (same red/bold style as
+invalid unblock).
+
+Accepted tokens (all of these):
+
+```text
+/phasify runblock
+/phasify runblock P0
+/phasify runblock p0
+/phasify runblock 1
+/phasify runblockP0
+/phasify P0runblock
+/phasify 1runblock
+/phasify 2runblock
+/phasify2runblock
+/phasify 2runblock
+/phasify runblock2
+/phasify runblock p1
+/phasify p1 runblock
+```
+
+`2runblock` = next 2 blocked, **not** P2. Named is **only** the
+`P`/`p` family.
+
 ### Show / refresh
 
 Aliases: `show`, `refresh`. **Read-only.** No implementation.
@@ -1002,7 +1153,7 @@ that goal; if not, stop and say why.
    (work landed or explicitly Blocked) **before** phase x+1 begins.
    Do **not** run phases in parallel, as background agents, or as a batch
    of simultaneous todos. No async fan-out. Applies to Next-N,
-   Run-to-end, Stop-before-end, and Rundefer.
+   Run-to-end, Stop-before-end, Rundefer, and Runblock.
 4. Mark status accurately: `Done` only if the work **landed**; else
    `In progress`, `Blocked`, or leave as `Left`. Remaining unstarted work
    after a partial run is **`Left`**.
@@ -1042,11 +1193,14 @@ Use `✓` and `COMPLETED` for Done. If Blocked:
 - After the **last phase of this run:** banner + full `phase_layout.txt`
   recap (Task, Flags if any, statuses).
 
-Apply this to Next-N, Run-to-end, Stop-before-end, and Rundefer.
-Single-phase Next stays banner + table. Named single-phase (`0` / `pN`)
-also stays banner + table. Rundefer of one deferred phase stays banner
-+ table. A Def-Blocked target that becomes `Blocked` uses the BLOCKED
-banner (execute stops; do not pretend it became runnable).
+Apply this to Next-N, Run-to-end, Stop-before-end, Rundefer, and
+Runblock. Single-phase Next stays banner + table. Named single-phase
+(`0` / `pN`) also stays banner + table. Rundefer of one deferred
+phase stays banner + table. Runblock of one blocked phase stays
+banner + table (execute or mark-Done). A Def-Blocked rundefer target
+that becomes `Blocked` uses the BLOCKED banner (execute stops; do
+not pretend it became runnable). A just-runblocked phase that
+becomes `Blocked` again stops the sequence (BLOCKED banner).
 
 ---
 
@@ -1193,9 +1347,9 @@ Include Reason if any phase has a stored reason.
 ## Response shape
 
 Empty `/phasify` and `next` use the single-phase path (one phase, then
-the table). Next-N / Run-to-end / Stop-before-end / Rundefer add later
-phases after each prior phase finishes. Mid-run: banner only.
-Last-of-run: banner + full table.
+the table). Next-N / Run-to-end / Stop-before-end / Rundefer /
+Runblock add later phases after each prior phase finishes. Mid-run:
+banner only. Last-of-run: banner + full table.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, if marker present
@@ -1250,7 +1404,14 @@ undefer then execute; none deferred: say so + table (do not execute
 some other open phase). Named rundefer of a phase that is neither
 `Deferred` nor `Def-Blocked`: **Error:**. Fewer than N: undefer+run
 all found; say the shortfall. A `Def-Blocked` target becomes `Blocked`
-and stops execute (BLOCKED banner + last-of-run table). `help` /
+and stops execute (BLOCKED banner + last-of-run table). `runblock`
+unblock then execute-or-mark-Done; none blocked: say so + table (do
+not execute some other open phase). Named runblock of a phase that
+is neither `Blocked` nor `Def-Blocked`: **Error:** (same style as
+invalid unblock). Fewer than N: unblock+run-or-mark all found; say
+the shortfall. `Def-Blocked` → `Left` (clears both); `Blocked` →
+`Unblocked` then run or mark `Done`. Stop if a just-runblocked
+phase becomes `Blocked` again. `help` /
 `--help` / `/?` print `references/HELP.md` only. `pass` / `pass help`
 print the **Pass (`Npass`)** section only.
 
@@ -1263,13 +1424,17 @@ print the **Pass (`Npass`)** section only.
   statuses.
 - Empty `/phasify` (no selector after stripping image/pass tokens) is
   **Next** (count = 1), same as `next`. Never print help/usage for an
-  empty invocation. After flag strip, `help` / `--help` / `/?` prints
+  empty invocation. After flag strip, first token `smart` is **Smart**
+  (cite `docs/smart_contract.md` + `references/SMART.md`); not Next;
+  not implicit NL. After flag strip, `help` / `--help` / `/?` prints
   `references/HELP.md` and stops — do not execute. After flag strip,
+  exact `tldr` prints `references/TLDR.md` and stops — never a phase
+  id. After flag strip,
   `pass` / `pass help` prints the **Pass (`Npass`)** section and
   stops.
 - All multi-phase execute modes are **sequential, synchronous, in plan
   order**. No parallel/fan-out. Next-N, Run-to-end, Stop-before-end,
-  and Rundefer: x finishes, then x+1 begins.
+  Rundefer, and Runblock: x finishes, then x+1 begins.
 - Skip `Done`, `Deferred`, and `Def-Blocked` unless `--force` /
   explicit redo / named `pN`. Stop the sequence on `Blocked`. Skip
   `Def-Blocked` (do not “run until blocked”).
@@ -1309,6 +1474,31 @@ print the **Pass (`Npass`)** section only.
   **before** `undefer` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
   `todo` ≠ `todone`. Do not collapse on `un` / `defer` / `run`.
   **Undefer stays status-only** (no execute).
+- `runblock` / `Nrunblock` / `runblock N` / `runblockN` unblock then
+  execute remaining work or mark `Done`. Skip Unblock’s verification
+  loop (no ack wait; same assertiveness as rundefer / todone). Bare
+  `runblock` = next 1 Blocked / Def-Blocked. `runblock N` /
+  `Nrunblock` / `runblockN` / `2runblock` / `runblock2` (N ≥ 1) =
+  next N blocked, **not** named PN (unlike `Nblock` / `2block` /
+  `Nunblock` / `2unblock`). Named is only the `P`/`p` family
+  (`runblock pN` / `runblock PN` / `runblockpN` / `runblockPN` /
+  `pN runblock` / `PNrunblock`); else **Error:** if that phase is
+  neither `Blocked` nor `Def-Blocked`. `runblock 0` / `0runblock` /
+  `runblock0`: **Error:** (use `runblock p0`). None: say so +
+  table; do **not** execute some other open phase. Fewer than N:
+  unblock+run-or-mark all found; say the shortfall. Unblock first
+  (`Blocked` → `Unblocked` / ready; `Def-Blocked` → `Left` / ready
+  — clear **both** block and defer, unlike unblock → `Deferred`
+  and unlike rundefer → `Blocked` and stop). Then execute remaining
+  agent-automatable work (`Done` only if work landed) **or** mark
+  `Done` when nothing is automatable (short note; no Todo briefing;
+  no fake implement; Reason closed by runblock or clear). Stop the
+  sequence if a just-runblocked phase becomes `Blocked` again.
+  Banners / last-of-run table like other execute modes. No ack
+  wait. Npass = this runblock run, not whole-table replan. Parse
+  `runblock` **before** `block` / `unblock`. `runblock` ≠ `unblock`
+  ≠ `block` ≠ `rundefer`. Do not collapse on `run` / `un` /
+  `block`. **Unblock stays verify-only** (no execute).
 - `show` / `refresh` are read-only. No implementation.
 - `todo` / `Ntodo` / `todo N` are read-only / advisory. No
   implementation. Do not change Status. Do not execute the phase or
@@ -1373,12 +1563,13 @@ print the **Pass (`Npass`)** section only.
   print the table. Invalid id: same **Error:** as defer. Named phase
   that is neither `Blocked` nor `Def-Blocked`: **Error:** (same
   style). Parse `unblock` / `Nunblock` as Unblock, not Undefer, not
-  Todo, not Todone, not Block. Do not mark `Unblocked` without a
-  passing test when a test can exist.
+  Todo, not Todone, not Block, not Runblock. Do not mark
+  `Unblocked` without a passing test when a test can exist.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed, **except Todone** (user
   asserts the work; briefing then Status `Done`; no execute; no ack
-  wait).
+  wait) **and Runblock** when no remaining automation (short note;
+  no Todo briefing; no fake implement).
 - Last printed section is the **Phased plan** table in the
   `phase_layout.txt` layout (execute recap / show). Original ify Task
   text is the **Task** row (three columns, wrapped) — never a separate

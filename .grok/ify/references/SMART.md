@@ -1,38 +1,46 @@
-# Ify which — verb decision + rewrite
+# Ify smart — verb decision + rewrite
 
-`/ify which <prompt>` and bare `/ify <prompt>` (implicit which).
-**Print** a recommended invocation. **Do not** dispatch or run the
-verb. One short why is allowed here; forbidden on tldr.
+Cite `docs/smart_contract.md`. `/ify smart <prompt>`, `/ify which
+<prompt>` (`which` = reserved-token **alias** of `smart`), and
+bare `/ify <prompt>` (implicit smart). **Print** the family
+preamble. **Do not** dispatch or run the verb. After-select:
+**Stop.** One short why is allowed here; forbidden on tldr.
 
-`which` with **no** prompt: ify’s short usage + say which needs a
-prompt. Do not invent a recommendation.
+`smart` / `which` with **no** prompt: ify’s short usage + say
+smart needs a prompt. Do not invent a recommendation.
 
 ---
 
 ## Output shape (mandatory)
 
+Family preamble (`docs/smart_contract.md`):
+
 ```text
-<verb> <rewritten prompt>
+**Smart — selected.**
+`/<verb> <canonical invocation>`
 <one-line why>
 ```
 
-- `<verb>` is a canonical Ify-set name (no leading `/` required;
-  `/askify …` is also fine).
-- `<rewritten prompt>` is the user’s intent restated as that
+- `<verb>` is a canonical Ify-set name.
+- `<canonical invocation>` is the user’s intent restated as that
   verb’s task. Not a plan. Not an answer.
 - Why: one short sentence. No extra sections. No status table.
 
 Frozen example (verbatim shape):
 
 ```text
-/ify which "List all of the options for pytch ghl"
-→ askify what are the command line options for ptych ghl?
+/ify smart "List all of the options for pytch ghl"
+→ **Smart — selected.**
+  `/askify what are the command line options for ptych ghl?`
 ```
 
 Why for that example: listing CLI options of an existing tool is
 a read-only question → askify. Rewrite fixes `pytch` → `ptych`
 (same token the user meant) and turns “list the options” into
 “what are the command line options”.
+
+`/ify which "List all of the options for pytch ghl"` is the same
+example (`which` alias).
 
 ---
 
@@ -46,7 +54,7 @@ verbs.
 | Which verb / family help / tldr / “what does ify do” | **ify** |
 | Append / “also” / “and also” aimed at the **last ify** in this chat | **addify** |
 | Optimize / rewrite **the prompt only** (no run, no plan, no answer) | **promptify** |
-| Bug / failing / broken / root cause / stack trace | **debugify** (this tree: Cursor kickoff only) |
+| Bug / failing / broken / root cause / stack trace | **debugify** (this tree: Grok **full** Debug Mode loop; `/debug` alias) |
 | Next phase / named `PN` / `pN` / “run phase” on the **current** plan | **phasify** |
 | Plan / design / phases / “how should we slice this” (no current-phase execute) | **plannify** |
 | Implement / execute / build / “just do it” (not a named phase, not a bug) | **runnify** |
@@ -87,7 +95,7 @@ debugify / phasify stay as matched). Examples:
 3. Fix an obvious typo **only** when the intended token is clear
    from the same prompt (frozen: `pytch` → `ptych`). Do not invent
    a product or flag the user did not name.
-4. Drop which-meta (“which ify”, “what command should I use”).
+4. Drop smart-meta (“which ify”, “what command should I use”).
 5. Do **not** add `Nimages` / `Npass` unless the user already
    included a numbered flag token.
 6. Do **not** run the verb. Do not print extreme help or tldr.
@@ -101,27 +109,29 @@ invented):
 | plannify | a planning request (plan, do not implement) |
 | runnify | the work to execute |
 | phasify | the phase selector / next-phase request (no new plan) |
-| debugify | the bug report (this tree: kickoff only) |
+| debugify | the bug report (this tree: full loop; `/debug` alias) |
 | promptify | the prompt to optimize (no execute) |
 | addify | the text to append to the last ify |
-| ify | `help`, `tldr`, or `which <prompt>` — not a domain answer |
+| ify | `help`, `tldr`, or `smart <prompt>` — not a domain answer |
 
 ---
 
-## Implicit which
+## Implicit smart
 
 After flag strip, any non-empty body whose first token is not
-`help` / `--help` / `/?` / `tldr` / `which` / `pass` is
-**implicit which**. Same decision table, same output, same
+`help` / `--help` / `/?` / `tldr` / `smart` / `which` / `pass` is
+**implicit smart**. Same decision table, same preamble, same
 no-dispatch rule.
 
-`help me …` is **not** implicit which (unknown-verb path).
+`help me …` is **not** implicit smart (unknown-verb path).
 
 ---
 
 ## Hard rules
 
-- Recommend only. Never dispatch.
+- Recommend only. Never dispatch. Cite `docs/smart_contract.md`.
 - Never invent files, APIs, or verbs.
 - Why is one line; tldr must not include why.
-- This tree only for debugify (Cursor = kickoff).
+- This tree only for debugify (Grok = full loop). `/debug-kickoff`
+  stays Not ify.
+- `which` is an ify-only alias of `smart`.

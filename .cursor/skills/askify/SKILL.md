@@ -11,6 +11,7 @@ description: >-
   Npass / N-pass / N pass as a request to take N passes (pass 1 is a
   documented pre-plan when N > 1) before answering. Print a complete
   reference with `/askify help` or `/askify --help` (also `/?`).
+  `/askify tldr` prints the short page.
 ---
 
 # Askify (= Promptify ask mode)
@@ -128,13 +129,17 @@ After optimize + scoring:
    promptify Trailing phase status table (completed vs left). Skip only for a
    true single-step question.
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -149,6 +154,7 @@ If there is no task after the command, explain:
 ```text
 /askify <prompt>      — coach into an ask-kickoff prompt, then answer (read-only)
 /askify help          — full reference (also --help, /?)
+/askify tldr          — short form (stop)
 /askify pass help     — Pass (Npass) subsection (also `pass`)
 /plannify <prompt>    — coach then produce a plan
 /runnify <prompt>     — optimize then EXECUTE the work (mutating)
@@ -245,6 +251,7 @@ after the table except an optional one-line next-step.
   N > 1, pass 1 documents a pre-plan only; later passes use that base;
   the last pass emits the answer. Acknowledge the marker.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
-  the **Pass (`Npass`)** section and stop. Empty `/askify` is short
-  usage, not Help. `help me …` is a task.
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
+  print the **Pass (`Npass`)** section and stop. Empty `/askify` is
+  short usage, not Help. `help me …` is a task.

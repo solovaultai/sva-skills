@@ -2,6 +2,8 @@
 
 Print this file as the response when the user runs `/plannify help`,
 `/plannify --help`, or `/plannify /?`. Do not plan or replan.
+`/plannify tldr` prints the short page (`references/TLDR.md`), not
+this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -29,6 +31,7 @@ Alias: `/promptify-plan`.
 /plannify <prompt>     — coach, then produce a plan (read-only)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
 /plannify help         — this reference (also --help / /?)
+/plannify tldr         — short form; stop
 /plannify pass         — Pass (Npass) subsection only (also pass help)
 /promptify-plan <prompt>— alias of /plannify
 ```
@@ -46,10 +49,11 @@ when they said “plannify this” / “plan this prompt”.
 | `/plannify fromhere` / `planify fromhere` | **fromhere** | Replan from current statuses |
 | `/plannify` *(empty)* | Short usage | No plan. `fromhere` is **not** empty. |
 | `/plannify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/plannify tldr` | **tldr** | Print the short page; stop |
 | `/plannify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `fromhere` is never treated as help.
+`/?`, `tldr`, `pass`, or `pass help`. `fromhere` is never treated as help.
 
 ---
 
@@ -198,7 +202,8 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 - `Nimages` / `Npass`: strip first; acknowledge; N > 1 ⇒ pass 1
   is pre-plan only.
 - Exact `help` / `--help` / `/?` after flag strip: print this
-  page; do not plan. Exact `pass` / `pass help`: print **Pass
+  page; do not plan. Exact `tldr`: print `references/TLDR.md`
+  (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only. There is no `/pass` skill. Empty is short
   usage, not help. `fromhere` is not help.
 

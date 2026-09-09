@@ -2,6 +2,8 @@
 
 Print this file as the response when the user runs `/promptify help`,
 `/promptify --help`, or `/promptify /?`. Do not run the pipeline.
+`/promptify tldr` prints the short page (`references/TLDR.md`), not
+this file.
 
 If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
@@ -30,6 +32,7 @@ or datasets.
 ```text
 /promptify <prompt>    — analyze / validate / enrich / rewrite (no execute)
 /promptify help        — this reference (also --help / /?)
+/promptify tldr        — short form; stop
 /promptify pass        — Pass (Npass) subsection only (also pass help)
 /runnify <prompt>      — same pipeline, then EXECUTE the optimized prompt
 /promptify-run <prompt>— alias of /runnify
@@ -49,10 +52,11 @@ when they said “promptify this” / “optimize this prompt”.
 | `/promptify-run <prompt>` | **Execution (alias)** | Same as `/runnify` |
 | `/promptify` *(empty)* | Short usage | No pipeline |
 | `/promptify help` / `--help` / `/?` | **Help** | Print this page; stop |
+| `/promptify tldr` | **tldr** | Print the short page; stop |
 | `/promptify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `pass`, or `pass help`. `help me write a login form` is a
+`/?`, `tldr`, `pass`, or `pass help`. `help me write a login form` is a
 task. Unnumbered `pass` in a longer body is not this Help.
 
 ---
@@ -233,7 +237,8 @@ one-line next-step.
 - `Nimages`: read N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`; lead with the ack (name the source).
 - `Npass`: N passes; pass 1 is pre-plan only when N > 1.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
-  do not run the pipeline. Exact `pass` / `pass help`: print **Pass
+  do not run the pipeline. Exact `tldr`: print `references/TLDR.md`
+  (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only. There is no `/pass` skill.
 
 ---

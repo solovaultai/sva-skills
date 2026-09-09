@@ -5,12 +5,14 @@ description: >-
   runnify, promptify, phasify, debugify, askify, addify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, "ify", /ify help, /ify help <verb>, /ify tldr, /ify tldr
-  <verb>, /ify which, or wants to know which ify verb to use.
-  `/ify which <prompt>` recommends a verb + rewritten prompt and does
-  not dispatch. Bare `/ify <prompt>` is implicit which. Empty `/ify` is
+  <verb>, /ify smart, /ify which, or wants to know which ify verb to
+  use. `/ify smart <prompt>` (alias `which`) recommends a verb +
+  rewritten prompt and does not dispatch. Bare `/ify <prompt>` is
+  implicit smart. Empty `/ify` is
   short usage, not Help and not Next. Print the family catalog with
-  `/ify help` or `/ify --help` (also `/?`). `/ify pass help` (or `pass`)
-  prints the Pass (`Npass`) section. Recognizes Nimages / N images /
+  `/ify help` or `/ify --help` (also `/?`). `/ify tldr` prints ify’s
+  short page; `/ify tldr <verb>` prints that verb’s. `/ify pass help`
+  (or `pass`) prints the Pass (`Npass`) section. Recognizes Nimages / N images /
   N-images as a pointer to the newest N images from the configured
   scratch source (or workspace scratch/). Recognizes Npass / N-pass /
   N pass as N pipeline passes of this mode's work. Flags work in all
@@ -28,8 +30,9 @@ You do **not** plan, execute, debug, or answer domain questions.
 | Last turn was an ify; append text | `/addify …` |
 | Don’t know which verb, or want family help/tldr | `/ify` |
 
-`which` **prints** a recommended invocation. It does **not** dispatch.
-The user (or a later turn) runs that verb.
+`smart` **prints** a recommended invocation (family preamble in
+`docs/smart_contract.md`). It does **not** dispatch. `which` is an
+alias of `smart`. The user (or a later turn) runs that verb.
 
 Follow `~/.cursor/skills/promptify/SKILL.md` **Flag parse order**,
 **Scratch images**, **Multi-pass**, and **Hard rules** (workspace is
@@ -41,7 +44,7 @@ different flag parse.
 
 ---
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
@@ -51,6 +54,9 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
 - Remaining body exactly `pass`, `pass help`, or `help pass`
   (case-insensitive): print the **Pass (`Npass`)** section of that
   file and **stop**. There is no `/pass` skill.
+- Remaining body exactly `tldr` (case-insensitive): **read and
+  print** `references/TLDR.md` (this skill folder) and **stop**.
+  `tldr <verb>` is **tldr** below, not this bullet.
 
 Do not plan, execute, debug, or answer. Empty `/ify` is the short
 usage below, not Help. `help me …` is **not** a task.
@@ -58,13 +64,13 @@ usage below, not Help. `help me …` is **not** a task.
 ## Landed deliverables
 
 Parse, role, short usage, own-catalog Help, extreme help, tldr, and
-which are frozen **here**.
+smart are frozen **here**.
 
 | Deliverable | Lands |
 |-------------|--------|
 | `references/HELP.md` (family catalog + Pass subsection) | **P1 — landed** |
-| Extreme-help concatenate; `references/TLDR.md` template | **P2 — landed** |
-| `references/WHICH.md` decision table + rewrite rules | **P3 — landed** |
+| Extreme-help concatenate; printable `references/TLDR.md` | **P2 — landed** |
+| `references/SMART.md` decision table + rewrite rules | **P3 — landed** |
 | addify Recover/dispatch + README | **P4 — landed** |
 | Cross-tree check | **P5 — landed** |
 
@@ -74,7 +80,7 @@ which are frozen **here**.
 
 Cite promptify **Flag parse order** — do not fork. Strip numbered
 `Nimages` / `Npass` **first**, then dispatch. Flags are **not**
-subcommand text or `which` prompt wording.
+subcommand text or `smart` prompt wording.
 
 Read left to right. Each family independently. **First numbered
 instance** wins.
@@ -118,15 +124,16 @@ treating the body as a prompt.
 | *(empty)* | **Short usage.** Not Help, not Next. |
 | `help` / `--help` / `/?` | ify’s own `references/HELP.md` (family catalog). |
 | `help <verb>` | Extreme help for that verb. |
-| `tldr` | Narrative-free tldr of **ify** itself. |
-| `tldr <verb>` | Narrative-free tldr of that verb. |
-| `which <prompt>` | Recommend verb + rewritten prompt. Do **not** run it. |
-| `<prompt>` with no subcommand | **Implicit `which`**. |
+| `tldr` | Print ify’s `references/TLDR.md`; stop. |
+| `tldr <verb>` | Print that verb’s `references/TLDR.md` (this tree); stop. |
+| `smart <prompt>` | Recommend verb + rewritten prompt. Do **not** run it. |
+| `which <prompt>` | Alias of `smart`. |
+| `<prompt>` with no subcommand | **Implicit `smart`**. |
 | `pass` / `pass help` / `help pass` | ify’s Pass (`Npass`) subsection only. |
 | `help me …` / `help <unknown>` | **Not a verb.** Short usage + unknown-verb line. |
 
 **Unlike other ifys:** `help me …` is **not** a task. Do **not**
-run implicit which on that leftover. Do **not** print a random
+run implicit smart on that leftover. Do **not** print a random
 verb’s HELP.md.
 
 ### Disambiguation (required)
@@ -140,17 +147,19 @@ verb’s HELP.md.
 - Word `help` + `pass` (remainder exactly `help pass`): **Pass
   help**. `pass` is **not** a verb.
 - Word `help` + anything else (`me`, unknown, Not ify): **not a
-  verb**. Short usage + `unknown verb; try /ify which …`. If the
+  verb**. Short usage + `unknown verb; try /ify smart …`. If the
   token is a **Not ify** utility, add `not an ify; use /<name> help`.
 - Exact remaining body `pass` or `pass help`: **Pass help**. Extra
   tokens after `pass` that are not `help` are **not** Pass help —
-  treat the whole remaining body as **implicit which**.
-- `tldr` + known verb / alias: tldr of that verb. `tldr` alone:
-  tldr of ify. `tldr` + unknown: same unknown-verb path as help.
-- `which` with **no** prompt: short usage + say which needs a
-  prompt. Do not invent a recommendation.
+  treat the whole remaining body as **implicit smart**.
+- `tldr` + known verb / alias: print that verb’s
+  `references/TLDR.md` (this tree). `tldr` alone: print ify’s
+  `references/TLDR.md`. `tldr` + unknown: same unknown-verb path
+  as help.
+- `smart` / `which` with **no** prompt: short usage + say smart
+  needs a prompt. Do not invent a recommendation.
 - Any other non-empty body (first token not `help` / `--help` /
-  `/?` / `tldr` / `which` / `pass`): **implicit which**.
+  `/?` / `tldr` / `smart` / `which` / `pass`): **implicit smart**.
 
 ### Ify set (known verbs)
 
@@ -183,10 +192,11 @@ Print this and **stop**. Not Help. Not Next.
 /ify                 — catalog + help + router (does not plan or execute)
 /ify help            — family catalog (also --help, /?)
 /ify help <verb>     — extreme help for that ify verb
-/ify tldr            — narrative-free tldr of ify
-/ify tldr <verb>     — narrative-free tldr of that verb
-/ify which <prompt>  — recommend verb + rewritten prompt (do not run)
-/ify <prompt>        — implicit which
+/ify tldr            — short tldr of ify (stop)
+/ify tldr <verb>     — short tldr of that verb (stop)
+/ify smart <prompt>  — recommend verb + rewritten prompt (do not run)
+/ify which <prompt>  — alias of smart
+/ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 
 Already know the verb? Run it directly. Append to last ify? /addify
@@ -195,7 +205,7 @@ Already know the verb? Run it directly. Append to last ify? /addify
 **Unknown verb / `help me …`:** print the same block, then:
 
 ```text
-unknown verb; try /ify which …
+unknown verb; try /ify smart …
 ```
 
 ---
@@ -226,28 +236,42 @@ ify help — <canonical-verb> (this tree: cursor)
 instructions**.
 
 Unknown / Not ify: short usage + known-verb list (Ify set above)
-+ `unknown verb; try /ify which …`. If the token is a listed Not
++ `unknown verb; try /ify smart …`. If the token is a listed Not
 ify utility, also `not an ify; use /<name> help`.
 
 ## tldr (`tldr` / `tldr <verb>`)
 
-Follow `references/TLDR.md` (template + extraction rules only).
-Narrative-free: one-line description, syntax diagram, args table,
-examples table. Omit rows not in the source. Do not invent flags.
+After flag strip (flags still ack first, then the page):
 
-- `tldr` alone: extract from ify’s `references/HELP.md`.
-- `tldr <verb>`: resolve alias, extract from that verb (this tree).
-- Unknown / Not ify: same path as extreme-help unknown.
+- Remaining body exactly `tldr` (case-insensitive): **read and
+  print** `references/TLDR.md` (this skill folder) and **stop**.
+- Remaining body `tldr <verb>`: resolve alias (table above), then
+  **read and print** that verb’s `references/TLDR.md` in this
+  tree and **stop**.
+- Unknown / Not ify: same path as extreme-help unknown (short
+  usage + `unknown verb; try /ify smart …`).
 
-## which (`which <prompt>` / implicit)
+Do not extract a page from HELP. Do not invent flags or rows.
 
-Follow `references/WHICH.md`. **Print** `<verb> <rewritten prompt>`
-plus one short why. **Do not** dispatch.
+### Authoring notes (tldr files)
 
-- `which` with no prompt: short usage + say which needs a prompt.
-- Bare `/ify <prompt>`: implicit which (same table).
-- Frozen example: `/ify which "List all of the options for pytch ghl"`
-  → `askify what are the command line options for ptych ghl?`
+- This tree only. Do not read the other tree or reconcile Cursor
+  vs Grok.
+- Do not invent. Print the file as-is.
+- `/ify tldr` prints ify’s `references/TLDR.md`. `/ify tldr
+  <verb>` prints that verb’s `references/TLDR.md` (same bytes as
+  `/<verb> tldr`).
+
+## smart (`smart <prompt>` / `which` alias / implicit)
+
+Cite `docs/smart_contract.md`. Follow `references/SMART.md`.
+**Print** the family preamble. **Do not** dispatch.
+
+- `smart` / `which` with no prompt: short usage + say smart needs
+  a prompt.
+- Bare `/ify <prompt>`: implicit smart (same table).
+- Frozen example: `/ify smart "List all of the options for pytch ghl"`
+  → `/askify what are the command line options for ptych ghl?`
 
 ---
 
@@ -256,8 +280,8 @@ plus one short why. **Do not** dispatch.
 **`ify` is an ify.** A last `/ify` in this conversation is a valid
 last-ify. Addify (both trees) includes `ify` in the Ify set and
 restarts `/ify` from scratch on the combined text. Skip empty /
-help / tldr / pass when walking back; do **not** skip `which` or
-bare-prompt-as-which.
+help / tldr / pass when walking back; do **not** skip `smart`,
+`which`, or bare `/ify <prompt>`.
 
 ---
 
@@ -265,14 +289,16 @@ bare-prompt-as-which.
 
 - Catalog + help + router only. Never plan, execute, debug, or
   answer the user’s domain question.
-- `which` (explicit or implicit) does **not** dispatch.
+- `smart` (explicit, `which` alias, or implicit) does **not** dispatch.
 - Strip `Nimages` / `Npass` first (promptify Flag parse order).
 - Empty `/ify` is short usage, not Help, not Next.
 - `help me …` / `help <unknown>` is not a task and not extreme help.
 - Do not invent verbs, files, or APIs. Known verbs and Not ify
   lists above match `references/HELP.md`.
-- Extreme help concatenates this tree’s sources only. tldr follows
-  `references/TLDR.md` and does not invent flags.
-- `which` follows `references/WHICH.md`. Recommend only; never
-  dispatch.
+- Extreme help concatenates this tree’s sources only. Exact `tldr`
+  after flag strip prints `references/TLDR.md` and stops.
+  `tldr <verb>` prints that verb’s `references/TLDR.md` (this
+  tree). Do not invent tldr flags or rows.
+- `smart` follows `docs/smart_contract.md` and `references/SMART.md`.
+  Recommend only; never dispatch. `which` is an ify-only alias.
 - Keep this SKILL.md under 500 lines.

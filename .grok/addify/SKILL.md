@@ -7,7 +7,8 @@ description: >
   verbatim-appends the addify body, and dispatches to that skill.
   Use when the user runs /addify, "addify", "add this to the last ify",
   or "append this to the previous ify". Print a complete reference with
-  `/addify help` or `/addify --help` (also `/?`). Empty `/addify` is
+  `/addify help` or `/addify --help` (also `/?`). `/addify tldr`
+  prints the short page. Empty `/addify` is
   short usage, not Next. Recognizes Nimages / N images / N-images as a
   pointer to the newest N images from the configured scratch source
   (or workspace scratch/). Recognizes Npass / N-pass / N pass as a
@@ -35,13 +36,17 @@ source of truth; never invent files/APIs/tools/DBs). Mutability is
 
 ---
 
-## Help (`help` / `--help` / `/?`)
+## Help (`help` / `--help` / `/?` / `tldr`)
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and
   **stop**.
+- Remaining body exactly `tldr` (case-insensitive):
+  **read and print** `references/TLDR.md` (this skill folder) and
+  **stop**. Extra tokens after `tldr` stay a **task**. There is
+  no `tldr help` alias.
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
@@ -54,6 +59,7 @@ If the user invokes the skill with no prompt body, explain:
 ```text
 /addify <text>     — append <text> to the last ify and restart/continue that skill
 /addify help       — full reference (also --help, /?)
+/addify tldr       — short form (stop)
 /addify pass help  — Pass (Npass) subsection (also `pass`)
 ```
 
@@ -121,13 +127,14 @@ store. Chat only.
 **Skip when walking back**
 
 - Exact help (`help` / `--help` / `/?` after flag strip)
+- Exact `tldr` after flag strip on **any** ify verb (same as help)
 - Empty usage for skills whose empty is usage (not a task)
 - `/ify` empty usage; `/ify help` / `help <verb>`; `/ify tldr` /
   `tldr <verb>`; `/ify pass` / `pass help`
 
 **Do not skip** empty `/phasify` (that is **Next**).
-**Do not skip** `/ify which` or bare `/ify <prompt>` (implicit
-which).
+**Do not skip** `/ify smart`, `/ify which`, or bare
+`/ify <prompt>` (implicit smart).
 
 **If last is addify:** keep walking to the last **non-addify** ancestor.
 Combined body = ancestor body + every later addify body **in
@@ -217,11 +224,13 @@ the banner.
   from scratch (**not** fromhere). phasify = fromhere + AskQuestion.
   Grok debugify = full loop (alias `/debug`). runnify planning =
   from scratch; mid-run = continue. askify = restart.
-- Skip ify help / tldr / pass / empty usage when walking back. Do
-  **not** skip ify `which` or bare-prompt-as-which.
+- Skip ify help / tldr / pass / empty usage when walking back. Skip
+  exact `tldr` on **any** ify verb (same as help). Do **not** skip
+  `/ify smart`, `/ify which`, or bare `/ify <prompt>`.
 - Exact `help` / `--help` / `/?` after flag strip: print
-  `references/HELP.md` and stop. Exact `pass` / `pass help`: print
-  the **Pass (`Npass`)** section and stop. Empty `/addify` is
+  `references/HELP.md` and stop. Exact `tldr` after flag strip:
+  print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
+  print the **Pass (`Npass`)** section and stop. Empty `/addify` is
   short usage, **not** Next. `help me …` is a task.
 - Inherit mutability from the target. Last printed content is
   whatever the target skill requires (often its trailing phase table).
