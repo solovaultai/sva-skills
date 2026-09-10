@@ -45,6 +45,8 @@ Then bind phrases to **live** ids:
 | “next deferred” | first Status `Deferred` or `Def-Blocked` |
 | “next blocked” | first Status `Blocked` or `Def-Blocked` |
 | “next” | next incomplete (not `Done` / `Deferred` / `Def-Blocked`) |
+| “remove next” / “delete next” | **remove** (next not-Done; still confirms) |
+| “remove PN” / a unique phase title | **remove pN** / `remove <title>` |
 | “N before the last” / “all but last N” | Stop-before-end `-N` (`C - N`) |
 
 Prefer the **single** existing mode that achieves the whole ask
@@ -71,6 +73,7 @@ Prefer the **single** existing mode that achieves the whole ask
 | Todo / checklist | **todo** |
 | Explain | **explain** |
 | Show / refresh table | **show** |
+| Remove / delete phase(s) from the plan | **remove** (`delete` alias; named `pN` / title, or next N not-Done) |
 | Mark done / already did (not deferred-specific) | **todone** (named if target is Deferred) |
 
 ---

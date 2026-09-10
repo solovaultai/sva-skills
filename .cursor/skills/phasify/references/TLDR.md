@@ -22,6 +22,8 @@ phase(s).
 /phasify block [reason]  — Block next 1 eligible phase (also Nblock / block pN / block N)
 /phasify unblock         — Verify next Blocked / Def-Blocked phase (also Nunblock / unblock N)
 /phasify runblock        — Unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN)
+/phasify remove          — Drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>)
+/phasify delete          — Exact alias of remove
 /phasify smart <prompt>  — select a mode from the live plan, then run it (not Next; not implicit)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
@@ -45,6 +47,7 @@ phase(s).
 | `block` | Set next eligible phase `Blocked` / `Def-Blocked` [reason] | Hard stop; execute-next cannot proceed through it |
 | `unblock` | Verify next Blocked / Def-Blocked phase | On pass: `Unblocked` or `Deferred`; no phase work |
 | `runblock` | Unblock then execute remaining work or mark `Done` | Clear a blocker and finish or close in one step |
+| `remove` / `delete` | Drop next not-Done work-phase row(s) after yes/no (`remove N` = next N; `remove pN` / title = named) | Delete from the plan (not defer); confirm first; remaining ids compact |
 | `smart <prompt>` | Select a mode from the live plan, then run it | Router — not Next, not implicit |
 | `show` / `refresh` | Print the current table | Read-only snapshot of statuses |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |

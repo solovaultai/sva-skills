@@ -2,7 +2,8 @@
 
 Print this file as the response when the user runs `/phasify help`,
 `/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer,
-rundefer, todo, todone, explain, block, unblock, runblock, or show.
+rundefer, todo, todone, explain, block, unblock, runblock, remove,
+delete, or show.
 `/phasify tldr` prints the short page (`references/TLDR.md`), not
 this file.
 
@@ -199,6 +200,26 @@ Unlike **rundefer** (`Def-Blocked` → `Blocked` and stop). Runblock
 clears **both** on `Def-Blocked` (`Left` / ready) so it can actually
 run.
 
+### Remove (`delete` alias)
+
+`/phasify remove` **drops work-phase row(s)** from the current
+plan. It is **not** defer (park) and **not** todone (mark Done).
+`delete` does the **exact same thing**.
+
+Always **ask yes/no** and wait. Do not drop rows until the user
+says yes. On yes, remaining work phases **compact-renumber** to
+contiguous P0…Pn. Task and Flags stay.
+
+| Command | What is proposed | Confirm? |
+|---------|------------------|----------|
+| `/phasify remove` / `delete` | Next 1 not-`Done` phase (includes Deferred) | Yes |
+| `/phasify remove 2` / `2remove` | Next 2 not-`Done` | Yes |
+| `/phasify remove p3` / `remove P3` | Named P3 (even if `Done`) | Yes |
+| `/phasify remove Defer - Delete IP` | Unique title match | Yes |
+
+`remove N` is next N, **not** PN (like `explain N`). Named id
+needs `p` / `P`, or a unique title.
+
 ### Addify to plannify (not a phasify mode)
 
 `/addify …` is the **addify** skill, not a phasify mode. When the last
@@ -239,6 +260,8 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify block [reason]  — Block next 1 eligible phase (also Nblock / block pN / block N)
 /phasify unblock         — Verify next Blocked / Def-Blocked phase (also Nunblock / unblock N)
 /phasify runblock        — Unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN)
+/phasify remove          — Drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>)
+/phasify delete          — Exact alias of remove
 /phasify smart <prompt>  — select a mode from the live plan, then run it (not Next; not implicit)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
@@ -274,6 +297,8 @@ Pass help, not a task.
 | `block`, `Nblock`, `block pN` [reason] | **Block** | No — Status `Blocked` / `Def-Blocked` only |
 | `unblock`, `Nunblock`, `unblock N` | **Unblock** | No phase work — verify, then `Unblocked` or `Deferred` on pass |
 | `runblock`, `Nrunblock`, `runblock N`, `runblockN` | **Runblock** | Yes — unblock then execute remaining work or mark `Done` |
+| `remove`, `Nremove`, `remove N`, `removeN`, `remove pN`, `remove <title>` | **Remove** | No phase work — drop row(s) after yes/no confirm |
+| `delete` (same shapes as `remove`) | **Remove** | Exact alias of `remove` |
 | `smart <prompt>` | **Smart** | Router — preamble then dispatch the selected mode (not Next; not implicit) |
 | `show` / `refresh` | **Show** | No — print table only |
 | `help` / `--help` / `/?` | **Help** | No — print this reference |
@@ -287,6 +312,8 @@ Stop-before-end · **Rundefer** (undefer then execute) · **Runblock**
 **Block**, **Unblock** (on verified pass), and **Todone** update
 status only. **Undefer** does **not** execute. **Todone** also
 prints a Todo-depth briefing, then sets `Done` (no ack wait).
+**Remove** (`delete` alias) drops work-phase row(s) after yes/no
+confirm (plan mutation; no implementation).
 **Todo**, **Explain**, **Show**, **Help**, and **tldr** are read-only.
 **Smart** is a router (preamble then dispatch); not implicit.
 
@@ -310,7 +337,7 @@ prints a Todo-depth briefing, then sets `Done` (no ack wait).
 | `toend` / `to-end` / `to end` after flag strip | Run-to-end (not empty Next; `to-end` is not `-N`) |
 
 New tokens are words (`done`, `toend`, `defer`, `undefer`, `rundefer`,
-`todo`, `todone`, `explain`, `block`, `unblock`, `runblock`) or a **leading minus** (`-2`),
+`todo`, `todone`, `explain`, `block`, `unblock`, `runblock`, `remove`, `delete`) or a **leading minus** (`-2`),
 never something that collides with `2pass`. Match `runblock` /
 `Nrunblock` / `runblockN` as **Runblock** first (the token contains
 `block` and `run` — do not collapse to `block`, `unblock`,
@@ -347,6 +374,12 @@ not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
 means next N not-Done** (like `rundefer N`), **not** named PN.
 Named explain is only the `P`/`p` family. `explain 0` /
 `0explain` / `explain0` is **Error:** (use `explain p0`).
+Match `remove` / `Nremove` / `removeN` and the alias `delete` /
+`Ndelete` / `deleteN` as **Remove**. Do not collapse `delete` to
+`done` / `todone` / `toend`. **`remove N` / `remove 3` /
+`remove3` / `3remove` / `2remove` means next N not-Done** (like
+`explain N`), **not** named PN. Named is `pN` / unique title.
+`remove 0` / `0remove` / `remove0`: **Error:** (use `remove p0`).
 
 ### Parse collisions
 
@@ -368,6 +401,12 @@ Named explain is only the `P`/`p` family. `explain 0` /
 | `2explain` / `explain2` | **Next 2** not-Done | Named P2 |
 | `2rundefer` / `rundefer2` / `Rundefer2` | **Next 2** deferred + execute | Named P2 |
 | `2runblock` / `runblock2` / `Runblock2` | **Next 2** blocked + run-or-mark | Named P2 |
+| `remove N` / `remove 3` / `remove3` / `3remove` / `Nremove` / `2remove` | **Next N** not-Done (includes Deferred) | Named PN |
+| `remove P3` / `remove p3` / `p3 remove` | Named **P3** | Next-3 |
+| `remove <title>` / `delete <title>` | Unique title | Next-N · named id |
+| `remove 0` / `0remove` / `remove0` | **Error:** (use `remove p0`) | Named P0 · “next 0” |
+| `2remove` / `remove2` / `2delete` / `delete2` | **Next 2** not-Done | Named P2 |
+| `delete` (any `remove` shape) | **Remove** (same mode) | `done` · todone · toend |
 | `undefer` | **Undefer** (status only) | Defer · rundefer |
 | `rundefer` | **Rundefer** (undefer + execute) | Undefer · defer · toend · todo · todone · explain · runblock |
 | `runblock` | **Runblock** (unblock + execute-or-Done) | Unblock · block · rundefer |
@@ -382,6 +421,7 @@ Named explain is only the `P`/`p` family. `explain 0` /
 `todo` ≠ `todone` ≠ `explain` ≠ `toend` / `to-end` / `done`.
 `rundefer` ≠ `undefer` ≠ `toend` ≠ `todo` ≠ `todone` ≠ `explain`.
 `runblock` ≠ `unblock` ≠ `block` ≠ `rundefer`.
+`remove` / `delete` ≠ `done` ≠ `todone` ≠ `toend` ≠ `defer`.
 Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
 not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
 `explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
@@ -1096,6 +1136,61 @@ unblock).
 
 ---
 
+## Remove (`delete` alias)
+
+Non-executing. **Drop work-phase row(s)** from the current plan
+(not defer, not todone). **Always yes/no confirm** before
+mutating. `delete` is an exact alias — same parse, same effect.
+Parse after stripping `Nimages` / `Npass`. If `Nimages` is
+present: acknowledge first, then Remove.
+
+| Text | Effect |
+|------|--------|
+| `remove` / `delete` | Propose the **next 1** not-`Done` work phase. |
+| `remove N` / `delete N` / `Nremove` / `Ndelete` / `removeN` (N ≥ 1) | Propose the **next N** not-`Done` phases (like `explain N`). |
+| `2remove` / `remove2` / `2delete` / `delete2` | Same as `remove 2` — **next 2**, **not** P2. |
+| `remove pN` / `delete pN` / `pN remove` | Named: that table id. |
+| `remove <title>` / `delete <title>` | Named by unique title (Phase title after `—`, or Description). |
+
+**N means next N not-Done, not named PN.** Named id is only
+`pN` / `PN`. `remove 0` / `0remove` / `remove0`: **Error:**
+(use `remove p0`). `delete` ≠ `done`.
+
+**Eligible** for bare / count: Status ≠ `Done` (include
+Deferred / Def-Blocked / Blocked). Named `pN` / unique title
+may include `Done`. Never Task or Flags.
+
+**Title match:** case-insensitive unique hit on the Phase cell,
+the title after `—`, or Description. None or several:
+**Error:** + table. Do not remove.
+
+None not-Done: say so + table. Fewer than N: propose all
+found, say the shortfall, still confirm.
+
+**Confirm:** print the candidate list and compact-renumber
+preview. Ask yes/no. Stop. Same-line `yes` does not skip
+confirm. `yes` / `y` / `ok` / `confirm` applies; `no` / `n` /
+`cancel` / `abort` cancels (unchanged table); anything else
+re-asks. A later non-yes/no `/phasify` cancels the pending
+Remove.
+
+**On yes:** drop those rows. Compact-renumber remaining work
+phases to P0…P(n-1). Task / Flags unchanged. Print
+`**Remove — applied.**` + table. No COMPLETED banners. Not
+`/plannify fromhere`.
+
+```text
+/phasify remove
+/phasify delete
+/phasify remove p3
+/phasify remove P3
+/phasify remove 2
+/phasify 2remove
+/phasify remove Defer - Delete IP
+```
+
+---
+
 ## Show / refresh
 
 Aliases: `show`, `refresh`. **Read-only.** No implementation.
@@ -1183,6 +1278,9 @@ Examples after strip:
 | `/phasify unblock 1image` | Unblock | 1 image |
 | `/phasify runblock 1image` | Runblock | 1 image |
 | `/phasify runblock 2 2pass` | Runblock next 2 blocked | `2pass` (this runblock run) |
+| `/phasify remove 1image` | Remove next not-Done (then confirm) | 1 image |
+| `/phasify remove 2 2pass` | Remove next 2 not-Done (then confirm) | `2pass` (target resolution) |
+| `/phasify delete p3` | Remove named P3 (then confirm) | none |
 | `/phasify show 2pass` | Show | `2pass` |
 | `/phasify pass` | Pass help | none (print this Pass section) |
 | `/phasify pass help` | Pass help | none |
@@ -1204,7 +1302,8 @@ stops. Full reference: `/phasify help`.
 **Meaning on phasify:** N pipeline passes of **this invocation's
 mode work** (execute, Rundefer undefer+execute, Runblock
 unblock+execute-or-Done, Todo briefing,
-Explain briefing, Unblock test, Block/Defer reason, Show). Not a phase selector. Not a
+Explain briefing, Unblock test, Block/Defer reason, Remove
+target list + confirm, Show). Not a phase selector. Not a
 whole-table replan
 (`/plannify fromhere`). Prefer setting images/pass on
 promptify/plannify **before** the walk; use on phasify when a
@@ -1360,6 +1459,11 @@ Named runblock of a phase that is neither `Blocked` nor
 found; say the shortfall. `Def-Blocked` → `Left` (clears both);
 `Blocked` → `Unblocked` then run or mark `Done`. Stop if a
 just-runblocked phase becomes `Blocked` again.
+`remove` / `delete` propose row(s) then wait for yes/no; on yes
+drop those rows and compact-renumber; on no print the unchanged
+table. Invalid id, ambiguous title, or `remove 0`: **Error:**
+(use `remove p0`). Named may remove `Done`. Bare / count skip
+`Done`.
 
 ---
 
@@ -1498,6 +1602,12 @@ is the **plannify** skill. Phasify does not replan.
   style). Parse `unblock` / `Nunblock` as Unblock, not Undefer, not
   Todo, not Todone, not Block, not Runblock. Do not mark
   `Unblocked` without a passing test when a test can exist.
+- `remove` / `delete` (exact alias) drop work-phase row(s) after
+  yes/no confirm. Do not mutate on the proposing turn. Bare =
+  next 1 not-`Done` (include Deferred). `remove N` / `2remove` =
+  next N, not named PN. Named is `pN` or unique title. `remove
+  0`: **Error:** (use `remove p0`). On yes: drop + compact-
+  renumber. On no: unchanged table. `delete` ≠ `done`.
 - Never invent a plan, phases, or workspace resources.
 - Do not mark `Done` unless the work landed, **except Todone** (user
   asserts the work; briefing then Status `Done`; no execute; no ack
@@ -1518,5 +1628,6 @@ is the **plannify** skill. Phasify does not replan.
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify help` | Plannify reference |
 | `/promptify pass help` | Canonical Pass (`Npass`) reference |
+| `/phasify remove` | Drop next not-Done phase after yes/no (`remove pN` / title named; `remove N` / `2remove` = next N, not PN). `delete` is an exact alias. |
 | `/runnify <prompt>` | Execute a whole optimized task (not phase-scoped) |
 | `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill. Last ify **plannify** = restart plannify **from scratch** (revise plan text; discard statuses). Replan from statuses = `/plannify fromhere` (or addify when last is **phasify**). Not a phasify mode. See **Concepts**. |

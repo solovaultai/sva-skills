@@ -90,7 +90,7 @@ they said “ify this”.
 | **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
 | **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify` |
 | **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run` |
-| **phasify** | Next phase / named PN / **runblock** (unblock+run / mark Done) on the **current** plan | — |
+| **phasify** | Next phase / named PN / **runblock** / **remove** (`delete` alias) on the **current** plan | — |
 | **debugify** | Bug / failing / root cause — **full** Debug Mode loop (not Cursor’s kickoff-only debugify) | `/debug` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | — |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
@@ -234,6 +234,7 @@ Frozen `smart` example shape:
 | `/runnify <prompt>` | Optimize then execute |
 | `/phasify` | Execute the next plan phase |
 | `/phasify runblock` | Unblock+run leftover work or mark `Done` (`runblock pN` / `runblockPN` / `PNrunblock` named; `runblock N` / `Nrunblock` / `2runblock` = next N blocked, not PN) |
+| `/phasify remove` | Drop next not-Done phase after yes/no (`remove pN` / title named; `remove N` / `2remove` = next N, not PN). `delete` is an exact alias. |
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/debugify <bug>` | Full Debug Mode loop |
 | `/debug` | Alias of `/debugify` |
