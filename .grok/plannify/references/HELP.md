@@ -11,6 +11,7 @@ section below and stop. There is no `/pass` skill.
 
 Empty `/plannify` is the short usage cheat, not this page.
 `fromhere` is a task body (replan), not help.
+First token `add` is **Add**, not help.
 `help me …` (or any longer body) is a **task**, not Help.
 
 ---
@@ -30,6 +31,7 @@ Alias: `/promptify-plan`.
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
+/plannify add <feat>   — add a feature to the just-run plan (last ify: plannify or phasify)
 /plannify help         — this reference (also --help / /?)
 /plannify tldr         — short form; stop
 /plannify pass         — Pass (Npass) subsection only (also pass help)
@@ -47,13 +49,15 @@ when they said “plannify this” / “plan this prompt”.
 |------------|------|----------------|
 | `/plannify <prompt>` | **Plan** | Optimize + read-only planning pass |
 | `/plannify fromhere` / `planify fromhere` | **fromhere** | Replan from current statuses |
-| `/plannify` *(empty)* | Short usage | No plan. `fromhere` is **not** empty. |
+| `/plannify add <feature>` | **Add** | Surgical feature add (last ify must be plannify or phasify) |
+| `/plannify` *(empty)* | Short usage | No plan. `fromhere` / `add` are **not** empty. |
 | `/plannify help` / `--help` / `/?` | **Help** | Print this page; stop |
 | `/plannify tldr` | **tldr** | Print the short page; stop |
 | `/plannify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `tldr`, `pass`, or `pass help`. `fromhere` is never treated as help.
+`/?`, `tldr`, `pass`, or `pass help`. `fromhere` and first token
+`add` are never treated as help.
 
 ---
 
@@ -81,11 +85,41 @@ becomes current for later `/phasify`.
 
 ---
 
+## `/plannify add`
+
+Surgically add a **feature** to the plan that was just run. Not a
+greenfield plan. Not fromhere (no Keep vs Continue). Not
+`/addify` (addify on plannify restarts from scratch and discards
+statuses).
+
+After flag strip, first token `add` is this mode. Remainder is
+the feature text (verbatim). Reserved: a prompt that starts with
+`add` is Add, not a new plan.
+
+**Gate:** last ify must be **plannify** or **phasify** (same
+recover walk as addify). Otherwise **Error:** — do not plan.
+Name the last ify if one exists. No current plan: **Error:**
+`/plannify` first. Empty `/plannify add`: **Error:** `add` needs
+a feature.
+
+**Surgical:** if the text does **not** add, remove, or change a
+feature, keep the plan as-is and reprint the table. Else redo
+only the affected phases; keep the rest (including Done /
+Deferred / reasons). New work gets new phase row(s). Do not
+AskQuestion.
+
+```text
+/plannify add OAuth login
+/plannify add Defer - Delete IP
+```
+
+---
+
 ## Flags (`Nimages` / `Npass`)
 
 Same parse order as promptify: first numbered instance left to
 right; skip unnumbered `image` / `pass`. Strip **before** deciding
-Help vs fromhere vs plan. Cite promptify **Flag parse order** —
+Help vs fromhere vs add vs plan. Cite promptify **Flag parse order** —
 do not fork.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`. Attachment marker,
@@ -199,13 +233,18 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 - Status `Deferred` + optional reason is allowed.
 - `fromhere`: same Task and Flags; keep Done/Deferred/Def-Blocked; then
   AskQuestion Keep vs Continue.
+- `add <feature>`: last ify must be plannify or phasify, else
+  **Error:**. No-op if the text does not add, remove, or change a
+  feature; otherwise redo only affected phases. Not fromhere. Not
+  addify from-scratch.
 - `Nimages` / `Npass`: strip first; acknowledge; N > 1 ⇒ pass 1
   is pre-plan only.
 - Exact `help` / `--help` / `/?` after flag strip: print this
   page; do not plan. Exact `tldr`: print `references/TLDR.md`
   (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only. There is no `/pass` skill. Empty is short
-  usage, not help. `fromhere` is not help.
+  usage, not help. `fromhere` is not help. First token `add` is
+  Add, not help.
 
 ---
 
@@ -219,4 +258,5 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/runnify <prompt>` | Optimize then execute |
 | `/askify <prompt>` | Optimize then answer (read-only) |
+| `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
 | `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |

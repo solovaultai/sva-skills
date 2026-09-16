@@ -107,7 +107,7 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 
 | Last ify | Action |
 |----------|--------|
-| **plannify** / **promptify** | Restart that skill from scratch on the combined text. **Not** fromhere. |
+| **plannify** / **promptify** | Restart that skill from scratch on the combined text. **Not** fromhere. Surgical plan feature add is `/plannify add`. |
 | **phasify** | `/plannify fromhere` + new prompt. Keep Done/Deferred/Def-Blocked. Task = old Task + append. AskQuestion: Keep vs Continue. |
 | **debugify** | Restart this platform’s debugify (Cursor: **kickoff only**) + prior-run learnings. |
 | **runnify — planning** | No Results / no mutating work → re-runnify from scratch. |
@@ -193,6 +193,7 @@ when that skill requires one).
 |---------|------|
 | `/plannify <prompt>` | Optimize then plan (read-only) |
 | `/plannify fromhere` | Replan from current statuses |
+| `/plannify add <feature>` | Surgical feature add (keep unaffected phases). Prefer this over addify-on-plannify when you only want a feature added. |
 | `/phasify` | Execute the next plan phase |
 | `/runnify <prompt>` | Optimize then execute |
 | `/promptify <prompt>` | Analyze / optimize only |

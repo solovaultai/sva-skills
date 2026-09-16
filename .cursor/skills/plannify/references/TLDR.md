@@ -7,6 +7,7 @@ implements, edits, or mutates the workspace.
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
+/plannify add <feat>   — add a feature to the just-run plan (last ify: plannify or phasify)
 /plannify help         — this reference (also --help / /?)
 /plannify tldr         — short form (stop)
 /plannify pass         — Pass (Npass) subsection only (also pass help)
@@ -17,6 +18,7 @@ implements, edits, or mutates the workspace.
 |----------|--------------|-----|
 | `<prompt>` | Coach, then produce a plan (read-only) | Planning mode — never implements or mutates the workspace |
 | `fromhere` | Replan from the current plan’s statuses (also `planify fromhere`) | Replan without a greenfield plan; keeps Done / Deferred / Def-Blocked |
+| `add <feature>` | Surgical feature add on the just-run plan | Last ify must be plannify or phasify; keep unaffected phases |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |

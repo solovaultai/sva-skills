@@ -183,7 +183,7 @@ table when that skill requires one).
 
 | Last ify | Action |
 |----------|--------|
-| **plannify** | Restart `/plannify` **from scratch** on the combined text. New Planning-Kickoff + new plan. **Not** fromhere. Discard old phase statuses. |
+| **plannify** | Restart `/plannify` **from scratch** on the combined text. New Planning-Kickoff + new plan. **Not** fromhere. Discard old phase statuses. Surgical feature add (keep unaffected phases) is **`/plannify add`**, not this path. |
 | **promptify** | Restart `/promptify` on the combined text (new optimize only; do not execute). **Not** fromhere. |
 | **phasify** | Run **`/plannify fromhere` + new prompt**. Keep Done/Deferred/Def-Blocked (+ reasons). Task = original Task (verbatim ify wording) **plus** appended addify text. Same Flags plus addify-line flags (addify-line wins the same family). Then AskQuestion: Keep new plan vs Continue original. |
 | **debugify** | Restart **this platform’s** debugify (Grok: **full Debug Mode loop**) on combined bug text **plus prior-run learnings** (falsified/confirmed hypotheses, evidence, suspect paths already ruled out). Restart the loop; do not throw away evidence. Alias `/debug` maps here. |

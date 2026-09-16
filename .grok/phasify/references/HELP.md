@@ -231,7 +231,10 @@ from scratch** (new Planning-Kickoff + new plan). It is **not**
 That is how you **revise the plan text** after a plannify run.
 
 To replan **from current statuses** (keep Done / Deferred /
-Def-Blocked and reasons), use **`/plannify fromhere`**. If the last
+Def-Blocked and reasons), use **`/plannify fromhere`**. To **add a
+feature** without discarding the rest of the plan, use
+**`/plannify add <feature>`** (last ify must be plannify or
+phasify; no-op if nothing add/remove/changes). If the last
 ify was **phasify**, `/addify` uses that fromhere path (keep statuses;
 AskQuestion: Keep new plan vs Continue original).
 

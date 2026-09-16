@@ -5,10 +5,12 @@ description: >-
   into the ideal Cursor prompt for kicking off a PLANNING agent run, then runs that
   optimized prompt read-only to produce a structured plan. Use when the user runs
   /plannify, /promptify-plan (alias), /plannify fromhere (alias planify
-  fromhere), "plannify", "plan this prompt", "turn this into a planning
-  prompt", or wants a prompt reworked for a planning/design run and
-  the plan produced. `/plannify fromhere` replans from current phase
-  statuses (Keep new plan vs Continue original). Trailing tables may use
+  fromhere), /plannify add, "plannify", "plan this prompt", "turn this
+  into a planning prompt", or wants a prompt reworked for a
+  planning/design run and the plan produced. `/plannify fromhere`
+  replans from current phase statuses (Keep new vs Continue
+  original). `/plannify add <feature>` surgically adds a feature to
+  the just-run plan (last ify must be plannify or phasify). Trailing tables may use
   Status `Deferred` and an optional reason note. Recognizes Nimages /
   N images / N-images as a pointer to the newest N images from the
   configured scratch source (or workspace scratch/). Recognizes Npass / N-pass / N pass as a
@@ -41,6 +43,9 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
 3. Treat `/promptify-plan` as an alias of this skill.
 4. Treat `/plannify fromhere` and `planify fromhere` as **fromhere**
    (see **`/plannify fromhere`**). Not a greenfield plan.
+5. Treat `/plannify add <feature>` as **Add** (see **`/plannify
+   add`**). Not a greenfield plan. First token `add` after flag
+   strip is this mode.
 
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch)
 with the two sections below.
@@ -107,6 +112,101 @@ Then **AskQuestion**: Keep new plan vs Continue original. If it fits,
 show the two phased tables **side by side** (or stacked labeled Original /
 Candidate if width fails). The chosen plan becomes the current plan for
 later `/phasify`. Use the AskQuestion tool for that Keep / Continue choice.
+
+## `/plannify add`
+
+Surgically add a **feature** to the plan that was just run. Not a
+greenfield plan. Not fromhere (no Keep vs Continue). Not addify
+(addify on plannify restarts from scratch and discards statuses).
+
+After flag strip, **first token `add`** (case-insensitive) is this
+mode. Remainder is the feature text (**verbatim**). `add` is
+reserved — `/plannify add a login page` is Add, not a greenfield
+prompt that happens to start with “add”.
+
+### Gate (required)
+
+Recover the last ify with addify **Recover last ify** (this tree;
+newest-first; skip help / tldr / pass / empty-usage; do not skip
+empty `/phasify`; if last is addify, walk to the non-addify
+ancestor). Do **not** invent a last-ify store.
+
+| Last ify (ancestor) | Effect |
+|---------------------|--------|
+| **plannify** or **phasify** | Continue. Need a recoverable current plan. |
+| None, or any other ify (`runnify`, `askify`, `promptify`, `debugify`, `ify`, …) | **Error:** do not plan. |
+
+```text
+**Error:** `/plannify add` requires the previous ify to be
+plannify or phasify.
+```
+
+Use the same red/bold **Error:** style as phasify invalid id.
+Name the last ify if one exists (`Last ify was runnify.`). If
+none: `No last ify in this conversation.` Stop. Do not invent a
+plan.
+
+No current plan (or plan unrecoverable): **Error:** `/plannify`
+first. Do not invent phases.
+
+Empty remainder (`/plannify add` with no feature): **Error:**
+`add` needs a feature. Show the short `add` usage line. Stop.
+
+### Surgical merge
+
+Read-only. Recover Task, Flags, and the current phase table
+(same locate-plan rules as fromhere / phasify).
+
+Compare the feature text to the **current** plan (Task + phase
+titles + descriptions). Classify: **no-op** · **add** ·
+**remove** · **change** (more than one may apply).
+
+**No-op** — the text does **not** add, remove, or change a
+feature:
+
+```text
+**Add — no plan change.**
+That text does not add, remove, or change a feature. Keeping
+the current plan.
+```
+
+Reprint the current table last. Do **not** rewrite Task. Do not
+AskQuestion.
+
+**Otherwise** — redo **only** what the feature requires:
+
+1. Task = original Task + newline + add body (**verbatim**).
+   Flags = existing plus add-line flags (add-line wins the same
+   family). Strip `Nimages` / `Npass` from the add body after
+   parse.
+2. Unaffected phases: keep id, title, Description, Status, and
+   Reason **as-is**.
+3. Changed phases: rewrite only those rows. If Status was `Done`
+   and the new exit criteria are no longer satisfied, set
+   `Left`. If landed work still meets the new criteria, keep
+   `Done`.
+4. New feature: insert phase(s) in plan order; new rows
+   `Not started` (or `Left` if the walk already started).
+5. Removed feature (only if the add text clearly drops one):
+   drop those work-phase rows. Never drop Task / Flags.
+6. Compact-renumber only when insert/delete shifts later ids.
+   Titles after `—` on kept rows stay.
+7. Do **not** AskQuestion. The user already asked to add.
+8. Do **not** restart from scratch. Do not discard unrelated
+   Done / Deferred / Def-Blocked / reasons.
+
+Print `**Add — applied.**` (what was added / changed / removed)
+then the updated **Phased plan** table last. Skip the full
+greenfield Intent / Kickoff / Scores dump on a no-op. On apply,
+a short **Add** section (feature + kept vs redone vs new) is
+enough; research only what the changed/new phases need.
+Npass > 1: pass 1 is a pre-plan of the merge; last pass applies
+or reports no-op.
+
+```text
+/plannify add OAuth login
+/plannify add Defer - Delete IP
+```
 
 ## Override step 3 — Planning-Kickoff Prompt
 
@@ -226,19 +326,22 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
   There is no `/pass` skill.
 
 Do not plan or replan. Empty `/plannify` is the short usage below,
-not Help. `fromhere` is a task body, not Help. `help me …` is a
+not Help. `fromhere` is a task body, not Help. First token `add`
+is **Add**, not Help. `help me …` is a
 **task**, not Help.
 
 ## No task body
 
 `fromhere` / `planify fromhere` is a task body — follow **`/plannify
-fromhere`**, do not print Help.
+fromhere`**, do not print Help. First token `add` is **Add** —
+follow **`/plannify add`**, do not print Help.
 
 If there is no task after the command, explain:
 
 ```text
 /plannify <prompt>    — coach into a planning-kickoff prompt, then produce the plan
 /plannify fromhere    — replan from current statuses (Keep new vs Continue original)
+/plannify add <feat>  — add a feature to the just-run plan (last ify: plannify or phasify)
 /plannify help        — full reference (also --help, /?)
 /plannify tldr        — short form (stop)
 /plannify pass help   — Pass (Npass) subsection (also `pass`)
@@ -325,6 +428,13 @@ see Trailing phase table)
   Then **AskQuestion**: Keep new plan vs Continue original. Side by side
   (or stacked labeled Original / Candidate if width fails). The chosen
   plan becomes current for later `/phasify`.
+- `/plannify add <feature>`: first token `add` after flag strip.
+  Last ify must be **plannify** or **phasify** (addify Recover);
+  else **Error:**. Empty add: **Error:** needs a feature. Surgical:
+  if the text does not add, remove, or change a feature, keep the
+  plan as-is. Else redo only affected phases; keep the rest
+  (including Done / Deferred / reasons). Not fromhere. Not addify
+  from-scratch. No AskQuestion.
 - `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
@@ -336,5 +446,6 @@ see Trailing phase table)
   `references/HELP.md` and stop. Exact `tldr` after flag strip:
   print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
   print the **Pass (`Npass`)** section and stop. Empty `/plannify`
-  is short usage, not Help. `fromhere` is not Help. `help me …` is
+  is short usage, not Help. `fromhere` is not Help. First token
+  `add` is Add, not Help. `help me …` is
   a task.

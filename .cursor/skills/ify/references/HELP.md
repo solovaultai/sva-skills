@@ -212,6 +212,7 @@ Frozen `smart` example shape:
 | `/askify <prompt>` | Optimize then answer (read-only) |
 | `/plannify <prompt>` | Optimize then plan (read-only) |
 | `/plannify fromhere` | Replan from current statuses |
+| `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
 | `/runnify <prompt>` | Optimize then execute |
 | `/phasify` | Execute the next plan phase |
 | `/phasify runblock` | Unblock+run leftover work or mark `Done` (`runblock pN` / `runblockPN` / `PNrunblock` named; `runblock N` / `Nrunblock` / `2runblock` = next N blocked, not PN) |

@@ -52,6 +52,7 @@ verbs.
 | If the prompt is mainly… | Verb |
 |--------------------------|------|
 | Which verb / family help / tldr / “what does ify do” | **ify** |
+| Feature add / change on the **current plan** (last was plannify / phasify) | **plannify** as `add <feature>` |
 | Append / “also” / “and also” aimed at the **last ify** in this chat | **addify** |
 | Optimize / rewrite **the prompt only** (no run, no plan, no answer) | **promptify** |
 | Bug / failing / broken / root cause / stack trace | **debugify** (this tree: Grok **full** Debug Mode loop; `/debug` alias) |
@@ -106,7 +107,7 @@ invented):
 | Verb | Rewrite toward |
 |------|----------------|
 | askify | a question to answer read-only |
-| plannify | a planning request (plan, do not implement) |
+| plannify | a planning request (plan, do not implement); current-plan feature add → `add <feature>` |
 | runnify | the work to execute |
 | phasify | the phase selector / next-phase request (no new plan) |
 | debugify | the bug report (this tree: full loop; `/debug` alias) |
