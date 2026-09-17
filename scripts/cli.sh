@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
-# sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
-# (local and/or across sshub connections from connections.env)
+# sva-skills installer — sync repo skills into ~/.grok, ~/.cursor,
+# and ~/.copilot (local and/or across sshub connections from connections.env)
 #
 # Usage:
 #   ./scripts/cli.sh install              # same as: install all (local)
 #   ./scripts/cli.sh install all
 #   ./scripts/cli.sh install grok
 #   ./scripts/cli.sh install cursor
+#   ./scripts/cli.sh install copilot
+#   ./scripts/cli.sh install copilot --host
+#   ./scripts/cli.sh install copilot --no-host
+#   ./scripts/cli.sh project /path/to/consumer-repo   # .copilot/skills → <repo>/.github/skills
 #   ./scripts/cli.sh pullinst             # git pull origin main, then install
 #   ./scripts/cli.sh pullinst grok
 #   ./scripts/cli.sh pullinst cursor
+#   ./scripts/cli.sh pullinst copilot
 #   ./scripts/cli.sh install --remote                 # all skills → all connections
 #   ./scripts/cli.sh install grok --remote casai      # grok skills → one host (name or alias)
 #   ./scripts/cli.sh install --remote casai cas2      # all skills → listed hosts
@@ -21,6 +26,8 @@
 # Options:
 #   --force       Always install, even if dest is newer
 #   --dry-run     Print actions only; do not write
+#   --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
+#   --no-host     Do not install the GitHub Copilot product
 #   --remote, -r  Install to remote host(s) from connections.env
 #   --local       Also install locally when using --remote
 #   --list, -l    List sshub connections and exit
@@ -31,12 +38,17 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 GROK_SRC="${ROOT}/.grok"
 CURSOR_SRC="${ROOT}/.cursor/skills"
+COPILOT_SRC="${ROOT}/.copilot/skills"
 GROK_DEST="${HOME}/.grok/skills"
 CURSOR_DEST="${HOME}/.cursor/skills"
+COPILOT_DEST="${HOME}/.copilot/skills"
 
 # Remote destinations are always under the remote user's home.
 REMOTE_GROK_REL=".grok/skills"
 REMOTE_CURSOR_REL=".cursor/skills"
+REMOTE_COPILOT_REL=".copilot/skills"
+# Consumer-repo cloud dest (I6). Not a source tree; not written inside this repo.
+PROJECT_REL=".github/skills"
 
 SSHUB_BIN="${SSHUB_BIN:-$HOME/.local/bin/sshub}"
 SSHUB_DATA_DIR="${SSHUB_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/sshub}"
@@ -45,6 +57,10 @@ ENV_FILE="${SSHUB_ENV_FILE:-$SSHUB_DATA_DIR/connections.env}"
 FORCE=0
 DRY_RUN=0
 DO_REMOTE=0
+# ask = prompt on a TTY when GitHub Copilot (the product) is missing
+# yes  = --host (install product without asking)
+# no   = --no-host (skip product)
+HOST_ACTION=ask
 DO_LOCAL=1 # default local; flipped off when --remote is used without --local
 LOCAL_EXPLICIT=0
 SSHUB_LOADED=0
@@ -57,16 +73,22 @@ REMOTE_CONNS=()
 
 usage() {
   cat <<'EOF'
-sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
+sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, and ~/.copilot
 
 Usage:
   ./scripts/cli.sh install              # same as: install all (local)
   ./scripts/cli.sh install all
   ./scripts/cli.sh install grok
   ./scripts/cli.sh install cursor
+  ./scripts/cli.sh install copilot
+  ./scripts/cli.sh install copilot --host
+  ./scripts/cli.sh install copilot --no-host
+  ./scripts/cli.sh project /path/to/repo # .copilot/skills → <repo>/.github/skills
+  ./scripts/cli.sh project --dry-run /path/to/repo
   ./scripts/cli.sh pullinst              # git pull origin main, then install
   ./scripts/cli.sh pullinst grok
   ./scripts/cli.sh pullinst cursor
+  ./scripts/cli.sh pullinst copilot
   ./scripts/cli.sh install --remote                 # all skills → all connections
   ./scripts/cli.sh install grok --remote casai      # name or alias from connections.env
   ./scripts/cli.sh install --remote casai CAS2SYS
@@ -80,15 +102,24 @@ Usage:
 Options:
   --force       Always install, even if dest is newer
   --dry-run     Print actions only; do not write
+  --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
+  --no-host     Do not install the GitHub Copilot product
   --remote, -r  Install to remote host(s); with no names, use all connections
   --local       Also install on this machine when using --remote
   --list, -l    List sshub connections and exit
   -h, --help    Show help
 
 Targets:
-  grok    .grok/<skill>/          →  ~/.grok/skills/<skill>/
-  cursor  .cursor/skills/<skill>/ →  ~/.cursor/skills/<skill>/
-  all     both (default when target omitted)
+  grok     .grok/<skill>/           →  ~/.grok/skills/<skill>/
+  cursor   .cursor/skills/<skill>/  →  ~/.cursor/skills/<skill>/
+  copilot  .copilot/skills/<skill>/ →  ~/.copilot/skills/<skill>/
+  all      grok + cursor + copilot (default when target omitted)
+
+Project / cloud (copilot only; I6 — not a fourth install target):
+  project  .copilot/skills/<skill>/ →  <consumer-repo>/.github/skills/<skill>/
+  Refuses to write .github/skills inside this sva-skills repo (source stays
+  .copilot/skills). Path omitted → current working directory. See
+  docs/COPILOT_LOAD.md for gh skill install and /skills reload.
 
 Connections come from:
   ${XDG_DATA_HOME:-~/.local/share}/sshub/connections.env
@@ -410,8 +441,13 @@ install_target_local() {
       dest="$CURSOR_DEST"
       label="cursor"
       ;;
+    copilot)
+      src="$COPILOT_SRC"
+      dest="$COPILOT_DEST"
+      label="copilot"
+      ;;
     *)
-      die "unknown target: $target (use grok, cursor, or all)"
+      die "unknown target: $target (use grok, cursor, copilot, or all)"
       ;;
   esac
 
@@ -433,6 +469,264 @@ install_target_local() {
   done
 }
 
+# ── GitHub Copilot product (VS Code + CLI) ─────────────────────
+# Skills go to ~/.copilot/skills. The product is optional and asked
+# for when missing and installable (local install only).
+
+find_code_bin() {
+  if command -v code >/dev/null 2>&1; then
+    command -v code
+    return 0
+  fi
+  if command -v code-insiders >/dev/null 2>&1; then
+    command -v code-insiders
+    return 0
+  fi
+  return 1
+}
+
+copilot_cli_present() {
+  command -v copilot >/dev/null 2>&1
+}
+
+# VS Code 1.138+ ships GitHub Copilot Chat as a built-in
+# (resources/app/extensions/copilot). --list-extensions does not show it.
+vscode_app_root() {
+  local bin rel dir
+  bin="$(find_code_bin)" || true
+  if [[ -n "$bin" ]]; then
+    rel="$(readlink -f "$bin" 2>/dev/null || printf '%s' "$bin")"
+    dir="$(dirname "$rel")"
+    if [[ "$(basename "$dir")" == "bin" ]]; then
+      printf '%s\n' "$(dirname "$dir")"
+      return 0
+    fi
+  fi
+  local p
+  for p in /usr/share/code /snap/code/current/usr/share/code; do
+    if [[ -f "${p}/resources/app/extensions/copilot/package.json" ]]; then
+      printf '%s\n' "$p"
+      return 0
+    fi
+  done
+  return 1
+}
+
+copilot_vscode_builtin() {
+  local root
+  root="$(vscode_app_root)" || return 1
+  [[ -f "${root}/resources/app/extensions/copilot/package.json" ]]
+}
+
+copilot_vscode_user_ext() {
+  local bin
+  bin="$(find_code_bin)" || return 1
+  "$bin" --list-extensions 2>/dev/null | grep -qiFx 'GitHub.copilot'
+}
+
+copilot_vscode_present() {
+  copilot_vscode_user_ext || copilot_vscode_builtin
+}
+
+copilot_host_present() {
+  copilot_vscode_present || copilot_cli_present
+}
+
+copilot_vscode_installable() {
+  find_code_bin >/dev/null
+}
+
+copilot_cli_installable() {
+  command -v npm >/dev/null 2>&1 || return 1
+  command -v node >/dev/null 2>&1 || return 1
+  local major
+  major="$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo 0)"
+  [[ "$major" -ge 22 ]]
+}
+
+copilot_host_installable() {
+  copilot_vscode_installable || copilot_cli_installable
+}
+
+install_copilot_vscode() {
+  local bin force_flag=()
+  bin="$(find_code_bin)" || return 1
+  if copilot_vscode_builtin; then
+    echo "  skip  GitHub.copilot  (built into this VS Code; Chat cannot be marketplace-downgraded)"
+    return 0
+  fi
+  if [[ "$FORCE" -eq 0 ]] && copilot_vscode_user_ext; then
+    echo "  skip  GitHub.copilot  (already installed)"
+    return 0
+  fi
+  if [[ "$FORCE" -eq 1 ]]; then
+    force_flag=(--force)
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "  would install  GitHub.copilot  via ${bin}"
+    return 0
+  fi
+  local err
+  err="$("$bin" --install-extension GitHub.copilot "${force_flag[@]+"${force_flag[@]}"}" 2>&1)" || true
+  printf '%s\n' "$err"
+  if copilot_vscode_present; then
+    echo "  install  GitHub.copilot"
+    return 0
+  fi
+  if printf '%s\n' "$err" | grep -qi 'cannot be downgraded\|is a built-in extension'; then
+    echo "  skip  GitHub.copilot-chat  (built into this VS Code)"
+    if copilot_vscode_present; then
+      return 0
+    fi
+    echo "  note: VS Code already has Copilot Chat built in; marketplace GitHub.copilot was not added"
+    return 0
+  fi
+  echo "  error: failed to install GitHub.copilot" >&2
+  return 1
+}
+
+install_copilot_cli() {
+  if copilot_cli_present; then
+    echo "  skip  copilot CLI  (already on PATH)"
+    return 0
+  fi
+  copilot_cli_installable || return 1
+  local prefix="${HOME}/.local"
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "  would install  @github/copilot  →  ${prefix}"
+    return 0
+  fi
+  mkdir -p "${prefix}/bin"
+  if npm install -g --prefix "$prefix" @github/copilot; then
+    echo "  install  copilot CLI  →  ${prefix}/bin/copilot"
+    if ! command -v copilot >/dev/null 2>&1; then
+      echo "  note: add ${prefix}/bin to PATH if 'copilot' is not found"
+    fi
+    return 0
+  fi
+  echo "  error: npm install -g --prefix ${prefix} @github/copilot failed" >&2
+  return 1
+}
+
+ask_install_copilot_host() {
+  if [[ "$HOST_ACTION" == "yes" ]]; then
+    return 0
+  fi
+  if [[ "$HOST_ACTION" == "no" ]]; then
+    return 1
+  fi
+  if [[ ! -t 0 ]]; then
+    echo "host: GitHub Copilot is installable but not installed."
+    echo "  re-run with --host to install it, or --no-host to skip asking."
+    return 1
+  fi
+  local reply
+  if copilot_vscode_present && ! copilot_cli_present; then
+    printf 'VS Code already has GitHub Copilot built in. Install Copilot CLI too? [y/N] '
+  else
+    printf 'GitHub Copilot is not installed. Install the VS Code host (if needed) and Copilot CLI if possible? [y/N] '
+  fi
+  read -r reply || return 1
+  case "${reply}" in
+    y | Y | yes | YES) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+maybe_install_copilot_host() {
+  echo "host: GitHub Copilot (product — VS Code built-in/extension and/or Copilot CLI)"
+  if copilot_vscode_present && copilot_cli_present; then
+    echo "  already installed (VS Code + CLI)"
+    return 0
+  fi
+  if copilot_vscode_present && ! copilot_cli_installable; then
+    echo "  already installed (VS Code)"
+    return 0
+  fi
+  if ! copilot_vscode_present && ! copilot_cli_present && ! copilot_host_installable; then
+    echo "  not installed and not installable here (need 'code' and/or Node 22+ npm)"
+    return 0
+  fi
+  if ! ask_install_copilot_host; then
+    echo "  skip  product (skills will still be copied to ${COPILOT_DEST})"
+    return 0
+  fi
+  local ok=0
+  if copilot_vscode_installable; then
+    install_copilot_vscode && ok=1
+  fi
+  if ! copilot_cli_present && copilot_cli_installable; then
+    install_copilot_cli && ok=1
+  fi
+  if [[ "$ok" -eq 1 ]]; then
+    echo "  next: sign in to GitHub Copilot, then /skills reload (or copilot skill add)"
+  fi
+  return 0
+}
+
+targets_include_copilot() {
+  local t
+  for t in "${TARGETS[@]}"; do
+    if [[ "$t" == "copilot" ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+# ── project / cloud dest (I6) ─────────────────────────────────
+# Copy .copilot/skills into a *consumer* repo's .github/skills.
+# Source of truth stays .copilot/skills. This repo is refused.
+
+canonical_dir() {
+  (cd "$1" && pwd -P)
+}
+
+resolve_project_repo() {
+  local raw="${1:-.}"
+  if [[ ! -d "$raw" ]]; then
+    die "consumer repo not found: $raw"
+  fi
+  local repo root_p
+  repo="$(canonical_dir "$raw")" || die "consumer repo not found: $raw"
+  root_p="$(canonical_dir "$ROOT")"
+  if [[ "$repo" == "$root_p" ]]; then
+    die "refusing to write .github/skills inside sva-skills (source is .copilot/skills). Pass a consumer repo path."
+  fi
+  printf '%s\n' "$repo"
+}
+
+install_project() {
+  local raw="${1:-}"
+  if [[ -n "${2:-}" ]]; then
+    die "project takes at most one repo path (got extra: $2)"
+  fi
+  if [[ "$DO_REMOTE" -eq 1 ]]; then
+    die "project is local consumer-repo only (I6); do not use --remote"
+  fi
+
+  if [[ ! -d "$COPILOT_SRC" ]]; then
+    die "source not found: $COPILOT_SRC"
+  fi
+
+  local repo dest
+  repo="$(resolve_project_repo "${raw:-.}")"
+  dest="${repo}/${PROJECT_REL}"
+
+  local skills
+  mapfile -t skills < <(skill_dirs "$COPILOT_SRC")
+  if [[ "${#skills[@]}" -eq 0 ]]; then
+    echo "project: no skills under ${COPILOT_SRC}"
+    return 0
+  fi
+
+  echo "project copilot: ${COPILOT_SRC}  →  ${dest}"
+  local name
+  for name in "${skills[@]}"; do
+    install_skill_local "$name" "${COPILOT_SRC}/${name}" "$dest"
+  done
+}
+
 status_target_local() {
   local target="$1"
   local src dest label
@@ -447,8 +741,13 @@ status_target_local() {
       dest="$CURSOR_DEST"
       label="cursor"
       ;;
+    copilot)
+      src="$COPILOT_SRC"
+      dest="$COPILOT_DEST"
+      label="copilot"
+      ;;
     *)
-      die "unknown target: $target (use grok, cursor, or all)"
+      die "unknown target: $target (use grok, cursor, copilot, or all)"
       ;;
   esac
 
@@ -569,6 +868,11 @@ install_target_remote() {
       rel="$REMOTE_CURSOR_REL"
       label="cursor"
       ;;
+    copilot)
+      src="$COPILOT_SRC"
+      rel="$REMOTE_COPILOT_REL"
+      label="copilot"
+      ;;
     *)
       die "unknown target: $target"
       ;;
@@ -618,6 +922,11 @@ status_target_remote() {
       rel="$REMOTE_CURSOR_REL"
       label="cursor"
       ;;
+    copilot)
+      src="$COPILOT_SRC"
+      rel="$REMOTE_COPILOT_REL"
+      label="copilot"
+      ;;
     *)
       die "unknown target: $target"
       ;;
@@ -657,6 +966,10 @@ run_for_targets() {
   local failures=0
 
   if [[ "$DO_LOCAL" -eq 1 ]]; then
+    if [[ "$mode" == "install" ]] && targets_include_copilot; then
+      maybe_install_copilot_host
+      echo
+    fi
     for t in "${TARGETS[@]}"; do
       if [[ "$mode" == "install" ]]; then
         install_target_local "$t"
@@ -720,6 +1033,20 @@ while [[ $# -gt 0 ]]; do
       FORCE=1
       shift
       ;;
+    --host)
+      if [[ "$HOST_ACTION" == "no" ]]; then
+        die "use only one of --host or --no-host"
+      fi
+      HOST_ACTION=yes
+      shift
+      ;;
+    --no-host)
+      if [[ "$HOST_ACTION" == "yes" ]]; then
+        die "use only one of --host or --no-host"
+      fi
+      HOST_ACTION=no
+      shift
+      ;;
     --dry-run)
       DRY_RUN=1
       shift
@@ -761,9 +1088,19 @@ while [[ $# -gt 0 ]]; do
 done
 
 CMD="${ARGS[0]:-}"
-# Remaining positionals after command: target (grok|cursor|all) and/or conns
+# Remaining positionals after command: target (grok|cursor|copilot|all) and/or conns
 # when --remote was not used with trailing conns.
 REST=("${ARGS[@]:1}")
+
+# project <repo> must run before target/conn peeling so a path is not a remote.
+if [[ "$CMD" == "project" ]]; then
+  install_project "${REST[@]+"${REST[@]}"}"
+  rc=$?
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "(dry-run: no files written)"
+  fi
+  exit "$rc"
+fi
 
 # If user wrote: install grok --remote casai  → REST may hold grok only
 # (remote already consumed casai). If: install --remote casai grok →
@@ -772,17 +1109,17 @@ REST=("${ARGS[@]:1}")
 
 TARGETS=()
 TARGET_SET=0
-KNOWN_TARGETS="grok|cursor|all"
+KNOWN_TARGETS="grok|cursor|copilot|all"
 
 is_known_target() {
-  [[ "$1" =~ ^(grok|cursor|all)$ ]]
+  [[ "$1" =~ ^(grok|cursor|copilot|all)$ ]]
 }
 
 # Positionals after command that are skill targets
 for tok in "${REST[@]+"${REST[@]}"}"; do
   if is_known_target "$tok"; then
     if [[ "$tok" == "all" ]]; then
-      TARGETS=(grok cursor)
+      TARGETS=(grok cursor copilot)
     else
       TARGETS+=("$tok")
     fi
@@ -804,7 +1141,7 @@ if [[ "${#REMOTE_CONNS[@]}" -gt 0 ]]; then
     if is_known_target "$tok"; then
       if [[ "$TARGET_SET" -eq 0 ]]; then
         if [[ "$tok" == "all" ]]; then
-          TARGETS=(grok cursor)
+          TARGETS=(grok cursor copilot)
         else
           TARGETS+=("$tok")
         fi
@@ -818,7 +1155,7 @@ if [[ "${#REMOTE_CONNS[@]}" -gt 0 ]]; then
 fi
 
 if [[ "$TARGET_SET" -eq 0 || "${#TARGETS[@]}" -eq 0 ]]; then
-  TARGETS=(grok cursor)
+  TARGETS=(grok cursor copilot)
 fi
 
 # Deduplicate targets while preserving order
@@ -868,6 +1205,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, pullinst, status, list, scratch, --help)"
+    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, --help)"
     ;;
 esac

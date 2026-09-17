@@ -1,6 +1,7 @@
 # sva-skills
 
-Pre-written SVA skills for Cursor agents, Grok agents, etc.
+Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
+(and Copilot Enterprise), etc.
 
 ## Skills
 
@@ -175,36 +176,137 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /ify pass help            — Pass (Npass) subsection (also /ify pass)
 ```
 
+### Copilot (`.copilot/skills/`)
+
+Installed to `~/.copilot/skills/<name>/` (Windows:
+`%USERPROFILE%\.copilot\skills\<name>\`). Same Promptify family as
+Cursor, with Copilot paths/tools. Cloud / github.com code review only
+sees a **consumer** copy under `<repo>/.github/skills/` — see
+`docs/COPILOT_LOAD.md`. Spec: `docs/COPILOT_SKILLS.md`.
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **promptify** | `/promptify`, `/promptify help`, `/promptify tldr` | Prompt QA against the real workspace: intent, validation, enrichment, scores, optimized execution-ready prompt (no run). `/promptify help` (also `--help`, `/?`) prints the full reference. |
+| **runnify** | `/runnify`, `/promptify-run`, `/runnify help`, `/runnify tldr` | Promptify execution mode: optimize, then execute and return Results. Slash-preferable. `/runnify help` (also `--help`, `/?`) prints the full reference. |
+| **askify** | `/askify`, `/promptify-ask`, `/askify help`, `/askify tldr` | Ask-mode coach: optimize into an ask-kickoff prompt, then answer read-only (no plan, no edits). `/askify help` (also `--help`, `/?`) prints the full reference. |
+| **plannify** | `/plannify`, `/promptify-plan`, `/plannify fromhere`, `/plannify add`, `/plannify help`, `/plannify tldr` | Planning-mode coach: optimize into a planning-kickoff prompt, then produce a structured plan (read-only). `/plannify fromhere` (alias `planify fromhere`) replans from current statuses — Copilot chat confirm: Keep new plan vs Continue original. `/plannify add <feature>` surgically adds a feature to the just-run plan (last ify must be plannify or phasify). `/plannify help` (also `--help`, `/?`) prints the full reference. |
+| **phasify** | `/phasify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Same phase modes as Cursor/Grok. Empty `/phasify` = next incomplete. Slash-preferable. `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Supports `Nimages` / `Npass`. |
+| **debugify** | `/debugify`, `/debug`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Copilot Debug Mode (full loop)** — same shape as Grok, not Cursor kickoff. Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. No `/debug-kickoff` in this tree. `/debugify help` (also `--help`, `/?`) prints the full reference. |
+| **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Slash-preferable. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
+| **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Copilot tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
+
+**Promptify family (Copilot):**
+
+```text
+/promptify <prompt>       — analyze/optimize only
+/promptify help           — full promptify reference (also --help, /?)
+/promptify tldr           — short form (stop)
+/promptify pass help      — Pass (Npass) subsection only (also /promptify pass)
+/runnify <prompt>         — optimize then EXECUTE
+/runnify help             — full runnify reference (also --help, /?)
+/runnify tldr             — short form (stop)
+/runnify pass help        — Pass (Npass) subsection (also /runnify pass)
+/askify <prompt>          — optimize then ANSWER (read-only)
+/askify help              — full askify reference (also --help, /?)
+/askify tldr              — short form (stop)
+/askify pass help         — Pass (Npass) subsection (also /askify pass)
+/plannify <prompt>        — optimize then PLAN (read-only)
+/plannify fromhere        — replan from current statuses (Keep new vs Continue original)
+/plannify add <feature>   — add a feature to the just-run plan (last ify must be plannify or phasify)
+/plannify help            — full plannify reference (also --help, /?)
+/plannify tldr            — short form (stop)
+/plannify pass help       — Pass (Npass) subsection (also /plannify pass)
+/phasify                  — execute the next incomplete phase (same as next)
+/phasify 0                — execute phase P0 of the current plan
+/phasify next             — execute the next incomplete phase
+/phasify 3                — execute the next 3 phases, one after another
+/phasify done             — run every remaining incomplete phase to the end (also finish/end/all/close/toend)
+/phasify toend            — same as done (also to-end / to end)
+/phasify -                — stop-before-end: run all but the last work phase (`-`/`-0` = `-1`; `-N` → last included = C-N)
+/phasify defer [reason]   — defer the next open phase (also Ndefer / defer N / defer pN)
+/phasify undefer          — undefer the next Deferred phase (also Nundefer / undefer N / undefer pN)
+/phasify rundefer         — undefer+execute next Deferred phase (also Nrundefer / rundefer N / rundeferN; rundefer 2 / 2rundefer = next 2, not P2)
+/phasify todo             — detailed list for the next not-done / not-deferred phase (also Ntodo / todo N / todo pN)
+/phasify explain          — explain next not-Done phase (includes Deferred; also Nexplain / explain N / explainN; named is pN / PN only)
+/phasify todone           — Todo+close next eligible phase (also Ntodone / todone pN; todone N = next N, not named PN)
+/phasify block [reason]   — block the next 1 eligible phase (also Nblock / block pN; block N = next N, not named PN)
+/phasify unblock          — verify the next Blocked / Def-Blocked phase (also Nunblock / unblock N / unblock pN)
+/phasify runblock         — unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN; runblock 2 / 2runblock = next 2, not P2)
+/phasify remove           — drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>; remove 2 / 2remove = next 2, not P2)
+/phasify delete           — exact alias of remove
+/phasify smart <prompt>   — select a mode from the live plan and run it (not Next; not implicit)
+/phasify show             — print the current table (also refresh; Reason if any deferral has one)
+/phasify help             — full phasify reference (also --help, /?; empty /phasify stays Next)
+/phasify tldr             — short form (stop; never a phase id)
+/phasify pass help        — Pass (Npass) subsection (also /phasify pass)
+/phasify … Nimages Npass  — any mode; flags stripped first (`-2pass` ≠ stop-before-end)
+/debugify <bug report>    — full Debug Mode loop (default; same as Grok)
+/debugify help            — full debugify reference (also --help, /?)
+/debugify tldr            — short form (stop)
+/debugify pass help       — Pass (Npass) subsection (also /debugify pass)
+/addify <text>            — append <text> to the last ify and restart/continue that skill
+/addify help              — full addify reference (also --help, /?)
+/addify tldr              — short form (stop)
+/addify pass help         — Pass (Npass) subsection (also /addify pass)
+/ify                      — family catalog one-liner + syntax (not Help, not Next)
+/ify help                 — family catalog (also --help, /?)
+/ify help <verb>          — extreme help for that ify verb
+/ify tldr                 — short tldr of ify (stop)
+/ify tldr <verb>          — short tldr of that verb (stop)
+/ify smart <prompt>       — recommend verb + rewritten prompt (do not run)
+/ify which <prompt>       — alias of smart
+/ify <prompt>             — implicit smart
+/ify pass help            — Pass (Npass) subsection (also /ify pass)
+```
+
+After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).
+Chat: `/<name>`.
+
 ### Platform differences worth knowing
 
-| Topic | Grok | Cursor |
-|-------|------|--------|
-| **debugify** | Full loop in-agent (`/debugify`) | Kickoff brief for product Debug Mode |
-| Debug prep only | `/debug-kickoff` | Same role as Cursor `/debugify` |
-| Grok-only utilities | `check-work`, `code-review`, `create-skill`, `help`, `image`, `imagine` | — |
-| Scratch images | `/image`, `/image 2`, `2image` (standalone); last-N via `scratch ls` | `2image` / `Nimages` on ify skills; last-N via `scratch ls` |
+| Topic | Grok | Cursor | Copilot |
+|-------|------|--------|---------|
+| **debugify** | Full loop in-agent (`/debugify`) | Kickoff brief for product Debug Mode | Full loop in-agent (`/debugify`, `/debug`) — same as Grok |
+| Debug prep only | `/debug-kickoff` | Same role as Cursor `/debugify` | No `/debug-kickoff`; stop after Investigate + Hypothesize if they only want a brief |
+| Grok-only utilities | `check-work`, `code-review`, `create-skill`, `help`, `image`, `imagine` | — | — |
+| Scratch images | `/image`, `/image 2`, `2image` (standalone); last-N via `scratch ls` | `2image` / `Nimages` on ify skills; last-N via `scratch ls` | `Nimages` on ify skills; last-N via `scratch ls` (no standalone `/image`) |
+| Personal dest | `~/.grok/skills` | `~/.cursor/skills` | `~/.copilot/skills` (Windows `%USERPROFILE%\.copilot\skills`) |
+| Cloud / github.com | — | — | Consumer `<repo>/.github/skills` (`project` / `docs/COPILOT_LOAD.md`) |
 
-Name collision: both trees ship a skill named `debugify` with **different behavior**. Prefer `/debug-kickoff` on Grok when you only want a brief; use Cursor Debug Mode after Cursor `/debugify`.
+Name collision: all three trees ship a skill named `debugify` with
+**different behavior on Cursor**. Grok and Copilot run the full loop
+in-agent. Cursor `/debugify` is kickoff-only — paste into Cursor Debug
+Mode. Prefer `/debug-kickoff` on Grok when you only want a brief.
 
 ## Install
 
 New or updated skills in this repo (including **ify**) appear under
-`~/.cursor/skills/` and `~/.grok/skills/` only after install.
-`scripts/cli.sh` auto-discovers skill folders — no script edit
-needed. Run `./scripts/cli.sh install` (or `install cursor` /
-`install grok`) when you want live copies. `pullinst` pulls
-`origin main` first, then runs the same install (skip install if pull fails).
+`~/.cursor/skills/`, `~/.grok/skills/`, and `~/.copilot/skills/` only
+after install. `scripts/cli.sh` auto-discovers skill folders — no
+script edit needed. Run `./scripts/cli.sh install` (or `install all`)
+for grok + cursor + copilot. `install copilot` is the Copilot dest
+only. On a local copilot install, if GitHub Copilot (VS Code / CLI)
+is missing but installable, the installer asks whether to install
+it (`--host` / `--no-host`). `pullinst` pulls `origin main` first,
+then runs the same install (skip install if pull fails). Copilot
+cloud dest: `project` copies into a consumer repo’s `.github/skills`
+(`docs/COPILOT_LOAD.md`).
 
 From this repo:
 
 ```bash
-./scripts/cli.sh install          # install/update grok + cursor skills when repo is newer
+./scripts/cli.sh install          # install/update grok + cursor + copilot when repo is newer
 ./scripts/cli.sh install grok     # ~/.grok/skills/
 ./scripts/cli.sh install cursor   # ~/.cursor/skills/
-./scripts/cli.sh install all      # same as ./scripts/cli.sh install
+./scripts/cli.sh install copilot  # ~/.copilot/skills/ (asks to install GitHub Copilot if missing)
+./scripts/cli.sh install copilot --host     # also install VS Code Copilot + CLI when possible
+./scripts/cli.sh install copilot --no-host  # skills only
+./scripts/cli.sh install all      # same as ./scripts/cli.sh install (grok + cursor + copilot)
+./scripts/cli.sh project /path/to/repo   # .copilot/skills → <repo>/.github/skills
 ./scripts/cli.sh pullinst         # git pull origin main, then install
 ./scripts/cli.sh pullinst grok    # pull, then ~/.grok/skills/ only
 ./scripts/cli.sh pullinst cursor  # pull, then ~/.cursor/skills/ only
+./scripts/cli.sh pullinst copilot # pull, then ~/.copilot/skills/ only
 ./scripts/cli.sh status           # show what would install vs skip
 ./scripts/cli.sh install --dry-run
 ./scripts/cli.sh install --force  # overwrite even if dest is newer
@@ -217,8 +319,11 @@ Use `scripts\cli.cmd` from `cmd.exe`, or if `.ps1` scripts are blocked:
 ```powershell
 .\scripts\cli.ps1 install
 .\scripts\cli.ps1 install grok
+.\scripts\cli.ps1 install copilot
+.\scripts\cli.ps1 project C:\path\to\repo
 .\scripts\cli.ps1 pullinst
 .\scripts\cli.ps1 pullinst grok
+.\scripts\cli.ps1 pullinst copilot
 .\scripts\cli.ps1 status
 .\scripts\cli.ps1 install --dry-run
 .\scripts\cli.ps1 install --force
@@ -256,6 +361,7 @@ Remote skills land in the **remote user's** home:
 |--------|-------------|
 | `.grok/<skill>/` | `~/.grok/skills/<skill>/` (local or remote `$HOME`) |
 | `.cursor/skills/<skill>/` | `~/.cursor/skills/<skill>/` |
+| `.copilot/skills/<skill>/` | `~/.copilot/skills/<skill>/` (`install` / `install all` / `install copilot` / `--remote`) |
 
 A skill is copied when the destination is missing (first install) or when any file in the repo skill is newer than the newest file already installed. Unchanged or newer-on-disk skills are skipped unless you pass `--force`.
 

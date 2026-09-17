@@ -1,8 +1,8 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
-  (local and/or across sshub connections from connections.env)
+  sva-skills installer — sync repo skills into ~/.grok, ~/.cursor,
+  and ~/.copilot (local and/or across sshub connections from connections.env)
 
 .DESCRIPTION
   Windows 10/11 port of scripts/cli.sh. Requires Windows PowerShell 5.1
@@ -12,8 +12,11 @@
 .EXAMPLE
   .\scripts\cli.ps1 install
   .\scripts\cli.ps1 install grok
+  .\scripts\cli.ps1 install copilot
+  .\scripts\cli.ps1 project C:\path\to\consumer-repo
   .\scripts\cli.ps1 pullinst
   .\scripts\cli.ps1 pullinst grok
+  .\scripts\cli.ps1 pullinst copilot
   .\scripts\cli.ps1 install --remote casai
   .\scripts\cli.ps1 status --remote
   .\scripts\cli.ps1 list
@@ -36,12 +39,17 @@ $Root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 
 $GrokSrc = Join-Path $Root '.grok'
 $CursorSrc = Join-Path (Join-Path $Root '.cursor') 'skills'
+$CopilotSrc = Join-Path (Join-Path $Root '.copilot') 'skills'
 $GrokDest = Join-Path (Join-Path $HOME '.grok') 'skills'
 $CursorDest = Join-Path (Join-Path $HOME '.cursor') 'skills'
+$CopilotDest = Join-Path (Join-Path $HOME '.copilot') 'skills'
 
 # Remote destinations are always under the remote user's home (Linux hosts).
 $RemoteGrokRel = '.grok/skills'
 $RemoteCursorRel = '.cursor/skills'
+$RemoteCopilotRel = '.copilot/skills'
+# Consumer-repo cloud dest (I6). Not a source tree; not written inside this repo.
+$ProjectRel = '.github/skills'
 
 if ($env:SSHUB_DATA_DIR) {
     $SshubDataDir = $env:SSHUB_DATA_DIR
@@ -62,6 +70,9 @@ else {
 
 $Force = $false
 $DryRun = $false
+# ask = prompt on a TTY when GitHub Copilot (the product) is missing
+# yes  = --host; no = --no-host
+$HostAction = 'ask'
 $DoRemote = $false
 $DoLocal = $true   # default local; flipped off when --remote is used without --local
 $LocalExplicit = $false
@@ -114,16 +125,20 @@ function Invoke-GitPullMain {
 
 function Show-Usage {
     $text = @'
-sva-skills installer — sync repo skills into ~/.grok and ~/.cursor
+sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, and ~/.copilot
 
 Usage:
   .\scripts\cli.ps1 install              # same as: install all (local)
   .\scripts\cli.ps1 install all
   .\scripts\cli.ps1 install grok
   .\scripts\cli.ps1 install cursor
+  .\scripts\cli.ps1 install copilot
+  .\scripts\cli.ps1 project C:\path\to\repo  # .copilot\skills → <repo>\.github\skills
+  .\scripts\cli.ps1 project --dry-run C:\path\to\repo
   .\scripts\cli.ps1 pullinst              # git pull origin main, then install
   .\scripts\cli.ps1 pullinst grok
   .\scripts\cli.ps1 pullinst cursor
+  .\scripts\cli.ps1 pullinst copilot
   .\scripts\cli.ps1 install --remote                 # all skills → all connections
   .\scripts\cli.ps1 install grok --remote casai      # name or alias from connections.env
   .\scripts\cli.ps1 install --remote casai CAS2SYS
@@ -137,15 +152,24 @@ Usage:
 Options:
   --force       Always install, even if dest is newer
   --dry-run     Print actions only; do not write
+  --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
+  --no-host     Do not install the GitHub Copilot product
   --remote, -r  Install to remote host(s); with no names, use all connections
   --local       Also install on this machine when using --remote
   --list, -l    List sshub connections and exit
   -h, --help    Show help
 
 Targets:
-  grok    .grok\<skill>\          →  ~\.grok\skills\<skill>\
-  cursor  .cursor\skills\<skill>\ →  ~\.cursor\skills\<skill>\
-  all     both (default when target omitted)
+  grok     .grok\<skill>\           →  ~\.grok\skills\<skill>\
+  cursor   .cursor\skills\<skill>\  →  ~\.cursor\skills\<skill>\
+  copilot  .copilot\skills\<skill>\ →  ~\.copilot\skills\<skill>\
+  all      grok + cursor + copilot (default when target omitted)
+
+Project / cloud (copilot only; I6 — not a fourth install target):
+  project  .copilot\skills\<skill>\ →  <consumer-repo>\.github\skills\<skill>\
+  Refuses to write .github\skills inside this sva-skills repo (source stays
+  .copilot\skills). Path omitted → current working directory. See
+  docs/COPILOT_LOAD.md for gh skill install and /skills reload.
 
 Connections come from:
   ~\.local\share\sshub\connections.env
@@ -153,7 +177,8 @@ Connections come from:
 the same as sshub / sshot (e.g. casai, CASSADYAIFAP).
 
 Remote install uses Windows OpenSSH (ssh.exe / scp.exe). Skills land in
-the remote user's home (~/.grok/skills, ~/.cursor/skills).
+the remote user's home (~/.grok/skills, ~/.cursor/skills,
+~/.copilot/skills when the copilot target is selected).
 
 A skill is installed when the destination is missing, or when any file under
 the repo skill is newer than the newest file under the installed skill.
@@ -620,8 +645,16 @@ function Get-TargetPaths {
                 Label = 'cursor'
             }
         }
+        'copilot' {
+            return @{
+                Src   = $script:CopilotSrc
+                Dest  = $script:CopilotDest
+                Rel   = $script:RemoteCopilotRel
+                Label = 'copilot'
+            }
+        }
         default {
-            Die "unknown target: $Target (use grok, cursor, or all)"
+            Die "unknown target: $Target (use grok, cursor, copilot, or all)"
         }
     }
 }
@@ -640,6 +673,246 @@ function Install-TargetLocal {
     Write-Out ("local {0}: {1}  →  {2}" -f $info.Label, $info.Src, $info.Dest)
     foreach ($name in $skills) {
         Install-SkillLocal $name (Join-Path $info.Src $name) $info.Dest
+    }
+}
+
+function Get-CodeBin {
+    $cmd = Get-Command code -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    $cmd = Get-Command code-insiders -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+    $win = Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'
+    if (Test-Path -LiteralPath $win) { return $win }
+    return $null
+}
+
+function Test-CopilotCliPresent {
+    return [bool](Get-Command copilot -ErrorAction SilentlyContinue)
+}
+
+function Get-VscodeAppRoot {
+    $bin = Get-CodeBin
+    if ($bin) {
+        $dir = Split-Path -Parent $bin
+        if ((Split-Path -Leaf $dir) -eq 'bin') {
+            $root = Split-Path -Parent $dir
+            $pkg = Join-Path $root 'resources\app\extensions\copilot\package.json'
+            if (Test-Path -LiteralPath $pkg) { return $root }
+        }
+    }
+    $candidates = @(
+        'C:\Program Files\Microsoft VS Code',
+        (Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code')
+    )
+    foreach ($root in $candidates) {
+        $pkg = Join-Path $root 'resources\app\extensions\copilot\package.json'
+        if (Test-Path -LiteralPath $pkg) { return $root }
+    }
+    return $null
+}
+
+function Test-CopilotVscodeBuiltin {
+    $root = Get-VscodeAppRoot
+    if (-not $root) { return $false }
+    return (Test-Path -LiteralPath (Join-Path $root 'resources\app\extensions\copilot\package.json'))
+}
+
+function Test-CopilotVscodeUserExt {
+    $bin = Get-CodeBin
+    if (-not $bin) { return $false }
+    $exts = @(& $bin --list-extensions 2>$null)
+    return [bool]($exts | Where-Object { $_ -ieq 'GitHub.copilot' })
+}
+
+function Test-CopilotVscodePresent {
+    return (Test-CopilotVscodeUserExt) -or (Test-CopilotVscodeBuiltin)
+}
+
+function Test-CopilotHostPresent {
+    return (Test-CopilotVscodePresent) -or (Test-CopilotCliPresent)
+}
+
+function Test-CopilotVscodeInstallable {
+    return [bool](Get-CodeBin)
+}
+
+function Test-CopilotCliInstallable {
+    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { return $false }
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) { return $false }
+    try {
+        $major = [int](& node -p "process.versions.node.split('.')[0]" 2>$null)
+        return $major -ge 22
+    }
+    catch {
+        return $false
+    }
+}
+
+function Test-CopilotHostInstallable {
+    return (Test-CopilotVscodeInstallable) -or (Test-CopilotCliInstallable)
+}
+
+function Install-CopilotVscode {
+    $bin = Get-CodeBin
+    if (-not $bin) { return $false }
+    if (Test-CopilotVscodeBuiltin) {
+        Write-Out '  skip  GitHub.copilot  (built into this VS Code; Chat cannot be marketplace-downgraded)'
+        return $true
+    }
+    if (-not $script:Force -and (Test-CopilotVscodeUserExt)) {
+        Write-Out '  skip  GitHub.copilot  (already installed)'
+        return $true
+    }
+    if ($script:DryRun) {
+        Write-Out ("  would install  GitHub.copilot  via {0}" -f $bin)
+        return $true
+    }
+    $args = @('--install-extension', 'GitHub.copilot')
+    if ($script:Force) { $args += '--force' }
+    $err = & $bin @args 2>&1 | Out-String
+    Write-Out $err.TrimEnd()
+    if (Test-CopilotVscodePresent) {
+        Write-Out '  install  GitHub.copilot'
+        return $true
+    }
+    if ($err -match 'cannot be downgraded|is a built-in extension') {
+        Write-Out '  skip  GitHub.copilot-chat  (built into this VS Code)'
+        Write-Out '  note: VS Code already has Copilot Chat built in; marketplace GitHub.copilot was not added'
+        return $true
+    }
+    Write-ErrLine '  error: failed to install GitHub.copilot'
+    return $false
+}
+
+function Install-CopilotCli {
+    if (Test-CopilotCliPresent) {
+        Write-Out '  skip  copilot CLI  (already on PATH)'
+        return $true
+    }
+    if (-not (Test-CopilotCliInstallable)) { return $false }
+    $prefix = Join-Path $HOME '.local'
+    if ($script:DryRun) {
+        Write-Out ("  would install  @github/copilot  →  {0}" -f $prefix)
+        return $true
+    }
+    $binDir = Join-Path $prefix 'bin'
+    if (-not (Test-Path -LiteralPath $binDir)) {
+        New-Item -ItemType Directory -Path $binDir -Force | Out-Null
+    }
+    & npm install -g --prefix $prefix @github/copilot
+    if ($LASTEXITCODE -ne 0) {
+        Write-ErrLine ("  error: npm install -g --prefix {0} @github/copilot failed" -f $prefix)
+        return $false
+    }
+    Write-Out ("  install  copilot CLI  →  {0}\copilot" -f $binDir)
+    if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
+        Write-Out ("  note: add {0} to PATH if 'copilot' is not found" -f $binDir)
+    }
+    return $true
+}
+
+function Test-InstallerTty {
+    try {
+        return -not [Console]::IsInputRedirected
+    }
+    catch {
+        return $false
+    }
+}
+
+function Request-CopilotHostInstall {
+    if ($script:HostAction -eq 'yes') { return $true }
+    if ($script:HostAction -eq 'no') { return $false }
+    if (-not (Test-InstallerTty)) {
+        Write-Out 'host: GitHub Copilot is installable but not installed.'
+        Write-Out '  re-run with --host to install it, or --no-host to skip asking.'
+        return $false
+    }
+    if ((Test-CopilotVscodePresent) -and -not (Test-CopilotCliPresent)) {
+        Write-Host -NoNewline 'VS Code already has GitHub Copilot built in. Install Copilot CLI too? [y/N] '
+    }
+    else {
+        Write-Host -NoNewline 'GitHub Copilot is not installed. Install the VS Code host (if needed) and Copilot CLI if possible? [y/N] '
+    }
+    $reply = [Console]::In.ReadLine()
+    if ($null -eq $reply) { return $false }
+    return ($reply -match '^(?i)(y|yes)$')
+}
+
+function Invoke-MaybeInstallCopilotHost {
+    Write-Out 'host: GitHub Copilot (product — VS Code built-in/extension and/or Copilot CLI)'
+    if ((Test-CopilotVscodePresent) -and (Test-CopilotCliPresent)) {
+        Write-Out '  already installed (VS Code + CLI)'
+        return
+    }
+    if ((Test-CopilotVscodePresent) -and -not (Test-CopilotCliInstallable)) {
+        Write-Out '  already installed (VS Code)'
+        return
+    }
+    if (-not (Test-CopilotVscodePresent) -and -not (Test-CopilotCliPresent) -and -not (Test-CopilotHostInstallable)) {
+        Write-Out "  not installed and not installable here (need 'code' and/or Node 22+ npm)"
+        return
+    }
+    if (-not (Request-CopilotHostInstall)) {
+        Write-Out ("  skip  product (skills will still be copied to {0})" -f $script:CopilotDest)
+        return
+    }
+    $ok = $false
+    if (Test-CopilotVscodeInstallable) {
+        if (Install-CopilotVscode) { $ok = $true }
+    }
+    if (-not (Test-CopilotCliPresent) -and (Test-CopilotCliInstallable)) {
+        if (Install-CopilotCli) { $ok = $true }
+    }
+    if ($ok) {
+        Write-Out '  next: sign in to GitHub Copilot, then /skills reload (or copilot skill add)'
+    }
+}
+
+function Resolve-ProjectRepo {
+    param([string]$Raw)
+    if ([string]::IsNullOrWhiteSpace($Raw)) {
+        $Raw = (Get-Location).Path
+    }
+    if (-not (Test-Path -LiteralPath $Raw -PathType Container)) {
+        Die "consumer repo not found: $Raw"
+    }
+    $repo = (Resolve-Path -LiteralPath $Raw).Path
+    $rootP = (Resolve-Path -LiteralPath $script:Root).Path
+    if ([string]::Equals($repo, $rootP, [System.StringComparison]::OrdinalIgnoreCase)) {
+        Die 'refusing to write .github/skills inside sva-skills (source is .copilot/skills). Pass a consumer repo path.'
+    }
+    return $repo
+}
+
+function Install-Project {
+    param([string[]]$Rest)
+    if ($null -eq $Rest) {
+        $Rest = @()
+    }
+    if ($Rest.Count -gt 1) {
+        Die ("project takes at most one repo path (got extra: {0})" -f $Rest[1])
+    }
+    if ($script:DoRemote) {
+        Die 'project is local consumer-repo only (I6); do not use --remote'
+    }
+    if (-not (Test-Path -LiteralPath $script:CopilotSrc -PathType Container)) {
+        Die "source not found: $($script:CopilotSrc)"
+    }
+    $raw = ''
+    if ($Rest.Count -ge 1) {
+        $raw = $Rest[0]
+    }
+    $repo = Resolve-ProjectRepo $raw
+    $dest = Join-Path $repo $script:ProjectRel
+    $skills = @(Get-SkillDirs $script:CopilotSrc)
+    if ($skills.Count -eq 0) {
+        Write-Out ("project: no skills under {0}" -f $script:CopilotSrc)
+        return
+    }
+    Write-Out ("project copilot: {0}  →  {1}" -f $script:CopilotSrc, $dest)
+    foreach ($name in $skills) {
+        Install-SkillLocal $name (Join-Path $script:CopilotSrc $name) $dest
     }
 }
 
@@ -807,6 +1080,10 @@ function Invoke-ForTargets {
     $failures = 0
 
     if ($script:DoLocal) {
+        if ($Mode -eq 'install' -and ($Targets -contains 'copilot')) {
+            Invoke-MaybeInstallCopilotHost
+            Write-Out ''
+        }
         foreach ($t in $Targets) {
             if ($Mode -eq 'install') {
                 Install-TargetLocal $t
@@ -861,7 +1138,7 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'scratch') {
 
 function Test-KnownTarget {
     param([string]$Token)
-    return ($Token -eq 'grok' -or $Token -eq 'cursor' -or $Token -eq 'all')
+    return ($Token -eq 'grok' -or $Token -eq 'cursor' -or $Token -eq 'copilot' -or $Token -eq 'all')
 }
 
 $ArgList = New-Object System.Collections.Generic.List[string]
@@ -881,6 +1158,22 @@ $i = 0
         }
         '^(--force|-Force)$' {
             $Force = $true
+            $i++
+            continue parseLoop
+        }
+        '^(--host|-Host)$' {
+            if ($HostAction -eq 'no') {
+                Die 'use only one of --host or --no-host'
+            }
+            $HostAction = 'yes'
+            $i++
+            continue parseLoop
+        }
+        '^(--no-host|-NoHost)$' {
+            if ($HostAction -eq 'yes') {
+                Die 'use only one of --host or --no-host'
+            }
+            $HostAction = 'no'
             $i++
             continue parseLoop
         }
@@ -934,6 +1227,14 @@ if ($ArgList.Count -gt 0) {
     }
 }
 
+if ($Cmd -eq 'project') {
+    Install-Project -Rest $Rest
+    if ($DryRun) {
+        Write-Out '(dry-run: no files written)'
+    }
+    exit 0
+}
+
 $Targets = New-Object System.Collections.Generic.List[string]
 $TargetSet = $false
 
@@ -943,6 +1244,7 @@ foreach ($tok in $Rest) {
             $Targets.Clear()
             [void]$Targets.Add('grok')
             [void]$Targets.Add('cursor')
+            [void]$Targets.Add('copilot')
         }
         else {
             [void]$Targets.Add($tok)
@@ -967,6 +1269,7 @@ if ($RemoteConns.Count -gt 0) {
                     $Targets.Clear()
                     [void]$Targets.Add('grok')
                     [void]$Targets.Add('cursor')
+                    [void]$Targets.Add('copilot')
                 }
                 else {
                     [void]$Targets.Add($tok)
@@ -985,6 +1288,7 @@ if (-not $TargetSet -or $Targets.Count -eq 0) {
     $Targets.Clear()
     [void]$Targets.Add('grok')
     [void]$Targets.Add('cursor')
+    [void]$Targets.Add('copilot')
 }
 
 $deduped = New-Object System.Collections.Generic.List[string]
@@ -1030,6 +1334,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, pullinst, status, list, scratch, --help)"
+        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, --help)"
     }
 }
