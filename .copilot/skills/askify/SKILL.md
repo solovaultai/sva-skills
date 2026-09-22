@@ -226,6 +226,12 @@ row (caught-and-understood tokens + **On pass k of N**).
 **Placement:** Absolute end of the full response (after `## Answer`). Nothing
 after the table except an optional one-line next-step.
 
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `ASK:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Never invent workspace resources; verify with read/search before citing them.

@@ -279,6 +279,12 @@ Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Defe
 mark `Done` unless that phase landed. When evidence-already-sufficient skips
 instrumentation, mark Phase 2 `Deferred` and say so above.
 
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `DBG:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Runtime (or equivalent hard) evidence before product fixes — no speculative fixes.

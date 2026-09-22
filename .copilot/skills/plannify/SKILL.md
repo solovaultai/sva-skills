@@ -400,6 +400,12 @@ Confidence: XX
 see Trailing phase table)
 ```
 
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `PLAN:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Never invent workspace resources; verify with read/search before citing them.

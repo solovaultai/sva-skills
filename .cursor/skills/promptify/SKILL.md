@@ -457,6 +457,7 @@ Rules:
 ---
 
 ## Hard rules
+- Cite `docs/window_title.md`. Prefix for this verb: `PROMPT:`. Set the tmux window name per that contract on a real task. Help, tldr, pass, and empty usage do not retitle.
 
 - Never invent workspace resources.
 - Never claim files/DBs/APIs exist without checking.

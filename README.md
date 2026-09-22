@@ -9,6 +9,8 @@ Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
 
 Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases noted below).
 
+A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
+
 | Skill | Command | Description |
 |-------|---------|-------------|
 | **promptify** | `/promptify`, `/promptify help`, `/promptify tldr` | Prompt QA against the real workspace: intent analysis, asset validation, enrichment, readiness scores, and an optimized execution-ready prompt. Does **not** run the work. `/promptify help` (also `--help`, `/?`) prints the full reference. |

@@ -285,6 +285,12 @@ help / tldr / pass when walking back; do **not** skip `smart`,
 
 ---
 
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `IFY:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Catalog + help + router only. Never plan, execute, debug, or

@@ -3,11 +3,13 @@
 # and ~/.copilot (local and/or across sshub connections from connections.env)
 #
 # Usage:
-#   ./scripts/cli.sh install              # same as: install all (local)
+#   ./scripts/cli.sh install              # same as: install all (local) + tmux titles
 #   ./scripts/cli.sh install all
 #   ./scripts/cli.sh install grok
 #   ./scripts/cli.sh install cursor
 #   ./scripts/cli.sh install copilot
+#   ./scripts/cli.sh install tmux         # only the ~/.tmux.conf title lines
+#   ./scripts/cli.sh tmux                 # same as: install tmux
 #   ./scripts/cli.sh install copilot --host
 #   ./scripts/cli.sh install copilot --no-host
 #   ./scripts/cli.sh project /path/to/consumer-repo   # .copilot/skills → <repo>/.github/skills
@@ -63,6 +65,8 @@ DO_REMOTE=0
 HOST_ACTION=ask
 DO_LOCAL=1 # default local; flipped off when --remote is used without --local
 LOCAL_EXPLICIT=0
+DO_TMUX=0
+TMUX_EXPLICIT=0
 SSHUB_LOADED=0
 SCP_FLAGS=() # used by sshub scp_connection when sourced
 
@@ -76,11 +80,13 @@ usage() {
 sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, and ~/.copilot
 
 Usage:
-  ./scripts/cli.sh install              # same as: install all (local)
+  ./scripts/cli.sh install              # same as: install all (local) + tmux titles
   ./scripts/cli.sh install all
   ./scripts/cli.sh install grok
   ./scripts/cli.sh install cursor
   ./scripts/cli.sh install copilot
+  ./scripts/cli.sh install tmux         # only the ~/.tmux.conf title lines
+  ./scripts/cli.sh tmux                 # same as: install tmux
   ./scripts/cli.sh install copilot --host
   ./scripts/cli.sh install copilot --no-host
   ./scripts/cli.sh project /path/to/repo # .copilot/skills → <repo>/.github/skills
@@ -113,7 +119,16 @@ Targets:
   grok     .grok/<skill>/           →  ~/.grok/skills/<skill>/
   cursor   .cursor/skills/<skill>/  →  ~/.cursor/skills/<skill>/
   copilot  .copilot/skills/<skill>/ →  ~/.copilot/skills/<skill>/
-  all      grok + cursor + copilot (default when target omitted)
+  all      grok + cursor + copilot, and the tmux title lines
+  tmux     only ~/.tmux.conf title lines (also: ./scripts/cli.sh tmux)
+
+General install (no target, or all, or pullinst) ensures these lines in
+~/.tmux.conf, locally and on each --remote host. Repeating install does
+not duplicate them. If a tmux server is running and the live options
+differ, it reloads the file. It does not kill the server.
+
+  set -g set-titles on
+  set -g set-titles-string "#{window_name}"
 
 Project / cloud (copilot only; I6 — not a fourth install target):
   project  .copilot/skills/<skill>/ →  <consumer-repo>/.github/skills/<skill>/
@@ -958,6 +973,93 @@ status_target_remote() {
   done
 }
 
+# Idempotent ~/.tmux.conf title lines for the ify window-name contract.
+# One of each option. A repeat leaves a correct file unchanged. When the
+# file or the live server differs, reload a running server. Never kill it.
+apply_tmux_title_file() {
+  local conf="$1"
+  local tmp changed=0
+  local want_on='set -g set-titles on'
+  local want_str='set -g set-titles-string "#{window_name}"'
+
+  if [[ "${DRY_RUN:-0}" -eq 1 ]]; then
+    echo "tmux  would ensure titles in ${conf}"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "$conf")"
+  tmp="$(mktemp)"
+  if [[ -f "$conf" ]]; then
+    awk '
+      /^[[:space:]]*set(-option)?[[:space:]]+-g[[:space:]]+set-titles-string([[:space:]]|$)/ {
+        if (!str) print "set -g set-titles-string \"#{window_name}\""
+        str = 1
+        next
+      }
+      /^[[:space:]]*set(-option)?[[:space:]]+-g[[:space:]]+set-titles([[:space:]]|$)/ {
+        if (!on) print "set -g set-titles on"
+        on = 1
+        next
+      }
+      { print }
+      END {
+        if (!on) print "set -g set-titles on"
+        if (!str) print "set -g set-titles-string \"#{window_name}\""
+      }
+    ' "$conf" > "$tmp"
+  else
+    printf '%s\n%s\n' "$want_on" "$want_str" > "$tmp"
+  fi
+
+  if [[ -f "$conf" ]] && cmp -s "$conf" "$tmp"; then
+    echo "tmux  unchanged  ${conf}"
+  else
+    mv "$tmp" "$conf"
+    tmp=""
+    changed=1
+    echo "tmux  updated  ${conf}"
+  fi
+  [[ -n "$tmp" && -f "$tmp" ]] && rm -f "$tmp"
+
+  if [[ "${SVA_TMUX_NO_SOURCE:-0}" -eq 1 ]] || ! command -v tmux >/dev/null 2>&1; then
+    return 0
+  fi
+  local live_on live_str
+  live_on="$(tmux show-options -gv set-titles 2>/dev/null || true)"
+  live_str="$(tmux show-options -gv set-titles-string 2>/dev/null || true)"
+  if [[ -z "$live_on" && -z "$live_str" ]]; then
+    return 0
+  fi
+  if [[ "$changed" -eq 1 || "$live_on" != "on" || "$live_str" != '#{window_name}' ]]; then
+    if tmux source-file "$conf"; then
+      echo "tmux  sourced  ${conf}"
+    else
+      echo "error: tmux source-file failed for ${conf}" >&2
+      return 1
+    fi
+  fi
+  return 0
+}
+
+ensure_tmux_titles_local() {
+  apply_tmux_title_file "${HOME}/.tmux.conf"
+}
+
+ensure_tmux_titles_remote() {
+  local conn="$1"
+  load_sshub
+  sshub_call resolve_conn "$conn" || return 1
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "tmux  would ensure titles on ${RESOLVED_USER}@${RESOLVED_HOST}:~/.tmux.conf"
+    return 0
+  fi
+  echo "tmux titles → ${RESOLVED_USER}@${RESOLVED_HOST}:~/.tmux.conf"
+  {
+    declare -f apply_tmux_title_file
+    echo 'apply_tmux_title_file "$HOME/.tmux.conf"'
+  } | remote_ssh bash -s
+}
+
 run_for_targets() {
   # $1 = mode: install|status
   # remaining in TARGETS array, hosts in REMOTE_NAMES if DO_REMOTE
@@ -1115,11 +1217,15 @@ is_known_target() {
   [[ "$1" =~ ^(grok|cursor|copilot|all)$ ]]
 }
 
-# Positionals after command that are skill targets
+# Positionals after command that are skill targets, or the tmux title option.
 for tok in "${REST[@]+"${REST[@]}"}"; do
-  if is_known_target "$tok"; then
+  if [[ "$tok" == "tmux" ]]; then
+    DO_TMUX=1
+    TMUX_EXPLICIT=1
+  elif is_known_target "$tok"; then
     if [[ "$tok" == "all" ]]; then
       TARGETS=(grok cursor copilot)
+      DO_TMUX=1
     else
       TARGETS+=("$tok")
     fi
@@ -1138,10 +1244,14 @@ done
 if [[ "${#REMOTE_CONNS[@]}" -gt 0 ]]; then
   filtered=()
   for tok in "${REMOTE_CONNS[@]}"; do
-    if is_known_target "$tok"; then
+    if [[ "$tok" == "tmux" ]]; then
+      DO_TMUX=1
+      TMUX_EXPLICIT=1
+    elif is_known_target "$tok"; then
       if [[ "$TARGET_SET" -eq 0 ]]; then
         if [[ "$tok" == "all" ]]; then
           TARGETS=(grok cursor copilot)
+          DO_TMUX=1
         else
           TARGETS+=("$tok")
         fi
@@ -1154,8 +1264,18 @@ if [[ "${#REMOTE_CONNS[@]}" -gt 0 ]]; then
   REMOTE_CONNS=("${filtered[@]+"${filtered[@]}"}")
 fi
 
-if [[ "$TARGET_SET" -eq 0 || "${#TARGETS[@]}" -eq 0 ]]; then
+if [[ "$CMD" == "tmux" ]]; then
+  DO_TMUX=1
+  TMUX_EXPLICIT=1
+fi
+
+# No target means the general install: every skill tree plus tmux titles.
+# `install tmux` / `tmux` alone does not install skills.
+if [[ "$TMUX_EXPLICIT" -eq 1 && "$TARGET_SET" -eq 0 ]]; then
+  TARGETS=()
+elif [[ "$TARGET_SET" -eq 0 || "${#TARGETS[@]}" -eq 0 ]]; then
   TARGETS=(grok cursor copilot)
+  DO_TMUX=1
 fi
 
 # Deduplicate targets while preserving order
@@ -1181,18 +1301,32 @@ case "$CMD" in
     list_conns
     exit 0
     ;;
-  install | pullinst)
+  install | pullinst | tmux)
     if [[ "$CMD" == "pullinst" ]]; then
       pull_origin_main
     fi
     if [[ "$DO_LOCAL" -eq 0 && "$DO_REMOTE" -eq 0 ]]; then
       DO_LOCAL=1
     fi
-    run_for_targets install
-    rc=$?
+    rc=0
+    if [[ "${#TARGETS[@]}" -gt 0 ]]; then
+      run_for_targets install || rc=$?
+    fi
+    if [[ "$DO_TMUX" -eq 1 ]]; then
+      if [[ "$DO_LOCAL" -eq 1 ]]; then
+        ensure_tmux_titles_local || rc=1
+      fi
+      if [[ "$DO_REMOTE" -eq 1 ]]; then
+        resolve_remote_list || rc=1
+        for conn in "${REMOTE_NAMES[@]}"; do
+          ensure_tmux_titles_remote "$conn" || rc=1
+          echo
+        done
+      fi
+    fi
     if [[ "$DRY_RUN" -eq 1 ]]; then
       echo "(dry-run: no files written)"
-    elif [[ "$rc" -eq 0 ]]; then
+    elif [[ "$rc" -eq 0 && "${#TARGETS[@]}" -gt 0 ]]; then
       scratch_install_detect
     fi
     exit "$rc"
@@ -1205,6 +1339,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, --help)"
+    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, tmux, --help)"
     ;;
 esac

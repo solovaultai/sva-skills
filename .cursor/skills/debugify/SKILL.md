@@ -325,6 +325,12 @@ Debug Mode steps are **Left** (`Not started` is fine if nothing has run).
 Do not mark later phases `Done` unless the workspace already shows that
 work landed.
 
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `DBG:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Never invent workspace resources; verify with read/search before citing them.

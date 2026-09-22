@@ -202,6 +202,12 @@ completely after the banner.
 
 ---
 
+## Window title
+
+Cite `docs/window_title.md`. This verb has no prefix of its own.
+Re-apply the ancestor verb's label to the combined text on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
 ## Hard rules
 
 - Thin router only: banner + dispatch. Do not run a second promptify

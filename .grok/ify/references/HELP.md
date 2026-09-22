@@ -27,6 +27,13 @@ Promptify-family **front door**: catalog, help, and router. Does
 It does **not** dispatch. `which` is an alias of `smart`. The
 user (or a later turn) runs that verb.
 
+A real ify task sets the tmux window name so a row of Grok
+windows can be told apart. The contract is `docs/window_title.md`.
+Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`.
+Addify reuses the ancestor's prefix. Phasify is
+`PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and
+empty usage do not retitle.
+
 ---
 
 ## When to use vs addify vs a direct verb

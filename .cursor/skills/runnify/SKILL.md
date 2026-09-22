@@ -77,3 +77,10 @@ If the user message has no task body after `/runnify`, explain:
 Response format and pipeline: same as Promptify `/runnify` section in
 `~/.cursor/skills/promptify/SKILL.md` (Intent · Workspace · Optimized Prompt ·
 Scores · Results · **Phased plan last** when the work is multi-phase).
+
+## Window title
+
+Cite `docs/window_title.md`. Prefix for this verb: `RUN:`.
+Set the tmux window name per that contract on a real task.
+Help, tldr, pass, and empty usage do not retitle.
+
