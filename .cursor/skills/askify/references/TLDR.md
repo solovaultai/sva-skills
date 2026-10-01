@@ -5,7 +5,8 @@ then run it read-only and return a cited answer. Never implements and
 never emits a plan.
 
 ```text
-/askify <prompt>       — coach, then answer (read-only)
+/askify <prompt>       — answer only (read-only; do not print the plan)
+/askify plan <prompt>  — print the ask-kickoff plan, then answer
 /askify help           — this reference (also --help / /?)
 /askify tldr           — short form (stop)
 /askify pass           — Pass (Npass) subsection only (also pass help)
@@ -14,7 +15,8 @@ never emits a plan.
 
 | Argument | What it does | Why |
 |----------|--------------|-----|
-| `<prompt>` | Coach, then answer read-only (cited) | Ask mode — never implements or emits a plan |
+| `<prompt>` | Answer read-only (cited); do not print the plan | Default — the plan is internal unless asked for |
+| `plan` | Print Intent / Workspace / Ask-Kickoff / Scores, then Answer | Only when the user specified `/askify plan` |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |

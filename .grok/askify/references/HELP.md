@@ -25,7 +25,8 @@ implements and never emits a plan. Alias: `/promptify-ask`.
 ## How to invoke
 
 ```text
-/askify <prompt>       — coach, then answer (read-only)
+/askify <prompt>       — answer only (read-only; do not print the plan)
+/askify plan <prompt>  — print the ask-kickoff plan, then answer
 /askify help           — this reference (also --help / /?)
 /askify tldr           — short form; stop
 /askify pass           — Pass (Npass) subsection only (also pass help)
@@ -110,9 +111,16 @@ is present. Skip only for a true single-step question and no markers.
 
 ## Response shape
 
-Scratch ack → Npass ack → Intent Analysis → Workspace Assessment →
-Pre-plan (Npass > 1 only) → Ask-Kickoff Prompt → Scores → Answer →
-Phased plan (when required).
+**Default** (`/askify <prompt>`): Scratch ack → Npass ack → Answer →
+Phased plan (when required). Do **not** print Intent, Workspace,
+Pre-plan, Ask-Kickoff Prompt, or Scores.
+
+**`/askify plan <prompt>`:** Scratch ack → Npass ack → Intent
+Analysis → Workspace Assessment → Pre-plan (Npass > 1 only) →
+Ask-Kickoff Prompt → Scores → Answer → Phased plan (when required).
+
+`plan` is not `pass` and not `plannify`. Empty `/askify plan` is
+usage + “plan needs a prompt.”
 
 ---
 

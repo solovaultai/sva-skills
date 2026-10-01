@@ -143,12 +143,30 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
 Do not answer. Empty `/askify` is the short usage, not Help.
 `help me …` is a **task**, not Help.
 
+## Plan output (`plan`)
+
+After flag strip and Help / `tldr` / `pass` checks, if the **first**
+remaining token is `plan` (case-insensitive), that is **Plan** output.
+`plan` is not `pass`, not `plannify`, and not Help. Strip `plan`; the
+remainder is the task. Empty `plan`: short usage + “plan needs a
+prompt.” Stop.
+
+The pipeline still runs in full either way (coach, then answer).
+**Default** (`/askify <prompt>`): do **not** print the plan — no
+Intent Analysis, Workspace Assessment, Pre-plan, Ask-Kickoff Prompt,
+or Scores. Print acks (if any), then `## Answer` (then the trailing
+phase table when that section requires it).
+
+**`/askify plan <prompt>`:** print the full Response format (the plan
+plus the answer).
+
 ## No task body
 
 If there is no task after the command, explain:
 
 ```text
-/askify <prompt>      — coach into an ask-kickoff prompt, then answer (read-only)
+/askify <prompt>      — answer only (read-only; do not print the plan)
+/askify plan <prompt> — print the ask-kickoff plan, then answer
 /askify help          — full reference (also --help, /?)
 /askify tldr          — short form (stop)
 /askify pass help     — Pass (Npass) subsection (also `pass`)
@@ -161,6 +179,24 @@ The prompt to answer is everything after the command, or the free-text request w
 they said "askify this" / "ask this prompt" / "turn this into an ask prompt".
 
 ## Response format
+
+**Default** — answer only (no plan unless the user said `/askify plan`):
+
+```markdown
+**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
+Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
+
+**Npass — caught and correctly interpreted.**   ← when an Npass marker is present
+Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final answer.
+
+## Answer
+…
+(the produced answer — read-only, cited)
+
+## Phased plan   ← last section when 2+ phases, or when Nimages/Npass is present
+```
+
+**`/askify plan`** — print the plan, then the answer:
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
@@ -257,3 +293,7 @@ Help, tldr, pass, and empty usage do not retitle.
   print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
   print the **Pass (`Npass`)** section and stop. Empty `/askify` is
   short usage, not Help. `help me …` is a task.
+- Do **not** print the plan (Intent, Workspace, Pre-plan, Ask-Kickoff
+  Prompt, Scores) unless the user specified `/askify plan`. Default
+  `/askify <prompt>` is answer-only. `plan` is not `pass` or
+  `plannify`.

@@ -212,7 +212,7 @@ Load dests: `docs/COPILOT_LOAD.md`.
 
 | Command | Role |
 |---------|------|
-| `/askify <prompt>` | Optimize then answer (read-only) |
+| `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
 | `/plannify <prompt>` | Optimize then plan (read-only) |
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
