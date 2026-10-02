@@ -69,7 +69,9 @@ task (append that text).
 Scan **this conversation** newest-first. Chat only — no disk store.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify` · `fromify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify`.
+
+**docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`.
 
 **Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
 `/promptify-run` → runnify; `/promptify-ask` → askify;
@@ -117,6 +119,7 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 | **askify** | Restart askify on the combined text. |
 | **ify** | Restart `/ify` from scratch on the combined text. **Not** fromhere. |
 | **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
+| **docify** | Restart `/docify` on the original invocation plus the appended text. Flags re-parse. Default verb remains askify unless a verb token is present. |
 | **addify** | Resolve ancestor, then dispatch. |
 
 If phasify is last and no current plan exists, say `/plannify` first.
@@ -126,7 +129,7 @@ If phasify is last and no current plan exists, say `/plannify` first.
 ## Flags (`Nimages` / `Npass`)
 
 Same parse order as promptify: first numbered instance left to
-right; skip unnumbered `image` / `pass`. Strip **before** deciding
+right; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip **before** deciding
 Help vs task. Cite promptify **Flag parse order** — do not fork.
 
 Flags on the addify line apply to the restarted skill. **Addify-line

@@ -24,6 +24,7 @@
 #   ./scripts/cli.sh status [--remote [conn...]]
 #   ./scripts/cli.sh list                             # list sshub connections
 #   ./scripts/cli.sh scratch show|set|search|detect|ls
+#   ./scripts/cli.sh docify show|set|clear
 #
 # Options:
 #   --force       Always install, even if dest is newer
@@ -104,6 +105,7 @@ Usage:
   ./scripts/cli.sh list                             # list sshub connections
   ./scripts/cli.sh scratch show                     # screenshot folder for ify Nimages / Grok /image
   ./scripts/cli.sh scratch ls [N]                   # last-N image paths (default 5)
+  ./scripts/cli.sh docify show                      # docify defaults (scratch, format, path, prefix)
 
 Options:
   --force       Always install, even if dest is newer
@@ -154,6 +156,16 @@ Scratch source (ify Nimages and Grok /image last-N images):
   ./scripts/cli.sh scratch ls [N]
 Config: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/scratch.env
 Install detects the screenshot folder and writes that file if unset.
+
+Docify defaults (typed-line docify / docpathify):
+  ./scripts/cli.sh docify show
+  ./scripts/cli.sh docify set scratch
+  ./scripts/cli.sh docify set format md|txt|docx|html
+  ./scripts/cli.sh docify set path <dir>
+  ./scripts/cli.sh docify set prefix <text>
+  ./scripts/cli.sh docify clear scratch|format|path|prefix
+Config: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/docify.env
+Keys: scratch, format, path, prefix. docif and scrach are not keys.
 EOF
 }
 
@@ -1111,11 +1123,18 @@ run_for_targets() {
 # shellcheck source=lib/scratch_resolve.sh
 source "$ROOT/scripts/lib/scratch_resolve.sh"
 # scratch_cmd_show / scratch_print_unset_state / scratch_die_unset live in that file.
+# shellcheck source=lib/docify_resolve.sh
+source "$ROOT/scripts/lib/docify_resolve.sh"
 
-# scratch has its own --remote / --force; handle before installer flags.
+# scratch and docify have their own flags; handle before installer flags.
 if [[ "${1:-}" == "scratch" ]]; then
   shift
   scratch_cmd "$@"
+  exit $?
+fi
+if [[ "${1:-}" == "docify" ]]; then
+  shift
+  docify_cmd "$@"
   exit $?
 fi
 
@@ -1339,6 +1358,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, tmux, --help)"
+    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, docify, tmux, --help)"
     ;;
 esac

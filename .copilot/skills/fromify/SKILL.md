@@ -97,8 +97,10 @@ stays in the body.
 The leading `/fromify` that invoked this skill is the front end, not
 a pick.
 
-**Ify verbs:** `addify` · `askify` · `debugify` · `ify` · `phasify` ·
+**Ify verbs:** `addify` · `askify` · `debugify` · `docify` · `ify` · `phasify` ·
 `plannify` · `promptify` · `runnify`.
+
+**docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
 **Aliases → canonical**
 
@@ -183,6 +185,10 @@ fromify 1image
 apply `2pass` / `1image` to the selected verb (here, plannify).
 
 ---
+
+## Docify
+
+Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

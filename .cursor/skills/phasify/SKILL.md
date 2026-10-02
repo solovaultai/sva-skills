@@ -121,7 +121,7 @@ instance** wins.
 
 - Numbered tokens count: `1image`, `2pass`, `2-pass`, `1images`,
   `N images`, `N-images` (also `Nimage` / `N-image` / `N pass`).
-- Skip unnumbered `image` / `images` / `pass` / `passes`.
+- Skip unnumbered `image` / `images` / `pass` / `passes`. Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped.
 - Several numbered → first only (not the largest N).
 - No numbered instance → that flag is absent.
 
@@ -1231,7 +1231,7 @@ in Flags). Leave the rest unchanged.
 
 Parse `Nimages` and `Npass` independently per promptify **Flag parse
 order**: first numbered instance left to right; skip unnumbered
-`image` / `pass` so a later `1image` / `2pass` can count. No numbered
+`image` / `pass` so a later `1image` / `2pass` can count. Exception: the first typed token exactly `image` counts as `1image`. No numbered
 instance ⇒ that flag is absent.
 
 | What the user included | Flags row |
@@ -1566,6 +1566,8 @@ print the **Pass (`Npass`)** section only.
 - Cite `docs/window_title.md`. Name is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Set the tmux window name per that contract on a real task. Help, tldr, and pass do not retitle. Empty `/phasify` is Next, so it does.
 
 - Cite `docs/from_contract.md`. `from=` and `from:` splice local files into this prompt. Help, tldr, pass, and empty do not read files.
+
+- Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 - Execute only the selected phase(s). Do not re-plan the whole project.
   Use `/plannify fromhere` (plannify skill) to replan from current

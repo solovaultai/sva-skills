@@ -77,6 +77,11 @@ Read the user text **left to right**. For the **image** family and the
   `2images`, `3pass`, `2-pass`, `2 pass`, …
 - An **unnumbered** word does **not** count: `image`, `images`, `pass`,
   `passes`. Skip it and keep scanning.
+- Exception: the first token of the typed line, exactly `image` (any
+  case), counts as numbered `1image` (N=1) and is stripped. A later
+  numbered image token does not override it. `images` and a
+  non-leading `image` stay unnumbered. `phasify image` = `phasify
+  1image`. File bodies are not scanned.
 - If the first hit is unnumbered and a later hit **is numbered**, use
   that numbered instance (the first numbered one). Example: `create an
   image of the run. 1image` → use `1image` (the leading "image" has no
@@ -461,6 +466,8 @@ Rules:
 - Cite `docs/window_title.md`. Prefix for this verb: `PROMPT:`. Set the tmux window name per that contract on a real task. Help, tldr, pass, and empty usage do not retitle.
 
 - Cite `docs/from_contract.md`. `from=` and `from:` splice local files into this prompt. Help, tldr, pass, and empty do not read files.
+
+- Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 - Never invent workspace resources.
 - Never claim files/DBs/APIs exist without checking.

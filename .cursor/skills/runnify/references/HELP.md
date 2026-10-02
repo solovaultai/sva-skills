@@ -46,7 +46,7 @@ task.
 ## Flags (`Nimages` / `Npass`)
 
 Follow promptify **Flag parse order**: first numbered instance left to
-right; skip unnumbered `image` / `pass`. Strip before deciding Help vs
+right; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip before deciding Help vs
 task. Not part of the task wording.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`)

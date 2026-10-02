@@ -120,7 +120,7 @@ AskQuestion.
 ## Flags (`Nimages` / `Npass`)
 
 Same parse order as promptify: first numbered instance left to
-right; skip unnumbered `image` / `pass`. Strip **before** deciding
+right; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip **before** deciding
 Help vs fromhere vs add vs plan. Cite promptify **Flag parse order** —
 do not fork.
 

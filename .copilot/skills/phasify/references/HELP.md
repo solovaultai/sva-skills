@@ -1229,6 +1229,7 @@ multi-pass definition/execution.
   `1images`, `N images`, `N-images` (also `1 image`, `1-image`,
   `N pass`)
 - Unnumbered `image` / `images` / `pass` / `passes` does **not** count
+- Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped
 - Several numbered tokens → first only (not the largest N)
 - No numbered instance → that flag is absent
 - Strip before Help vs task. Flags are **not** reason text —
@@ -1263,6 +1264,7 @@ Examples after strip:
 |-----------|------|--------|
 | `/phasify` | Next | none |
 | `/phasify 1image` | Next | 1 image |
+| `/phasify image` | Next | `1image` (leading token) |
 | `/phasify 3 2images` | Next-3 | 2 images |
 | `/phasify help 2images` | Help | (print this page; do not execute) |
 | `/phasify -2pass` | Next (pass flag only) | `2pass` |

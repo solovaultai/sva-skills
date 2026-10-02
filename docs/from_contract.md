@@ -209,6 +209,7 @@ empty plannify run.
 | `debugify`, `promptify-debug` | debugify |
 | `addify` | addify |
 | `ify` | ify |
+| `docify` | docify |
 
 `which` and `delete` are mode aliases, not verbs. They
 stay prose. These are not verbs either: `image`,
@@ -307,7 +308,7 @@ is runnify plus the exact text of `test.txt`. The token
 ## Scope
 
 Ify set only: promptify, runnify, askify, plannify,
-phasify, debugify, addify, ify, fromify.
+phasify, debugify, addify, ify, fromify, docify.
 
 Not Grok utilities: `image`, `imagine`, `help`,
 `check-work`, `code-review`, `create-skill`,
@@ -315,7 +316,11 @@ Not Grok utilities: `image`, `imagine`, `help`,
 
 Out of scope: a code parser, quoted paths with spaces,
 remote files, recursive includes, flag or verb detection
-inside file bodies, globs, and docify.
+inside file bodies, and globs.
+
+fromify may select `docify`. Docify never selects itself.
+Cite `docs/docify_contract.md` for the write. Do not invent
+a second `from=` dialect.
 
 ---
 

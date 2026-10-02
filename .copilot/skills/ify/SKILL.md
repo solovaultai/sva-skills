@@ -2,7 +2,7 @@
 name: ify
 description: >-
   Ify — catalog, help, and router for the Promptify family (plannify,
-  runnify, promptify, phasify, debugify, askify, addify, fromify, ify). Does not
+  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, /ify help, /ify help <verb>, /ify tldr, /ify smart, or
   /ify which. smart (alias which) recommends a verb and does not
@@ -79,7 +79,7 @@ instance** wins.
 
 - Numbered tokens count: `1image`, `2pass`, `2-pass`, `1images`,
   `N images`, `N-images` (also `Nimage` / `N-image` / `N pass`).
-- Skip unnumbered `image` / `images` / `pass` / `passes`.
+- Skip unnumbered `image` / `images` / `pass` / `passes`. Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped.
 - Several numbered → first only (not the largest N).
 - No numbered instance → that flag is absent.
 - **`-2pass` is Npass**, not a subcommand.
@@ -155,8 +155,10 @@ verb’s HELP.md.
 
 ### Ify set (known verbs)
 
-`addify` · `askify` · `debugify` · `fromify` · `ify` · `phasify`
+`addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
 · `plannify` · `promptify` · `runnify`
+
+**docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -217,7 +219,7 @@ ify help — <canonical-verb> (this tree: copilot)
 2. Print that verb’s **user-facing help in full**:
    `references/HELP.md` if that file exists in the verb’s folder
    (promptify, plannify, phasify, addify, runnify, askify,
-   debugify, ify). Else the `## User help` section of that verb’s
+   debugify, docify, ify). Else the `## User help` section of that verb’s
    `SKILL.md`.
 3. Then print the **rest** of that verb’s `SKILL.md` under a
    heading **Agent instructions**. Skip re-printing `## User help`
@@ -282,6 +284,10 @@ help / tldr / pass when walking back; do **not** skip `smart`,
 Cite `docs/from_contract.md`.
 `from=` and `from:` splice local files into this prompt.
 Help, tldr, pass, and empty do not read files.
+
+## Docify
+
+Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

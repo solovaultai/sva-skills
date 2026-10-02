@@ -33,7 +33,7 @@ You are running **Promptify in Execution mode** (`/runnify`).
 6. If the request contains **`Nimages`**, **`N images`**, or **`N-images`**
    (e.g. `1images`, `1 images`, `1-images`), follow promptify **Scratch
    images** and **Flag parse order**: use only the first numbered instance
-   left to right (skip unnumbered "image" so a later `1image` counts).
+   left to right (skip unnumbered "image" so a later `1image` counts; the first typed token exactly `image` counts as `1image`).
    Follow promptify **Scratch images**: if `scratch.env` exists, run
    `scripts/cli.sh scratch ls N` (or `cli.ps1`) and **read those paths**;
    else workspace `scratch/`. Do not treat the marker as part of the task
@@ -85,6 +85,10 @@ Scores · Results · **Phased plan last** when the work is multi-phase).
 Cite `docs/from_contract.md`.
 `from=` and `from:` splice local files into this prompt.
 Help, tldr, pass, and empty do not read files.
+
+## Docify
+
+Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

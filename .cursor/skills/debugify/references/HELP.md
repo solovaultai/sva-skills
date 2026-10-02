@@ -47,7 +47,7 @@ Exact remaining body after flag strip must be `help`, `--help`,
 ## Flags (`Nimages` / `Npass`)
 
 Promptify Flag parse order: first numbered instance left to right;
-skip unnumbered `image` / `pass`. Strip before Help vs task. Cite
+skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip before Help vs task. Cite
 promptify — do not fork.
 
 **`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/` as existing evidence. Lead

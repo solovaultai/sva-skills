@@ -22,6 +22,7 @@
   .\scripts\cli.ps1 list
   .\scripts\cli.ps1 scratch show
   .\scripts\cli.ps1 scratch ls 3
+  .\scripts\cli.ps1 docify show
 #>
 # Do not use [CmdletBinding()]/param() — bash-style --force/--remote must
 # reach the manual parser instead of PowerShell parameter binding.
@@ -148,6 +149,7 @@ Usage:
   .\scripts\cli.ps1 list                             # list sshub connections
   .\scripts\cli.ps1 scratch show                     # screenshot folder for ify Nimages / Grok /image
   .\scripts\cli.ps1 scratch ls [N]                   # last-N image paths (default 5)
+  .\scripts\cli.ps1 docify show                      # docify defaults (scratch, format, path, prefix)
 
 Options:
   --force       Always install, even if dest is newer
@@ -193,6 +195,16 @@ Scratch source (ify Nimages and Grok /image last-N images):
   .\scripts\cli.ps1 scratch ls [N]
 Config: %LOCALAPPDATA%\sva-skills\scratch.env
 Install detects the screenshot folder and writes that file if unset.
+
+Docify defaults (typed-line docify / docpathify):
+  .\scripts\cli.ps1 docify show
+  .\scripts\cli.ps1 docify set scratch
+  .\scripts\cli.ps1 docify set format md|txt|docx|html
+  .\scripts\cli.ps1 docify set path <dir>
+  .\scripts\cli.ps1 docify set prefix <text>
+  .\scripts\cli.ps1 docify clear scratch|format|path|prefix
+Config: %LOCALAPPDATA%\sva-skills\docify.env
+Keys: scratch, format, path, prefix. docif and scrach are not keys.
 '@
     Write-Out $text
 }
@@ -1134,6 +1146,16 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'scratch') {
     exit 0
 }
 
+. (Join-Path $PSScriptRoot 'lib\docify_resolve.ps1')
+if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'docify') {
+    $docifyRest = @()
+    if ($CliArgs.Count -gt 1) {
+        $docifyRest = @($CliArgs[1..($CliArgs.Count - 1)])
+    }
+    Invoke-DocifyCommand -DocifyArgs $docifyRest
+    exit 0
+}
+
 # ── arg parse (same rules as cli.sh) ──────────────────────────
 
 function Test-KnownTarget {
@@ -1334,6 +1356,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, --help)"
+        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, docify, --help)"
     }
 }

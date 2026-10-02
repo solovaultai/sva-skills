@@ -72,6 +72,7 @@ instance** counts.
 |------|---------|
 | Numbered instance counts | `1image`, `1 image`, `1-image`, `3images`, `2pass`, `2-pass` |
 | Unnumbered word does **not** count | `image`, `images`, `pass`, `passes` — keep scanning |
+| First typed token `image` counts as `1image` | Any case; stripped. Later numbered image token does not override |
 | Later numbered wins over earlier unnumbered | `create an image of the run. 1image` → `1image` |
 | Several numbered → first only | Do **not** take the largest N |
 | No numbered instance → flag absent | Ordinary English “image” / “pass” is not a marker |

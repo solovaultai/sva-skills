@@ -35,6 +35,7 @@ Addify reuses the ancestor's prefix. Phasify is
 empty usage do not retitle.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write this verb's deliverable (see `docs/docify_contract.md`). Not a verb.
 
 ---
 
@@ -104,9 +105,10 @@ they said “ify this”.
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | — |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
 | **fromify** | Splice local files into a prompt. Defaults to plannify; a named ify verb on the line selects that verb. | — |
+| **docify** | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`. | — |
 | **ify** | Which verb / family help / tldr | — |
 
-**Ify set:** `addify` · `askify` · `debugify` · `fromify` · `ify` ·
+**Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
 `phasify` · `plannify` · `promptify` · `runnify`.
 
 ---
@@ -151,6 +153,7 @@ right. Each family independently. **First numbered instance** wins.
 |------|---------|
 | Numbered instance counts | `1image`, `1 image`, `1-image`, `3images`, `2pass`, `2-pass` |
 | Unnumbered word does **not** count | `image`, `images`, `pass`, `passes` — keep scanning |
+| First typed token `image` counts as `1image` | Any case; stripped. Later numbered image token does not override |
 | Several numbered → first only | Do **not** take the largest N |
 | No numbered instance → flag absent | Ordinary English “image” / “pass” is not a marker |
 | **`-2pass` is Npass** | Not a subcommand |

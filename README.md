@@ -9,7 +9,7 @@ Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
 
 Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases noted below).
 
-A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
+A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`, `DOC:`. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -22,6 +22,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
+| **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
@@ -98,6 +99,11 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /fromify help             — full fromify reference (also --help, /?)
 /fromify tldr             — short form (stop)
 <verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
+/docify <prompt>          — askify that prompt, then docify
+/docify <verb> <prompt>   — that ify verb instead of askify
+/docify help              — full docify reference (also --help, /?)
+/docify tldr              — short form (stop)
+<verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -121,6 +127,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
+| **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
 
 **Promptify family (Cursor):**
 
@@ -190,6 +197,11 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /fromify help             — full fromify reference (also --help, /?)
 /fromify tldr             — short form (stop)
 <verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
+/docify <prompt>          — askify that prompt, then docify
+/docify <verb> <prompt>   — that ify verb instead of askify
+/docify help              — full docify reference (also --help, /?)
+/docify tldr              — short form (stop)
+<verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -211,6 +223,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Slash-preferable. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Copilot tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. Slash-preferable. `/fromify help` (also `--help`, `/?`) prints the full reference. |
+| **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
 
 **Promptify family (Copilot):**
 
@@ -280,6 +293,11 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /fromify help             — full fromify reference (also --help, /?)
 /fromify tldr             — short form (stop)
 <verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
+/docify <prompt>          — askify that prompt, then docify
+/docify <verb> <prompt>   — that ify verb instead of askify
+/docify help              — full docify reference (also --help, /?)
+/docify tldr              — short form (stop)
+<verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).

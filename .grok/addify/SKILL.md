@@ -3,7 +3,7 @@ name: addify
 description: >
   Addify — append text to the previous ify call and restart or continue
   that skill. Recovers the last ify in this conversation (promptify,
-  plannify, phasify, runnify, debugify, askify, ify, fromify, or a prior addify),
+  plannify, phasify, runnify, debugify, askify, ify, fromify, docify, or a prior addify),
   verbatim-appends the addify body, and dispatches to that skill.
   Use when the user runs /addify, "addify", "add this to the last ify",
   or "append this to the previous ify". Print a complete reference with
@@ -80,6 +80,11 @@ first instance that counts**.
   `2images`, `3pass`, `2-pass`, `2 pass`, …
 - An **unnumbered** word does **not** count: `image`, `images`, `pass`,
   `passes`. Skip it and keep scanning.
+- Exception: the first token of the typed line, exactly `image` (any
+  case), counts as numbered `1image` (N=1) and is stripped. A later
+  numbered image token does not override it. `images` and a
+  non-leading `image` stay unnumbered. `phasify image` = `phasify
+  1image`. File bodies are not scanned.
 - If the first hit is unnumbered and a later hit **is numbered**, use
   that numbered instance.
 - If several numbered tokens appear, use only the **first** numbered
@@ -110,7 +115,9 @@ invokes an ify via slash, alias, or free-text (`"plannify this"`,
 store. Chat only.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify` · `fromify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify`.
+
+**docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 
 **Aliases → canonical**
 
@@ -193,6 +200,7 @@ table when that skill requires one).
 | **askify** | Restart `/askify` on combined text (new Ask-Kickoff + new answer). No fromhere exists. |
 | **ify** | Restart `/ify` on the combined text **from scratch** (same shape as askify / promptify). **Not** fromhere. |
 | **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
+| **docify** | Restart `/docify` on the original invocation plus the appended text. Flags re-parse. Default verb remains askify unless a verb token is present. |
 
 **fromhere + addify (phasify last):** same outcome as a user who ran
 `/plannify fromhere` but whose Task is the old Task plus the new
@@ -210,6 +218,10 @@ the banner.
 Cite `docs/from_contract.md`.
 `from=` and `from:` splice local files into this prompt.
 Help, tldr, pass, and empty do not read files.
+
+## Docify
+
+Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

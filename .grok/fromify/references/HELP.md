@@ -91,8 +91,10 @@ Optional leading `/`. Case-insensitive. That token is removed.
 Default **plannify**. Never select `fromify`. A later verb word stays
 in the body.
 
-**Ify verbs:** `addify` · `askify` · `debugify` · `ify` · `phasify` ·
+**Ify verbs:** `addify` · `askify` · `debugify` · `docify` · `ify` · `phasify` ·
 `plannify` · `promptify` · `runnify`.
+
+**docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 
 **Aliases:** `promptify-plan` / `planify` → plannify;
 `promptify-run` → runnify; `promptify-ask` → askify;
@@ -122,7 +124,7 @@ Per `docs/from_contract.md`:
 ## Flags (`Nimages` / `Npass`)
 
 Same parse order as promptify: first numbered instance left to
-right on the **typed line only**; skip unnumbered `image` / `pass`.
+right on the **typed line only**; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`).
 Strip **before** deciding Help vs task. Cite promptify **Flag parse
 order** — do not fork. Do not scan file bodies.
 
