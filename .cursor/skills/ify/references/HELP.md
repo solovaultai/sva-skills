@@ -27,6 +27,8 @@ Promptify-family **front door**: catalog, help, and router. Does
 It does **not** dispatch. `which` is an alias of `smart`. The
 user (or a later turn) runs that verb.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## When to use vs addify vs a direct verb
@@ -94,10 +96,11 @@ they said “ify this”.
 | **debugify** | Bug / failing / root cause — **kickoff only** (paste into Cursor Debug Mode; does not instrument or fix) | `/promptify-debug` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | — |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
+| **fromify** | Splice local files into a prompt. Defaults to plannify; a named ify verb on the line selects that verb. | — |
 | **ify** | Which verb / family help / tldr | — |
 
-**Ify set:** `addify` · `askify` · `debugify` · `ify` · `phasify` ·
-`plannify` · `promptify` · `runnify`.
+**Ify set:** `addify` · `askify` · `debugify` · `fromify` · `ify` ·
+`phasify` · `plannify` · `promptify` · `runnify`.
 
 ---
 

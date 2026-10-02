@@ -2,7 +2,7 @@
 name: ify
 description: >-
   Ify — catalog, help, and router for the Promptify family (plannify,
-  runnify, promptify, phasify, debugify, askify, addify, ify). Does not
+  runnify, promptify, phasify, debugify, askify, addify, fromify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, /ify help, /ify help <verb>, /ify tldr, /ify smart, or
   /ify which. smart (alias which) recommends a verb and does not
@@ -155,8 +155,8 @@ verb’s HELP.md.
 
 ### Ify set (known verbs)
 
-`addify` · `askify` · `debugify` · `ify` · `phasify` · `plannify`
-· `promptify` · `runnify`
+`addify` · `askify` · `debugify` · `fromify` · `ify` · `phasify`
+· `plannify` · `promptify` · `runnify`
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -276,6 +276,12 @@ help / tldr / pass when walking back; do **not** skip `smart`,
 `which`, or bare `/ify <prompt>`.
 
 ---
+
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
 
 ## Window title
 

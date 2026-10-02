@@ -4,6 +4,8 @@ Promptify in Ask mode. Coach the request into an ask-kickoff prompt,
 then run it read-only and return a cited answer. Never implements and
 never emits a plan.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /askify <prompt>       — answer only (read-only; do not print the plan)
 /askify plan <prompt>  — print the ask-kickoff plan, then answer

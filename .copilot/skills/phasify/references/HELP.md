@@ -24,6 +24,8 @@ phase(s).
 Need a new plan from current statuses? Use **`/plannify fromhere`**
 (plannify skill) — not a phasify mode.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## Concepts

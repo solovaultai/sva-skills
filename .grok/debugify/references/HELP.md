@@ -22,6 +22,8 @@ fix → verify → clean. Alias: `/debug`.
 
 For a read-only kickoff brief only, use `/debug-kickoff`.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

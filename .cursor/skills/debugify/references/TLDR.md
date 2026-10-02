@@ -5,6 +5,8 @@ the bug plus related code (read-only) and emit a copy-pasteable
 Debug-Kickoff Prompt. This skill does not instrument, fix, or mutate
 code.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /debugify <bug report>  — code analysis + Debug Mode kickoff prompt
 /debugify help          — this reference (also --help / /?)

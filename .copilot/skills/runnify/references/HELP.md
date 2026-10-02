@@ -22,6 +22,8 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 
 `/promptify` stops after the optimized prompt. `/runnify` does not.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

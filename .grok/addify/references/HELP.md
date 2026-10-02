@@ -29,6 +29,8 @@ skill. Does not optimize or plan by itself.
 
 Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke
@@ -67,7 +69,7 @@ task (append that text).
 Scan **this conversation** newest-first. Chat only — no disk store.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify`.
 
 **Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
 `/promptify-run` → runnify; `/promptify-ask` → askify;
@@ -114,6 +116,7 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 | **runnify — mid-run** | Continue from current phase statuses + new text (not greenfield). |
 | **askify** | Restart askify on the combined text. |
 | **ify** | Restart `/ify` from scratch on the combined text. **Not** fromhere. |
+| **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
 | **addify** | Resolve ancestor, then dispatch. |
 
 If phasify is last and no current plan exists, say `/plannify` first.

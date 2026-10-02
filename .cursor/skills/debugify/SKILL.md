@@ -325,6 +325,12 @@ Debug Mode steps are **Left** (`Not started` is fine if nothing has run).
 Do not mark later phases `Done` unless the workspace already shows that
 work landed.
 
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
+
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `DBG:`.

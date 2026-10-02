@@ -9,7 +9,7 @@ Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
 
 Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases noted below).
 
-A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
+A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -21,6 +21,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **debugify** | `/debugify`, `/debug`, `/debugify help`, `/debugify tldr` | **Grok Debug Mode (default / full loop).** Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. Not a speculative-fix loop. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
+| **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
@@ -92,6 +93,11 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /ify which <prompt>       — alias of smart
 /ify <prompt>             — implicit smart
 /ify pass help            — Pass (Npass) subsection (also /ify pass)
+/fromify <files>          — plannify those files (default verb)
+/fromify <verb> <files>   — that ify verb; file text is the body
+/fromify help             — full fromify reference (also --help, /?)
+/fromify tldr             — short form (stop)
+<verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -114,6 +120,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **debugify** | `/debugify`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Cursor Debug Mode kickoff only.** Code analysis + falsifiable hypotheses + copy-pasteable prompt for Cursor’s Debug mode. Does **not** instrument or fix — paste into Cursor Debug Mode to run the loop. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
+| **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 
 **Promptify family (Cursor):**
 
@@ -178,6 +185,11 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /ify which <prompt>       — alias of smart
 /ify <prompt>             — implicit smart
 /ify pass help            — Pass (Npass) subsection (also /ify pass)
+/fromify <files>          — plannify those files (default verb)
+/fromify <verb> <files>   — that ify verb; file text is the body
+/fromify help             — full fromify reference (also --help, /?)
+/fromify tldr             — short form (stop)
+<verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -198,6 +210,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **debugify** | `/debugify`, `/debug`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Copilot Debug Mode (full loop)** — same shape as Grok, not Cursor kickoff. Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. No `/debug-kickoff` in this tree. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Slash-preferable. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Copilot tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
+| **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. Slash-preferable. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 
 **Promptify family (Copilot):**
 
@@ -262,6 +275,11 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /ify which <prompt>       — alias of smart
 /ify <prompt>             — implicit smart
 /ify pass help            — Pass (Npass) subsection (also /ify pass)
+/fromify <files>          — plannify those files (default verb)
+/fromify <verb> <files>   — that ify verb; file text is the body
+/fromify help             — full fromify reference (also --help, /?)
+/fromify tldr             — short form (stop)
+<verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).

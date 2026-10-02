@@ -4,6 +4,8 @@ Promptify in Planning mode. Coach the request into a planning-kickoff
 prompt, then run that prompt read-only and emit a structured plan. Never
 implements, edits, or mutates the workspace.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
 /plannify fromhere     — replan from current statuses (also planify fromhere)

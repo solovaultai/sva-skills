@@ -25,6 +25,8 @@ an optimized execution-ready prompt.
 Workspace is source of truth. Never invent files, APIs, tools, DBs,
 or datasets.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

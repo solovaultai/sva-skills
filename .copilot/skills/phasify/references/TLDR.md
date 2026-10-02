@@ -4,6 +4,8 @@ Execute one or more phases of an existing plannify plan. Not a new
 planning pass and not a full-plan `/runnify`. Implement only the selected
 phase(s).
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /phasify                 — Next (one incomplete phase). Not help.
 /phasify next            — same as empty

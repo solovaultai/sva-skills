@@ -279,6 +279,12 @@ Statuses: `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Defe
 mark `Done` unless that phase landed. When evidence-already-sufficient skips
 instrumentation, mark Phase 2 `Deferred` and say so above.
 
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
+
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `DBG:`.

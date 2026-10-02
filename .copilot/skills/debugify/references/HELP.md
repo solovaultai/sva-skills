@@ -23,6 +23,8 @@ fix → verify → clean. Alias: `/debug`.
 This tree has no `/debug-kickoff`. For a brief only, say so; the
 agent stops after Investigate + Hypothesize (no instrument/fix).
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

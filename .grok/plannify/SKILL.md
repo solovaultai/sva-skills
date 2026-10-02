@@ -413,6 +413,12 @@ Confidence: XX
 see Trailing phase table)
 ```
 
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
+
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `PLAN:`.

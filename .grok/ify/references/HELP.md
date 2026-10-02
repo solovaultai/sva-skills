@@ -29,10 +29,12 @@ user (or a later turn) runs that verb.
 
 A real ify task sets the tmux window name so a row of Grok
 windows can be told apart. The contract is `docs/window_title.md`.
-Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`.
+Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`.
 Addify reuses the ancestor's prefix. Phasify is
 `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and
 empty usage do not retitle.
+
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
 ---
 
@@ -101,10 +103,11 @@ they said “ify this”.
 | **debugify** | Bug / failing / root cause — **full** Debug Mode loop (not Cursor’s kickoff-only debugify) | `/debug` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | — |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
+| **fromify** | Splice local files into a prompt. Defaults to plannify; a named ify verb on the line selects that verb. | — |
 | **ify** | Which verb / family help / tldr | — |
 
-**Ify set:** `addify` · `askify` · `debugify` · `ify` · `phasify` ·
-`plannify` · `promptify` · `runnify`.
+**Ify set:** `addify` · `askify` · `debugify` · `fromify` · `ify` ·
+`phasify` · `plannify` · `promptify` · `runnify`.
 
 ---
 

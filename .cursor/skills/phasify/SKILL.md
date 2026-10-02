@@ -1565,6 +1565,8 @@ print the **Pass (`Npass`)** section only.
 ## Hard rules
 - Cite `docs/window_title.md`. Name is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Set the tmux window name per that contract on a real task. Help, tldr, and pass do not retitle. Empty `/phasify` is Next, so it does.
 
+- Cite `docs/from_contract.md`. `from=` and `from:` splice local files into this prompt. Help, tldr, pass, and empty do not read files.
+
 - Execute only the selected phase(s). Do not re-plan the whole project.
   Use `/plannify fromhere` (plannify skill) to replan from current
   statuses.

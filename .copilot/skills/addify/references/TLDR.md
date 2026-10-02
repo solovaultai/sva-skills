@@ -4,6 +4,8 @@ A thin conversation router. Recovers the last ify in this chat,
 verbatim-appends the addify body, and dispatches to that skill. Does not
 optimize or plan by itself.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /addify <text>     — append <text> to the last ify and restart/continue that skill
 /addify help       — this reference (also --help / /?)

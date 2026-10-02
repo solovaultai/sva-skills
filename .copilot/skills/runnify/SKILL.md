@@ -74,6 +74,12 @@ Response format and pipeline: same as Promptify `/runnify` section in
 `~/.copilot/skills/promptify/SKILL.md` (Intent · Workspace · Optimized Prompt ·
 Scores · Results · **Phased plan last** when the work is multi-phase).
 
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
+
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `RUN:`.

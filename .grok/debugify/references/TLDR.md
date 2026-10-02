@@ -4,6 +4,8 @@ Grok Debug Mode — full loop (default). Runtime evidence loop, not a
 speculative-fix loop: hypothesize → instrument → repro → analyze → fix
 → verify → clean. Alias: `/debug`.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /debugify <bug report>      — full loop (default)
 /debugify help              — this reference (also --help / /?)

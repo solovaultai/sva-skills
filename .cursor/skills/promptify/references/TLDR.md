@@ -5,6 +5,8 @@ enrich with verified facts only, score readiness, and return an optimized
 execution-ready prompt. `/promptify` does not execute the work; `/runnify`
 does.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /promptify <prompt>    — analyze / validate / enrich / rewrite (no execute)
 /promptify help        — this reference (also --help / /?)

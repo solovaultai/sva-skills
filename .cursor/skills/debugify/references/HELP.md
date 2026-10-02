@@ -25,6 +25,8 @@ Paste the kickoff into Cursor **Debug** mode to run the loop
 (hypotheses → instrument → repro → analyze → targeted fix → verify →
 clean).
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

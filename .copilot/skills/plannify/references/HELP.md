@@ -24,6 +24,8 @@ a structured plan. Never implements, edits, or mutates the workspace.
 
 Alias: `/promptify-plan`.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ---
 
 ## How to invoke

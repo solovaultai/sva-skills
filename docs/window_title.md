@@ -43,11 +43,12 @@ from the end of the summary until it fits. Never cut the prefix.
 | promptify | `PROMPT: <summary>` |
 | askify | `ASK: <summary>` |
 | ify | `IFY: <summary>` |
+| fromify | `FROM: <summary>` |
 | addify | No prefix of its own. Re-apply the **ancestor** verb's row to the combined text. |
 | phasify | `PHASE:P<n>/<total>:<PREFIX>: <summary>` |
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
-`ASK`, `IFY`). `<summary>` is a few words of the recovered Task, not
+`ASK`, `IFY`, `FROM`). `<summary>` is a few words of the recovered Task, not
 a new sentence. If this window already shows `<PREFIX>: <summary>`,
 keep that summary text.
 

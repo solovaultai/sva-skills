@@ -3,7 +3,7 @@ name: addify
 description: >-
   Addify — append text to the last ify in this chat and restart or
   continue that skill. Recovers promptify, plannify, phasify, runnify,
-  debugify, askify, ify, or a prior addify. Use when the user runs
+  debugify, askify, ify, fromify, or a prior addify. Use when the user runs
   /addify or "add this to the last ify". Empty /addify is short usage.
   /addify help or tldr. Recognizes Nimages and Npass (addify-line
   wins the same family).
@@ -104,7 +104,7 @@ invokes an ify via slash, alias, or free-text (`"plannify this"`,
 store. Chat only.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify`.
 
 **Aliases → canonical**
 
@@ -187,6 +187,7 @@ table when that skill requires one).
 | **addify** | Not a leaf. Resolve ancestor + concatenate addify texts; dispatch on the ancestor type. |
 | **askify** | Restart `/askify` on combined text (new Ask-Kickoff + new answer). No fromhere exists. |
 | **ify** | Restart `/ify` on the combined text **from scratch** (same shape as askify / promptify). **Not** fromhere. |
+| **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
 
 **fromhere + addify (phasify last):** same outcome as a user who ran
 `/plannify fromhere` but whose Task is the old Task plus the new
@@ -198,6 +199,12 @@ or this repo’s `.copilot/skills/<name>/SKILL.md`) and follow it
 completely after the banner.
 
 ---
+
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
 
 ## Window title
 

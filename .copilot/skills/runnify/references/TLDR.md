@@ -4,6 +4,8 @@ Promptify in Execution mode. Analyze, validate, enrich, score, then
 execute only the optimized prompt and append Results. Alias:
 `/promptify-run`.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /runnify <prompt>      — optimize, then EXECUTE
 /runnify help          — this reference (also --help / /?)

@@ -266,6 +266,12 @@ row (caught-and-understood tokens + **On pass k of N**).
 **Placement:** Absolute end of the full response (after `## Answer`). Nothing
 after the table except an optional one-line next-step.
 
+## From files
+
+Cite `docs/from_contract.md`.
+`from=` and `from:` splice local files into this prompt.
+Help, tldr, pass, and empty do not read files.
+
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `ASK:`.

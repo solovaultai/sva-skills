@@ -3,6 +3,8 @@
 Promptify-family **front door**: catalog, help, and router. Does
 **not** plan, execute, debug, or answer domain questions.
 
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+
 ```text
 /ify                 — catalog + help + router (does not plan or execute)
 /ify help            — this family catalog (also --help, /?)
