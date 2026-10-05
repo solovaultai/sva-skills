@@ -33,6 +33,7 @@ or datasets.
 
 ```text
 /promptify <prompt>    — analyze / validate / enrich / rewrite (no execute)
+/prify <prompt>         — alias of /promptify
 /promptify help        — this reference (also --help / /?)
 /promptify tldr        — short form; stop
 /promptify pass        — Pass (Npass) subsection only (also pass help)

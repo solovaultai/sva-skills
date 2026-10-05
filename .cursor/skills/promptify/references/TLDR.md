@@ -9,6 +9,7 @@ does.
 
 ```text
 /promptify <prompt>    — analyze / validate / enrich / rewrite (no execute)
+/prify <prompt>         — alias of /promptify
 /promptify help        — this reference (also --help / /?)
 /promptify tldr        — short form (stop)
 /promptify pass        — Pass (Npass) subsection only (also pass help)
@@ -19,6 +20,7 @@ does.
 | Argument | What it does | Why |
 |----------|--------------|-----|
 | `<prompt>` | Analyze, validate, enrich, and rewrite (no execute) | Optimize the request against the real workspace |
+| `prify` | Alias of `/promptify` | Short name |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |

@@ -1,7 +1,8 @@
 ---
 name: phasify
 description: >-
-  Phasify — execute phase(s) of a plannified plan. Empty /phasify =
+  Phasify — execute phase(s) of a plannified plan. Aliases: /phaseify,
+  /phify. Empty /phasify =
   next incomplete. Named P0 (0/p0); next N (bare N≥1); done/toend =
   run-to-end; -N = stop-before-end. Modes: defer, undefer, rundefer,
   todo, explain, todone, block, unblock, runblock, remove (delete

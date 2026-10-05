@@ -597,6 +597,28 @@ function Get-ReasonForTs {
 
 # ── local install ─────────────────────────────────────────────
 
+# Parent-skill aliases shown on install/skip lines. Keep identical to
+# skill_alias_clause in scripts/cli.sh. Empty when the skill has none.
+function Get-SkillAliasClause {
+    param([string]$Name)
+    $aliases = switch ($Name) {
+        'phasify' { 'phaseify, phify' }
+        'plannify' { 'planify, plify, promptify-plan' }
+        'promptify' { 'prify' }
+        'debugify' { 'dbgify, debify, debug, promptify-debug' }
+        'runnify' { 'runify, promptify-run' }
+        'saveify' { 'savify' }
+        'resumeify' { 'resumify' }
+        'askify' { 'promptify-ask' }
+        default { '' }
+    }
+    if ($aliases) {
+        return "  (aliases: $aliases)"
+    }
+    return ''
+}
+
+
 function Invoke-RobocopyContents {
     param([string]$From, [string]$To)
     $robocopy = Join-Path $env:WINDIR 'System32\robocopy.exe'
@@ -621,15 +643,16 @@ function Install-SkillLocal {
         [string]$DestParent
     )
     $dest = Join-Path $DestParent $Name
+    $aliasClause = Get-SkillAliasClause $Name
     $srcTs = Get-NewestMtime $Src
     $destTs = Get-NewestMtime $dest
     if (-not (Test-ShouldInstallTs $srcTs $destTs)) {
-        Write-Out ("  skip  {0}  ({1})" -f $Name, (Get-ReasonForTs $srcTs $destTs))
+        Write-Out ("  skip  {0}{1}  ({2})" -f $Name, $aliasClause, (Get-ReasonForTs $srcTs $destTs))
         return
     }
     $why = Get-ReasonForTs $srcTs $destTs
     if ($script:DryRun) {
-        Write-Out ("  would install  {0}  ({1})  →  {2}" -f $Name, $why, $dest)
+        Write-Out ("  would install  {0}{1}  ({2})  →  {3}" -f $Name, $aliasClause, $why, $dest)
         return
     }
 
@@ -648,7 +671,7 @@ function Install-SkillLocal {
         Remove-Item -LiteralPath $dest -Recurse -Force
     }
     Move-Item -LiteralPath $staging -Destination $dest
-    Write-Out ("  install  {0}  ({1})  →  {2}" -f $Name, $why, $dest)
+    Write-Out ("  install  {0}{1}  ({2})  →  {3}" -f $Name, $aliasClause, $why, $dest)
 }
 
 function Get-TargetPaths {
@@ -968,19 +991,20 @@ function Install-SkillRemote {
         [string]$RelParent,
         [string]$ConnLabel
     )
+    $aliasClause = Get-SkillAliasClause $Name
     $srcTs = Get-NewestMtime $Src
     $destTs = [int64]0
     if ($script:RemoteMtime -and $script:RemoteMtime.ContainsKey($Name)) {
         $destTs = [int64]$script:RemoteMtime[$Name]
     }
     if (-not (Test-ShouldInstallTs $srcTs $destTs)) {
-        Write-Out ("  skip  {0}  ({1})" -f $Name, (Get-ReasonForTs $srcTs $destTs))
+        Write-Out ("  skip  {0}{1}  ({2})" -f $Name, $aliasClause, (Get-ReasonForTs $srcTs $destTs))
         return $true
     }
     $why = Get-ReasonForTs $srcTs $destTs
     $remoteDest = '{0}@{1}:~/{2}/{3}' -f $script:ResolvedUser, $script:ResolvedHost, $RelParent, $Name
     if ($script:DryRun) {
-        Write-Out ("  would install  {0}  ({1})  →  {2}" -f $Name, $why, $remoteDest)
+        Write-Out ("  would install  {0}{1}  ({2})  →  {3}" -f $Name, $aliasClause, $why, $remoteDest)
         return $true
     }
 
@@ -1033,7 +1057,7 @@ mv "`$stage" "`$dest"
         return $false
     }
 
-    Write-Out ("  install  {0}  ({1})  →  {2}" -f $Name, $why, $remoteDest)
+    Write-Out ("  install  {0}{1}  ({2})  →  {3}" -f $Name, $aliasClause, $why, $remoteDest)
     return $true
 }
 

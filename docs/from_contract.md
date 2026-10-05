@@ -201,12 +201,12 @@ empty plannify run.
 
 | Token | Selects |
 |-------|---------|
-| `promptify` | promptify |
-| `runnify`, `promptify-run` | runnify |
+| `promptify`, `prify` | promptify |
+| `runnify`, `runify`, `promptify-run` | runnify |
 | `askify`, `promptify-ask` | askify |
-| `plannify`, `planify`, `promptify-plan` | plannify |
-| `phasify` | phasify |
-| `debugify`, `promptify-debug` | debugify |
+| `plannify`, `planify`, `promptify-plan`, `plify` | plannify |
+| `phasify`, `phaseify`, `phify` | phasify |
+| `debugify`, `promptify-debug`, `dbgify`, `debify` | debugify |
 | `addify` | addify |
 | `ify` | ify |
 | `docify` | docify |

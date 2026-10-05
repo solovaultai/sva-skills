@@ -10,12 +10,13 @@ description: >-
   usage. /saveify delete lists, the user picks, then yes/no.
   /saveify delete <name> and /saveify delete <#> show that row, then
   yes/no. Every delete requires confirmation. Nothing is deleted on
-  the proposing turn. /saveify list prints every saved context and
-  displays the one you pick. It does not hand off to phasify and it
+  the proposing turn. /saveify list shows every saved context in a
+  selection and displays the one you pick. Choose none stops. It does
+  not hand off to phasify and it
   does not execute a phase. /saveify help or /saveify --help (also /?)
   prints the full reference. /saveify tldr prints the short page.
   /saveify pass and pass help print the Pass (Npass) subsection.
-  savify is a trigger word, not a command and not a folder. Canonical
+  savify is an alias of /saveify, not a folder. Canonical
   slash is /saveify. No smart mode. Recognizes nimages / Nimages /
   N images / N-images and npass / Npass / N-pass / N pass per
   promptify Flag parse order (stripped before the name; saveify does
@@ -39,11 +40,13 @@ You do not plan, execute, debug, answer, or restore. Restoring is
    CLI below.
 5. Set the window title on a save.
 
-Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` displays one snapshot and does not hand off to phasify.
+Cite `docs/saveify_contract.md` **List select**. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` uses that selection: a saved context is displayed and does not hand off to phasify. `Choose none` stops.
+
+Grok calls `ask_user_question` (one question, `multi_select` false). That is the primary path. Cursor calls `AskQuestion` with the same labels, single select. Copilot prints the rows and a final line `Choose none`. If `ask_user_question` is unavailable, use that printed list.
 
 Read that file and follow it. Do not paste a second store path,
 snapshot layout, auto-name, list order, or confirm rule. `savify`
-is a description trigger, not a command and not a folder. Canonical
+is an alias of `/saveify`, not a folder. Canonical
 slash is `/saveify`.
 
 Follow `~/.grok/skills/promptify/SKILL.md` for **Flag parse order**
@@ -79,7 +82,7 @@ Same exception shape as empty `/phasify` = Next.
 ```text
 /saveify                 — auto-name save
 /saveify <name>          — save under that name
-/saveify list            — list, pick a number, display only
+/saveify list            — selection list, display only; Choose none stops
 /saveify delete          — list, pick, then yes/no
 /saveify delete <name>   — that row, then yes/no
 /saveify delete <#>      — that position, then yes/no
@@ -171,30 +174,36 @@ First token `list` is a mode, not a name. It does not write,
 delete, or retitle. It does not need an ify context. Empty
 `/saveify` stays an auto-name save. Do not pass `--yes`.
 
-Call `saveify ls`. Print the contract’s numbered row (**List**
-in `docs/saveify_contract.md`). Show the text before the tab.
-The slug after the tab is not part of the row. Do not invent
-a second line.
+Call `saveify ls`. The option label is the contract’s numbered
+row (**List** in `docs/saveify_contract.md`): the text before
+the tab. The slug after the tab is not part of the label.
+Do not invent a second line. Print the rows only when
+`ask_user_question` is unavailable.
 
 No lines: `Nothing is saved.` Stop. Do not ask.
 
-Otherwise print the list and wait for a number. Same wait as
-the delete pick. Stop. Do not load yet. The next user message
-is the reply.
+Otherwise follow **List select** in `docs/saveify_contract.md`.
+Call `ask_user_question` (one question, `multi_select` false)
+with those labels, including `Choose none`. That is the primary
+path. Do not load yet. If the tool is unavailable, print the
+rows and a final line `Choose none`, then wait.
 
-A reply that is only digits is that `#`. Run `saveify ls`
-again. If that position is a different slug than the one
-shown, stop. **Error:** list changed. Do not display.
+A reply that is only digits is that `#`. `Choose none` stops.
+Run `saveify ls` again. If that position is a different slug
+than the one shown, stop. **Error:** list changed. Do not display.
 
 Out of range: **Error:** not found: `<n>`.
 
 A later slash command cancels the pending pick and runs that
-command. Any other reply re-asks. Do not load.
+command. `Choose none` stops. Any other reply re-asks. Do not load.
 
 On a matching number: `resolve` that slug. Display only, per
-**List select** in the contract. Do not say the next command
-is `/phasify`. Do not say the plan is complete. Do not run
-`/phasify`. Do not execute a phase.
+**List select** in the contract. For `kind` `plan`, end the
+printed `plan.md` at the line before `## Phased plan`. Leave
+that heading and every line under it out. Print `table.txt`
+next. That file is the only phase table in the display. Do
+not say the next command is `/phasify`. Do not say the plan
+is complete. Do not run `/phasify`. Do not execute a phase.
 
 ---
 
@@ -380,13 +389,15 @@ Help, tldr, pass, list, delete, `--help`, and `/?` do not retitle.
 - Capture task, flags, phase table, plan body, and kickoff per the
   contract. Cite phasify **Capture Task and Flags**. Snapshot files
   are recoverable artifacts, not the raw transcript.
-- `/saveify list` prints the **List** row, then displays the
-  snapshot for the number you pick. Display only. Do not say
-  `/phasify`. Do not execute a phase. A `#` that moved is
-  **Error:** list changed.
+- `/saveify list` uses **List select**, including `Choose none`.
+  A saved context is displayed. For `kind` `plan`, the
+  printed `plan.md` ends before `## Phased plan`, and
+  `table.txt` is the only phase table. Display only. Do not
+  say `/phasify`. Do not execute a phase. A `#` that moved
+  is **Error:** list changed.
 - Reserved first tokens are modes, not names, including `list`.
   Help, tldr, and pass print their page and stop. `savify` is
-  not a command. Empty `/saveify` is still an auto-name save.
+  an alias of `/saveify`. Empty `/saveify` is still an auto-name save.
 - `Nimages` / `Npass`: promptify Flag parse order. Do not fork. Do
   not loop.
 - Cite `docs/from_contract.md`, `docs/docify_contract.md`, and

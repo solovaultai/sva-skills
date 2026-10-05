@@ -13,7 +13,9 @@ implements, edits, or mutates the workspace.
 /plannify help         — this reference (also --help / /?)
 /plannify tldr         — short form (stop)
 /plannify pass         — Pass (Npass) subsection only (also pass help)
+/planify <prompt>        — alias of /plannify
 /promptify-plan <prompt>— alias of /plannify
+/plify <prompt>          — alias of /plannify
 ```
 
 | Argument | What it does | Why |
@@ -24,6 +26,8 @@ implements, edits, or mutates the workspace.
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
+| `planify` | Alias of `/plannify` | Short name |
+| `plify` | Alias of `/plannify` | Short name |
 | `promptify-plan` | Alias of `/plannify` | Same planning pipeline under the older name |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` | Carry what they show into the Planning-Kickoff Prompt and the plan |
 | `Npass` | N passes before producing the plan | If N > 1, pass 1 is pre-plan only; last pass produces the kickoff and Plan |

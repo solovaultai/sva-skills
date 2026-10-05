@@ -8,6 +8,8 @@ second file. Controls follow `docs/docify_contract.md`.
 /docify <prompt>              — askify that prompt, then docify
 /docify <controls> <prompt>   — same, with those directive controls
 /docify <verb> <prompt>       — that ify verb instead of askify
+/docify                        — write the last ify when one exists
+/docify:html                   — write that last ify as html
 /docify help                  — full reference (also --help / /?)
 /docify tldr                  — short form (stop)
 /docify pass                  — Pass (Npass) subsection only (also pass help)
@@ -34,6 +36,9 @@ writes `SHOW_ME_ALL_OF_THE_OPTIONS.html` and opens it.
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill. Cite `/promptify pass help` |
 | `Nimages` / `Npass` | Flags handed to the selected verb | This skill does not run its own pass loop |
 | `set` with no prompt | `./scripts/cli.sh docify` (or `cli.ps1`) and stop | Store only. No file |
+| `/docify:html` with no prompt | Write the last ify as html | Does not dispatch askify |
 
-Help, tldr, pass, and empty usage do not dispatch and do not write.
+Help, tldr, and pass do not dispatch and do not write.
 `/docify:set:txt` with no prompt changes the store only.
+A write with no prompt writes the last ify deliverable.
+Empty `/docify` with no last ify is short usage.

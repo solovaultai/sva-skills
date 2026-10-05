@@ -18,7 +18,7 @@ Empty `/debugify` is the short usage cheat, not this page.
 
 **Grok Debug Mode — full loop** (default). Runtime evidence loop, not
 a speculative-fix loop: hypothesize → instrument → repro → analyze →
-fix → verify → clean. Alias: `/debug`.
+fix → verify → clean. Aliases: `/dbgify`, `/debify`, `/debug`.
 
 For a read-only kickoff brief only, use `/debug-kickoff`.
 
@@ -33,7 +33,9 @@ For a read-only kickoff brief only, use `/debug-kickoff`.
 /debugify help              — this reference (also --help / /?)
 /debugify tldr              — short form; stop
 /debugify pass              — Pass (Npass) subsection only (also pass help)
+/dbgify <bug report>       — alias of /debugify
 /debug <bug report>         — alias of /debugify
+/debify <bug report>        — alias of /debugify
 /debug-kickoff <bug report> — read-only brief (no edits)
 ```
 

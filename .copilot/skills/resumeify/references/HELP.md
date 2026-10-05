@@ -26,8 +26,8 @@ Store, list order, and reprint follow `docs/saveify_contract.md`.
 This page does not restate that store.
 
 ```text
-/resumeify                — list, newest first; do not restore
-/resumeify list           — same list, then restore the one you pick
+/resumeify                — selection list, newest first; Choose none stops
+/resumeify list           — same selection, then restore the one you pick
 /resumeify <name>         — restore that snapshot
 /resumeify <#>            — restore list position (1 = newest)
 /resumeify help           — this reference (also --help / /?)
@@ -35,7 +35,7 @@ This page does not restate that store.
 /resumeify pass           — Pass (Npass) subsection only (also pass help)
 ```
 
-Canonical slash is `/resumeify`. `resumify` is not a command.
+Canonical slash is `/resumeify`. `resumify` is an alias, not a folder.
 
 ---
 
@@ -51,7 +51,9 @@ Canonical slash is `/resumeify`. `resumify` is not a command.
 /resumeify pass help
 ```
 
-Empty `/resumeify` prints the list and stops. A name restores that
+Empty `/resumeify` and `/resumeify list` use **List select** in
+`docs/saveify_contract.md`, including `Choose none`. `Choose none`
+stops. A saved context restores. A name restores that
 row. A number restores that position in the list you would see now.
 `1` is the newest. The number is not a permanent id.
 
@@ -66,8 +68,8 @@ when they said “resumeify that plan”.
 
 | Invocation | Mode | What happens |
 |------------|------|----------------|
-| `/resumeify` *(empty)* | **List** | Newest first. No restore. Does not ask. Name unchanged |
-| `/resumeify list` | **List select** | Same list, then a number or a name. That pick restores for `/phasify` |
+| `/resumeify` *(empty)* | **List** | Selection list, newest first. A saved context restores. `Choose none` stops. Name unchanged on that turn |
+| `/resumeify list` | **List select** | Same selection. A saved context restores for `/phasify`. `Choose none` stops |
 | `/resumeify <name>` | **Restore** | Reprint that snapshot |
 | `/resumeify <#>` | **Restore** | `#` is current position, 1 = newest |
 | `/resumeify help` / `--help` / `/?` | **Help** | Print this page; stop |
@@ -93,14 +95,14 @@ Newest saved first. The row is **List** in `docs/saveify_contract.md`:
 Phase count once, after the verb. Then the stage, then Blocks,
 then Defers, then cwd.
 
-No rows: nothing is saved. Empty `/resumeify` does not restore and
-does not change the window name. It does not ask.
+No rows: nothing is saved.
 
-`/resumeify list` prints that same list and asks for a number or a
-name. The pick reprints the snapshot. If any work phase is not
-Done, the next command is `/phasify`. If every work phase is Done,
-the plan is complete. The asking turn does not retitle. The restore
-does.
+Empty `/resumeify` and `/resumeify list` use that selection,
+including `Choose none`. `Choose none` stops and does not change
+the window name. A saved context reprints the snapshot. If any
+work phase is not Done, the next command is `/phasify`. If every
+work phase is Done, the plan is complete. The asking turn does
+not retitle. The restore does.
 
 ---
 
@@ -192,8 +194,8 @@ was no plan. Resumeify stops there.
 
 - Thin front end: list, or restore one snapshot. No planning. No
   phase execution. No delete.
-- Empty `/resumeify` lists newest first and does not restore.
-  `/resumeify list` asks, then restores that pick for `/phasify`.
+- Empty `/resumeify` and `/resumeify list` use **List select**,
+  including `Choose none`. A saved context restores for `/phasify`.
   Exact `list` is not a snapshot name.
 - `<#>` is the current list position. `1` is newest. It is not a
   stable id.

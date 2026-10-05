@@ -19,7 +19,7 @@ Empty `/phasify` is **Next**, not this page.
 
 Execute one or more phases of an existing **plannify** plan. Not a new
 planning pass and not a full-plan `/runnify`. Implement only the selected
-phase(s).
+phase(s). Aliases: `/phaseify`, `/phify`.
 
 Need a new plan from current statuses? Use **`/plannify fromhere`**
 (plannify skill) — not a phasify mode.

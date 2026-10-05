@@ -3,7 +3,7 @@ name: plannify
 description: >-
   Plannify — Promptify planning mode: coach into a planning-kickoff
   prompt, then produce a structured plan (read-only). Use when the user
-  runs /plannify, /promptify-plan, /plannify fromhere (alias planify
+  runs /plannify, /planify, /plify, /promptify-plan, /plannify fromhere (alias planify
   fromhere), /plannify add, or "plan this prompt". fromhere replans
   from current statuses (Keep new vs Continue original in Copilot
   chat). add surgically adds a feature (last ify must be plannify or
@@ -33,7 +33,7 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
      score < 80)
    - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
 2. Force mode = **Planning** (`/plannify`), even if the user only said "plannify".
-3. Treat `/promptify-plan` as an alias of this skill.
+3. Treat `/planify`, `/promptify-plan`, and `/plify` as aliases of this skill.
 4. Treat `/plannify fromhere` and `planify fromhere` as **fromhere**
    (see **`/plannify fromhere`**). Not a greenfield plan.
 5. Treat `/plannify add <feature>` as **Add** (see **`/plannify

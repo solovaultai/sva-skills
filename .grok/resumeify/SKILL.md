@@ -2,9 +2,9 @@
 name: resumeify
 description: >-
   Resumeify — list and restore a saved ify context. Empty /resumeify
-  lists saved contexts, newest first, and does not restore or retitle.
-  /resumeify list prints that list and restores the one you pick so a
-  later /phasify can continue. /resumeify <name> or /resumeify <#>
+  and /resumeify list show saved contexts in one selection, newest
+  first. Choose none stops without restore or retitle. A saved
+  context restores so a later /phasify can continue. /resumeify <name> or /resumeify <#>
   reprints that row so a later /phasify can continue. # is the current
   list position (1 = newest),
   not a stable id. Use when the user runs /resumeify, "resumify", or
@@ -29,22 +29,30 @@ run `/phasify`.
 
 1. If a list pick is pending, handle that reply first.
 2. Parse help / tldr / pass / list / flags on the typed line.
-3. Empty remaining body: list. Do not restore. Do not ask.
-4. Remaining body exactly `list`: print the list and ask. Do not
-   restore yet.
+3. Empty remaining body: selection list. Do not restore until a
+   saved context is chosen. `Choose none` stops.
+4. Remaining body exactly `list`: same selection. Do not restore
+   until a saved context is chosen.
 5. A name or `#`: load that row and reprint it.
 6. Stop. A later `/phasify` continues from a restore.
 
-Cite `docs/saveify_contract.md`. List and restore go through that
-store. Help, tldr, and pass do not write. Empty `/resumeify` lists
-and does not restore. `/resumeify list` restores the pick so
-`/phasify` can continue. Do not paste a second store format.
+Cite `docs/saveify_contract.md` **List select**. List and restore
+go through that store. Help, tldr, and pass do not write. Empty
+`/resumeify` and `/resumeify list` use that selection. A saved
+context restores so `/phasify` can continue. `Choose none` stops.
+Do not paste a second copy of the rule.
+
+Grok calls `ask_user_question` (one question, `multi_select` false).
+That is the primary path. Cursor calls `AskQuestion` with the same
+labels, single select. Copilot prints the rows and a final line
+`Choose none`. If `ask_user_question` is unavailable, use that
+printed list.
 
 Follow `~/.grok/skills/promptify/SKILL.md` for **Flag parse order**.
 Do not fork a second parse. Do not run a second pass loop.
 
-Canonical slash is `/resumeify`. `resumify` is a description trigger
-word, not a command and not a folder.
+Canonical slash is `/resumeify`. `resumify` is an alias of
+`/resumeify`, not a folder.
 
 ---
 
@@ -68,7 +76,7 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
 Do not list, resolve, or retitle on help, tldr, or pass. `help me …`
 is a **name**, not Help. `list` is reserved only when it is the whole
 remaining body. A flag-only line (`/resumeify 2pass`, `/resumeify 1image`)
-is **empty** after the strip: list, do not restore.
+is **empty** after the strip: selection list. `Choose none` stops.
 
 ---
 
@@ -102,23 +110,25 @@ store path. A directory the CLI omits is not a row.
 
 `ls` is newest first and exits 0 when nothing is saved. One snapshot
 per line: the **List** row from `docs/saveify_contract.md`, then a
-tab, then the slug. Show the row. Keep the slug. Do not invent a
-second line. Do not re-sort.
+tab, then the slug. The option label is the text before the tab.
+Keep the slug. Do not invent a second line. Do not re-sort.
 
 `<n>` is the 1-based position in that line order. `1` is the newest.
 It is not stored and it is not a stable id.
 
 No lines: print `Nothing is saved.` and stop. Do not ask.
 
-Otherwise print this banner, then one row per line (the text before
-the tab):
+Otherwise follow **List select** in `docs/saveify_contract.md`.
+Print this banner, then the selection. On the `ask_user_question`
+path, do not also print the rows and wait for a number.
 
 ```text
 **Resumeify — saved contexts.**
 ```
 
-Empty `/resumeify` stops there. It does not ask and it does not
-restore.
+`Choose none` stops. Do not restore. A saved-context choice is a
+restore per **List select**. Set `RESUME:` on that restore. Do not
+run `/phasify`.
 
 ---
 
@@ -130,8 +140,11 @@ and does not restore.
 
 No lines: `Nothing is saved.` Stop. Do not ask.
 
-Otherwise print the list and wait for a number or a name. Same wait
-as saveify’s delete pick. Stop. The next user message is the reply.
+Otherwise use the same selection as empty `/resumeify`. Follow
+**List select**. Call `ask_user_question` (one question,
+`multi_select` false), including `Choose none`. That is the
+primary path. Do not restore yet. If the tool is unavailable,
+print the rows and a final line `Choose none`, then wait.
 
 A digits-only reply is that `#`. Run `saveify ls` again. If that
 position is a different slug than the one shown, **Error:** list
@@ -144,7 +157,7 @@ list. Do not restore. More than one display name: **Error:**
 ambiguous, then the list.
 
 A later slash command cancels the pending pick and runs that
-command. Any other reply re-asks. Do not restore.
+command. `Choose none` stops. Any other reply re-asks. Do not restore.
 
 On a match: this is a restore. Follow **Restore** and **Reprint**,
 including the `/phasify` sentence when any work phase is not Done,
@@ -195,7 +208,8 @@ not write a substitute.
 ## Reprint
 
 `<name>` is `display_name`. `<date>` is `saved_at`. Print the banner,
-then the saved body, verbatim.
+then the saved body. For `kind` `plan`, the printed `plan.md` ends
+at the line before `## Phased plan`.
 
 ```text
 **Resumeify — restored `<name>`.**
@@ -215,10 +229,18 @@ Workspace differs from this session. Not changing directory.
 
 Do not change directory.
 
-`kind` `plan`, in order: banner, the `plan.md` path line when that
-file exists, the workspace line when `cwd` differs, full `plan.md`
-when present, then `table.txt` when present. The Task row in that
-table is the task.
+`kind` `plan` display, after the banner, the path line, and the
+workspace line:
+
+1. When `table.txt` exists, print `plan.md` and end that print at
+   the line before `## Phased plan`. Leave that heading and every
+   line under it out of the display. Then print `table.txt`. That
+   print is the only phase table.
+2. When `plan.md` exists and `table.txt` is absent, print `plan.md`
+   in full.
+3. When `plan.md` is absent, print `table.txt`.
+
+The Task row in that table is the task.
 
 `kind` `other`, in order: banner, the `plan.md` path line when that
 file exists, the workspace line when `cwd` differs, full `task.txt`,
@@ -253,8 +275,9 @@ Set the tmux window name per that contract on a real restore.
 The summary is the words after the ancestor prefix in the snapshot
 `window_title`. When that is empty, use the first words of
 `display_name`. Do not invent a second prefix.
-Help, tldr, pass, empty `/resumeify`, and the asking turn of
-`/resumeify list` do not retitle. The restore after a list pick does.
+Help, tldr, pass, `Choose none`, and the asking turn do not
+retitle. A saved-context restore does, including empty
+`/resumeify` and `/resumeify list`.
 
 ## Hard rules
 
@@ -265,12 +288,10 @@ Help, tldr, pass, empty `/resumeify`, and the asking turn of
   (`./scripts/cli.sh`, or `scripts/cli.ps1` on Windows). Do not
   delete. Do not call `saveify rm`. Do not paste a second store
   format.
-- Empty `/resumeify` lists newest first and does not restore. It
-  is not a save and it does not retitle. No rows: `Nothing is saved.`
-- `/resumeify list` is the same list, then a number or a name.
-  That pick is a restore (next command `/phasify` when any work
-  phase is not Done). Exact body `list` is not a snapshot name.
-  The asking turn does not retitle.
+- Empty `/resumeify` and `/resumeify list` use **List select**.
+  `Choose none` stops. A saved context restores (next command
+  `/phasify` when any work phase is not Done). Not a save. The
+  asking turn does not retitle. No rows: `Nothing is saved.`
 - `#` is the current list position (`1` = newest), not a stable id.
   Digits are always a position. If that position's slug changed
   before you read, **Error:** list changed. Do not restore.
@@ -286,6 +307,7 @@ Help, tldr, pass, empty `/resumeify`, and the asking turn of
   `references/TLDR.md` and stop. Exact `pass` / `pass help`: print
   the **Pass (`Npass`)** section and stop.
 - Cite `docs/window_title.md`. Prefix `RESUME:`. Set it on a real
-  restore, including a `/resumeify list` pick. Help, tldr, pass,
-  empty list, and the asking turn do not retitle.
-- Canonical slash is `/resumeify`. `resumify` is not a folder.
+  restore, including empty `/resumeify` and a `/resumeify list`
+  pick. Help, tldr, pass, `Choose none`, and the asking turn do
+  not retitle.
+- Canonical slash is `/resumeify`. `resumify` is an alias, not a folder.

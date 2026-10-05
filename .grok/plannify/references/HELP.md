@@ -22,7 +22,7 @@ Promptify in **Planning** mode. Coach the request into a
 planning-kickoff prompt, then run that prompt **read-only** and emit
 a structured plan. Never implements, edits, or mutates the workspace.
 
-Alias: `/promptify-plan`.
+Aliases: `/planify`, `/plify`, `/promptify-plan`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
@@ -37,7 +37,9 @@ Alias: `/promptify-plan`.
 /plannify help         — this reference (also --help / /?)
 /plannify tldr         — short form; stop
 /plannify pass         — Pass (Npass) subsection only (also pass help)
+/planify <prompt>        — alias of /plannify
 /promptify-plan <prompt>— alias of /plannify
+/plify <prompt>          — alias of /plannify
 ```
 
 The prompt to plan is everything after the command, or the free-text

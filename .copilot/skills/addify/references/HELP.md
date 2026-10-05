@@ -74,9 +74,10 @@ Scan **this conversation** newest-first. Chat only — no disk store.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
-**Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
-`/promptify-run` → runnify; `/promptify-ask` → askify;
-`/promptify-debug` → debugify; `savify` → saveify;
+**Aliases:** `/promptify-plan` / `planify` / `planify fromhere` / `plify` → plannify;
+`/promptify-run` / `runify` → runnify; `/promptify-ask` → askify;
+`/promptify-debug` / `dbgify` / `debify` → debugify; `phaseify` / `phify` → phasify;
+`prify` → promptify; `savify` → saveify;
 `resumify` → resumeify.
 
 **Skip:** help-only turns; exact `tldr` on any ify verb (same as

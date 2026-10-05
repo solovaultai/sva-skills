@@ -17,8 +17,8 @@ Empty `/runnify` is the short usage cheat, not this page.
 ## What it does
 
 Promptify in **Execution** mode. Analyze, validate, enrich, score, then
-**execute only the optimized prompt** and append **Results**. Alias:
-`/promptify-run`.
+**execute only the optimized prompt** and append **Results**. Aliases:
+`/runify`, `/promptify-run`.
 
 `/promptify` stops after the optimized prompt. `/runnify` does not.
 
@@ -33,6 +33,7 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 /runnify help          — this reference (also --help / /?)
 /runnify tldr          — short form; stop
 /runnify pass          — Pass (Npass) subsection only (also pass help)
+/runify <prompt>       — alias of /runnify
 /promptify-run <prompt>— alias of /runnify
 /promptify <prompt>    — analyze only (no execute)
 ```

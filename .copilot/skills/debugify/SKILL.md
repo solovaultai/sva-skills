@@ -3,7 +3,7 @@ name: debugify
 description: >-
   Debugify — Copilot full debug loop: hypothesize, instrument,
   reproduce, evidence-backed fix, verify, remove probes. Use when the
-  user runs /debugify, /debug, "debug this", "root-cause this", or
+  user runs /debugify, /dbgify, /debify, /debug, "debug this", "root-cause this", or
   wants an in-agent debug loop. Not a speculative-fix loop. Prefer
   this over a kickoff-only brief. /debugify help or tldr. Recognizes
   Nimages.
@@ -19,7 +19,7 @@ instrument → repro → analyze → fix → verify → clean). This tree has
 no `/debug-kickoff`. If they only want a brief, stop after
 Investigate + Hypothesize (no instrument/fix).
 
-Treat `/debug` as an alias of this skill.
+Treat `/dbgify`, `/debug`, and `/debify` as aliases of this skill.
 
 Follow `~/.copilot/skills/promptify/SKILL.md` Hard rules, **Flag parse
 order**, **Scratch images**, and **Multi-pass**.

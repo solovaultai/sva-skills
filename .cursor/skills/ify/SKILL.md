@@ -172,10 +172,12 @@ verb’s HELP.md.
 
 | Alias | Canonical |
 |-------|-----------|
-| `promptify-plan`, `planify` | plannify |
-| `promptify-run` | runnify |
+| `promptify-plan`, `planify`, `plify` | plannify |
+| `promptify-run`, `runify` | runnify |
 | `promptify-ask` | askify |
-| `promptify-debug` | debugify |
+| `promptify-debug`, `dbgify`, `debify` | debugify |
+| `phaseify`, `phify` | phasify |
+| `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
 | `ify` | ify (own HELP / own tldr) |

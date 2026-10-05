@@ -2,7 +2,7 @@
 name: runnify
 description: >-
   Runnify — Promptify execution mode: optimize the prompt, then execute
-  it and return Results. Use when the user runs /runnify, /promptify-run,
+  it and return Results. Use when the user runs /runnify, /runify, /promptify-run,
   or "runnify". /runnify help (also --help, /?) prints the reference;
   tldr and pass help are short pages. Recognizes Nimages and Npass.
 argument-hint: "[<prompt>]"
@@ -19,7 +19,7 @@ You are running **Promptify in Execution mode** (`/runnify`).
 2. Force mode = **Execution** (`/runnify`), even if the user only said "runnify".
 3. Do **not** stop after Optimized Prompt + Scores — **execute** the optimized
    prompt, then append **Results**.
-4. Treat `/promptify-run` as an alias of this skill.
+4. Treat `/runify` and `/promptify-run` as aliases of this skill.
 5. If the work is (or continues) a **multi-phase plan**, the **last printed
    item** after Results is the Trailing phase status table (completed vs
    left-to-do) defined in promptify. Nothing after that table except an

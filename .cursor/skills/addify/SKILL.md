@@ -122,10 +122,12 @@ store. Chat only.
 
 | Alias / wording | Canonical |
 |-----------------|-----------|
-| `/promptify-plan`, `planify fromhere` | plannify |
-| `/promptify-run` | runnify |
+| `/promptify-plan`, `planify`, `planify fromhere`, `plify` | plannify |
+| `/promptify-run`, `runify` | runnify |
 | `/promptify-ask` | askify |
-| `/promptify-debug` | debugify |
+| `/promptify-debug`, `dbgify`, `debify` | debugify |
+| `phaseify`, `phify` | phasify |
+| `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
 

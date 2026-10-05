@@ -19,7 +19,7 @@ Empty `/debugify` is the short usage cheat, not this page.
 Promptify in **Debug** mode — a **kickoff coach** for Cursor Debug Mode.
 Analyze the bug + related code (read-only) and emit a copy-pasteable
 Debug-Kickoff Prompt. This skill does **not** instrument, fix, or
-mutate code. Alias: `/promptify-debug`.
+mutate code. Aliases: `/dbgify`, `/debify`, `/promptify-debug`.
 
 Paste the kickoff into Cursor **Debug** mode to run the loop
 (hypotheses → instrument → repro → analyze → targeted fix → verify →
@@ -36,7 +36,9 @@ clean).
 /debugify help          — this reference (also --help / /?)
 /debugify tldr          — short form; stop
 /debugify pass          — Pass (Npass) subsection only (also pass help)
+/dbgify <bug>            — alias of /debugify
 /promptify-debug <bug>  — alias of /debugify
+/debify <bug>            — alias of /debugify
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,

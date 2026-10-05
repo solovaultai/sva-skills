@@ -4,7 +4,7 @@ description: >-
   Runnify — Promptify execution mode. Analyze user intent, validate against the
   real Cursor workspace, enrich and rewrite the prompt, score readiness, then
   execute only the optimized prompt and return Results. Use when the user runs
-  /runnify, /promptify-run, "runnify", or wants prompt QA plus immediate
+  /runnify, /runify, /promptify-run, "runnify", or wants prompt QA plus immediate
   execution.   Print a complete reference with `/runnify help` or
   `/runnify --help` (also `/?`). `/runnify tldr` prints the short
   page. `/runnify pass help` prints the Pass
@@ -23,7 +23,7 @@ You are running **Promptify in Execution mode** (`/runnify`).
 2. Force mode = **Execution** (`/runnify`), even if the user only said "runnify".
 3. Do **not** stop after Optimized Prompt + Scores — **execute** the optimized
    prompt, then append **Results**.
-4. Treat `/promptify-run` as an alias of this skill.
+4. Treat `/runify` and `/promptify-run` as aliases of this skill.
 5. If the work is (or continues) a **multi-phase plan**, the **last printed
    item** after Results is the Trailing phase status table (completed vs
    left-to-do) defined in promptify. Nothing after that table except an

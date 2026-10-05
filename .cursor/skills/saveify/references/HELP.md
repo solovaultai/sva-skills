@@ -26,13 +26,13 @@ Store path, snapshot files, `meta.json`, slug, auto-name, list
 order, and confirm text: `docs/saveify_contract.md`. This page does
 not restate that layout.
 
-`savify` is a trigger word, not a command and not a folder.
+`savify` is an alias of `/saveify`, not a folder.
 Canonical slash is `/saveify`.
 
 ```text
 /saveify                 — auto-name save
 /saveify <name>          — save under that name
-/saveify list            — list, pick a number, display only
+/saveify list            — selection list, display only; Choose none stops
 /saveify delete          — list, pick, then yes/no
 /saveify delete <name>   — that row, then yes/no
 /saveify delete <#>      — that position, then yes/no
@@ -81,7 +81,7 @@ taken off. A free-text “save the ify context” is this verb too.
 |------------|------|----------------|
 | `/saveify` *(empty)* | **Auto-name save** | Real save. Not short usage. Sets `SAVE:` |
 | `/saveify <name>` | **Named save** | Write that snapshot. Existing name asks yes/no first |
-| `/saveify list` | **List** | Print the list. You pick a number. Display only. No `/phasify` |
+| `/saveify list` | **List** | Selection list. A saved context is display only. `Choose none` stops. No `/phasify` |
 | `/saveify delete` | **Delete** | Print the list. You pick. Then yes/no |
 | `/saveify delete <name>` | **Delete** | Show that row. Yes/no |
 | `/saveify delete <#>` | **Delete** | Show that position. Yes/no |
@@ -117,7 +117,8 @@ printed. It is not a permanent id.
 
 ## List
 
-`/saveify list` prints every saved context, then asks for a number.
+`/saveify list` uses **List select** in `docs/saveify_contract.md`,
+including `Choose none`. A saved context redisplays that snapshot.
 The row is **List** in `docs/saveify_contract.md`:
 
 ```text
@@ -257,8 +258,8 @@ name.
 - Empty `/saveify` is an auto-name save, not short usage.
 - An existing name asks yes/no before replace. Auto-name does not
   overwrite.
-- `/saveify list` shows the **List** row and displays the number
-  you pick. Display only. It does not hand off to `/phasify`.
+- `/saveify list` uses **List select**, including `Choose none`, and
+  displays the saved context you pick. Display only. It does not hand off to `/phasify`.
 - Every delete asks yes/no. Bare delete lists, you pick, then
   yes/no. Nothing is deleted on the proposing line. The candidate
   rows use that same **List** line.

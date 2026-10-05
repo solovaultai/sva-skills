@@ -9,8 +9,8 @@ If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
 section below and stop. There is no `/pass` skill.
 
-Empty `/docify` is the short usage cheat, not this page.
-`help me …` is a **prompt**, not Help.
+Empty `/docify` with no last ify is the short usage cheat, not
+this page. `help me …` is a **prompt**, not Help.
 
 ---
 
@@ -25,17 +25,27 @@ plan, or write a second file. The selected verb writes under
 /docify <prompt>              — askify that prompt, then docify
 /docify <controls> <prompt>   — same, with those directive controls
 /docify <verb> <prompt>       — that ify verb instead of askify
+/docify                        — write the last ify when one exists
+/docify:html                   — write that last ify as html
 /docify help                  — this reference (also --help / /?)
 /docify tldr                  — short form; stop
 /docify pass                  — Pass (Npass) subsection only (also pass help)
 ```
 
-Empty `/docify` is **short usage**, not Help. Help, tldr, pass, and
-empty usage do not dispatch and do not write.
+Empty `/docify` with no last ify is **short usage**, not Help.
+Help, tldr, and pass do not dispatch and do not write.
 
 `/docify:set:txt` with no prompt runs `./scripts/cli.sh docify` (or
 `scripts/cli.ps1 docify`) and stops. The store changes. No file is
 written.
+
+`/docify:html` with no prompt writes the last ify in this
+conversation as html. Bare `/docify` writes that same deliverable
+in the default format. Cite **No prompt** in
+`docs/docify_contract.md`. Resumeify writes the reprinted body.
+Saveify writes the snapshot. Do not dispatch askify. Do not
+re-run the verb. No recoverable ify: **Error:** nothing to
+docify, then short usage. Do not write an empty file.
 
 ---
 
@@ -125,5 +135,7 @@ Cite promptify **Multi-pass**. Do not fork it.
   askify. Only that token. Never select `docify`.
 - `docify:html` with no filename writes a generated `.html` file.
   `docify:html:path:test.md` writes markdown.
-- Help, tldr, pass, and empty do not dispatch and do not write.
+- Help, tldr, and pass do not dispatch and do not write.
+- A write with no prompt writes the last ify deliverable.
+  Empty `/docify` with no last ify is short usage.
 - `/docify:set:txt` with no prompt changes the store only.

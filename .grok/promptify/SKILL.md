@@ -4,7 +4,7 @@ description: >
   Promptify — Prompt Engineering, Environment Validation, and Execution Readiness.
   Analyzes user intent, validates prompts against the real workspace, enriches with
   verified assets only, scores readiness, and returns an optimized execution-ready
-  prompt. Use when the user runs /promptify, /runnify, /promptify-run (alias),
+  prompt. Use when the user runs /promptify, /prify, /runnify, /promptify-run (alias),
   "promptify", "runnify", "optimize this prompt", "rewrite this prompt for this
   workspace", "prompt QA", or wants a prompt improved against actual files/tools
   before (or while) executing it. Print a complete reference with

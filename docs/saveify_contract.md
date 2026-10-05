@@ -7,8 +7,9 @@ second store path, snapshot layout, auto-name, list order, or
 confirm rule. Do not paste this file into a skill.
 
 `/saveify` writes and deletes. `/resumeify` lists and restores.
-`savify` and `resumify` are trigger words in the skill
-description, not folders and not commands.
+`savify` is an alias of `/saveify`. `resumify` is an alias of
+`/resumeify`. Optional leading `/`, case-insensitive. They are
+not skill folders.
 
 One snapshot is the recoverable ify artifacts of this chat.
 After exit, only what was written here exists. No `smart` mode.
@@ -247,12 +248,12 @@ before any write or delete.
 |-------|--------|
 | `/saveify` | Auto-name save. Not list. |
 | `/saveify <name>` | Save under that name. |
-| `/saveify list` | Print the list. User picks a number. Display that snapshot. No phasify handoff. |
+| `/saveify list` | Selection list. A saved context displays that snapshot. No phasify handoff. `Choose none` stops. |
 | `/saveify delete` | Print the list. User picks. Then yes/no. |
 | `/saveify delete <name>` | Show that row. Yes/no. |
 | `/saveify delete <#>` | Show that row. Yes/no. |
-| `/resumeify` | List only. Do not restore. Do not ask. |
-| `/resumeify list` | Print the list. User picks a number or a name. Restore that row. |
+| `/resumeify` | Selection list. A saved context restores. `Choose none` stops. |
+| `/resumeify list` | Same selection. A saved context restores. `Choose none` stops. |
 | `/resumeify <name>` | Restore that row. |
 | `/resumeify <#>` | Restore that position. |
 
@@ -336,7 +337,9 @@ No yes/no. `#` is the position when `/resumeify <#>`
 runs.
 
 Print the banner, then the saved body. `<name>` is
-`display_name`. `<date>` is `saved_at`.
+`display_name`. `<date>` is `saved_at`. For `kind`
+`plan`, the printed `plan.md` ends at the line before
+`## Phased plan`.
 
 ```text
 **Resumeify — restored `<name>`.**
@@ -355,9 +358,20 @@ Workspace differs from this session. Not changing directory.
 
 Do not change directory.
 
-`kind` `plan`, in order: banner, full `plan.md` when
-present, then `table.txt` when present. The Task row in
-that table is the task (the same text as `task.txt`).
+`kind` `plan` display, after the banner, the path line,
+and the workspace line:
+
+1. When `table.txt` exists, print `plan.md` and end that
+   print at the line before `## Phased plan`. Leave that
+   heading and every line under it out of the display.
+   Then print `table.txt`. That print is the only phase
+   table.
+2. When `plan.md` exists and `table.txt` is absent, print
+   `plan.md` in full.
+3. When `plan.md` is absent, print `table.txt`.
+
+The Task row in that table is the task (the same text
+as `task.txt`).
 
 `kind` `other`, in order: banner, full `task.txt`,
 `kickoff.md` when present, `extra.md` when present.
@@ -370,27 +384,72 @@ the plan is complete. `kind` `other` does not say either.
 
 ## List select
 
-`/saveify list` and `/resumeify list` print the **List**
-row, then ask for a number. Do not load on that turn.
-Cursor uses AskQuestion when the tool exists. Options
-are the list numbers. Grok and Copilot print the list
-and wait, the same wait as the delete pick.
+Empty `/resumeify`, `/resumeify list`, and `/saveify list`
+present the saved-context list as one single-select question
+when `ls` has at least one row. Do not only print the rows
+and wait for `1` … `n`. Delete keeps its printed pick and
+its yes/no. Empty `/saveify` is an auto-name save, not
+this list.
 
 No rows: `Nothing is saved.` Do not ask.
 
-A digits-only reply is that `#`. Run `ls` again. If
-that position is a different slug than the one shown,
-stop. **Error:** list changed. Do not display. Do not
-restore. Same `#` stability rule as delete.
+Options, in list order. One saved context per option. The
+label is the printed **List** row (the text before the tab):
+number, time, name, verb, phases, stage, blocks, defers, cwd.
+No trailing slug. The last option’s label is exactly
+`Choose none`.
+
+`Choose none` selects nothing and stops. Do not restore.
+Do not display a snapshot. Do not delete. Do not retitle.
+
+Grok calls `ask_user_question`. One question.
+`multi_select` is false. `question` is
+`Which saved context should resumeify restore?` or, for
+`/saveify list`,
+`Which saved context should saveify display?`.
+Each option `label` is the row or `Choose none`.
+Each option `description` is `Restore this snapshot.`,
+`Display this snapshot.`, or `Select nothing and stop.`
+That call is the primary path. The tool may add its own
+free-text row. That row is not `Choose none`. If
+`ask_user_question` is unavailable, print the rows and a
+final line `Choose none`, then wait.
+
+Cursor calls `AskQuestion` with the same labels, one
+question, single select. If `AskQuestion` is unavailable,
+use that printed fallback.
+
+Copilot has no selection tool. Print the rows and a final
+line `Choose none`. Do not invent a widget.
+
+A printed reply that is `Choose none`, any case, is that
+option. It selects nothing and stops.
+
+The invoking message is not the answer. A dismiss with no
+answer is `Choose none`. A saved-context answer is that
+row’s `#`, the leading number. Run `ls` again. If that
+position is a different slug than the one shown, stop.
+**Error:** list changed. Do not display. Do not restore.
 
 `#` out of range: **Error:** not found: `<n>`.
 
-A later command that is not the pick cancels the
-pending pick, then runs. On `/saveify list`, any other
-reply re-asks. Do not load.
+Free text that is only digits is that `#`. On resumeify,
+free text that is a name matches like `/resumeify <name>`.
+On the `/saveify list` printed fallback, any other reply
+re-asks. Do not load.
 
-`/resumeify list` also accepts a name on that reply.
-Match it the same way as `/resumeify <name>`.
+A later command that is not the pick cancels the pending
+pick, then runs.
+
+### Empty `/resumeify` and `/resumeify list`
+
+A saved-context choice is a restore. Same reprint as
+**Resume**, including the next-command sentence: `/phasify`
+when any work phase is not Done, and the plan is complete
+when every work phase is Done. That restore sets
+`RESUME:`. The asking turn does not retitle. `Choose none`
+does not restore. Empty `/resumeify` is not an auto-save.
+Do not run `/phasify`.
 
 ### `/saveify list`
 
@@ -404,22 +463,11 @@ Do not pass `--yes`.
 Saved <date>. Verb `<verb>`. Stage: <stage>. Workspace: <cwd>.
 ```
 
-Then the same body as **Resume** (plan path, the
-workspace line when `cwd` differs, `plan.md`,
-`table.txt`, or task / kickoff / notes). Stop before
-the `/phasify` sentence.
-
-### `/resumeify list`
-
-This pick is a restore. Same reprint as **Resume**,
-including the next-command sentence: `/phasify` when
-any work phase is not Done, and the plan is complete
-when every work phase is Done. That restore sets
-`RESUME:`. The asking turn does not retitle.
-
-Empty `/resumeify` prints the **List** row and stops.
-It does not ask and it does not restore. It is not an
-auto-save and it is not `/resumeify list`.
+Then the same body as **Resume**. For `kind` `plan`,
+follow the three steps there: the printed `plan.md`
+ends before `## Phased plan`, and `table.txt` is the
+only phase table. Stop before the `/phasify` sentence.
+`Choose none` does not display.
 
 ---
 
@@ -513,10 +561,11 @@ A restore sets `RESUME:`. The summary is the words after
 the ancestor prefix in `window_title`. When that is
 empty, use the first words of `display_name`.
 
-List-only `/resumeify`, `/saveify list`, the asking
-turn of `/resumeify list`, delete, help, tldr, pass,
-`--help`, and `/?` do not retitle. A `/resumeify list`
-pick that restores does set `RESUME:`.
+The asking turn of empty `/resumeify`, `/resumeify list`,
+and `/saveify list` does not retitle. `Choose none` does
+not retitle. A saved-context choice that restores sets
+`RESUME:`. `/saveify list` does not retitle. Delete, help,
+tldr, pass, `--help`, and `/?` do not retitle.
 
 `SAVE` and `RESUME` are not phasify ancestor prefixes.
 Phasify keeps the saved verb's prefix.
@@ -554,9 +603,9 @@ file. Put the same cite in `.grok/<verb>/`,
 `.cursor/skills/<verb>/`, and `.copilot/skills/<verb>/`.
 
 ```markdown
-Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` displays one snapshot and does not hand off to phasify.
+Cite `docs/saveify_contract.md` **List select**. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` uses that selection: a saved context is displayed and does not hand off to phasify. `Choose none` stops.
 ```
 
-Resumeify cites the same file. Its empty invocation lists
-and does not restore. `/resumeify list` restores the pick
-so `/phasify` can continue.
+Resumeify cites the same file. Empty `/resumeify` and
+`/resumeify list` use **List select**. A saved context
+restores so `/phasify` can continue. `Choose none` stops.

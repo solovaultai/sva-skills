@@ -3,7 +3,7 @@ name: promptify
 description: >-
   Promptify — Prompt QA against the real workspace: intent, assets,
   enrichment, readiness scores, and an optimized prompt. Does not run
-  the work. Use when the user runs /promptify, /runnify, /promptify-run,
+  the work. Use when the user runs /promptify, /prify, /runnify, /promptify-run,
   "optimize this prompt", or "prompt QA". /promptify help (also --help,
   /?) prints the full reference; tldr and pass help are short pages.
   Recognizes Nimages and Npass.

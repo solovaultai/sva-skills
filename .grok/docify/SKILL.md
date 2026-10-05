@@ -8,8 +8,9 @@ description: >-
   set, clear, docpathify). Use when the user runs /docify, "docify" as
   the command, or wants a prompt documented with those controls.
   Print a complete reference with `/docify help` or `/docify --help`
-  (also `/?`). `/docify tldr` prints the short page. Empty `/docify`
-  is short usage, not Help.
+  (also `/?`). `/docify tldr` prints the short page. A write with
+  no prompt documents the last ify in this chat. Empty `/docify`
+  with no last ify is short usage, not Help.
 ---
 
 # Docify (= document an ify prompt)
@@ -46,13 +47,15 @@ Strip `Nimages` / `Npass` first. Then:
 - Remaining body exactly `pass` or `pass help`: print the Pass
   (`Npass`) section and stop.
 
-Do not dispatch. Do not write. Empty `/docify` is short usage, not
-Help. `help me …` is a prompt.
+Do not dispatch. Do not write. Empty `/docify` with no last ify
+is short usage, not Help. `help me …` is a prompt.
 
 ```text
 /docify <prompt>              — askify that prompt, then docify
 /docify <controls> <prompt>   — same, with those directive controls
 /docify <verb> <prompt>       — that ify verb instead of askify
+/docify                        — write the last ify when one exists
+/docify:html                   — write that last ify as html
 /docify help                  — full reference (also --help, /?)
 /docify tldr                  — short form (stop)
 /docify pass help             — Pass (Npass) subsection (also `pass`)
@@ -69,17 +72,21 @@ piece. `docpathify` is a control, not a skill.
 
 `set` / `clear` with no prompt: `./scripts/cli.sh docify` or
 `scripts/cli.ps1 docify`, then stop. The store changes. Do not
-dispatch. Do not write. A write control with no prompt: short
-usage. A prompt is required. Do not write an empty document.
+dispatch. Do not write. A write with no prompt, including bare
+`/docify` and `/docify:html`, documents the last ify in this
+conversation. Cite **No prompt** in `docs/docify_contract.md`.
+Do not dispatch askify. Do not re-run the verb. No recoverable
+ify: **Error:** nothing to docify, then short usage. Do not
+write an empty document.
 
 ## Verb
 
 First non-control token only. Optional `/`. Case-insensitive.
 Remove it when it matches. Otherwise askify, and the token stays.
 
-`askify` / `promptify-ask` · `plannify` / `planify` / `promptify-plan`
-· `runnify` / `promptify-run` · `promptify` · `phasify` · `debugify` /
-`promptify-debug` · `addify` · `fromify` · `ify`.
+`askify` / `promptify-ask` · `plannify` / `planify` / `promptify-plan` / `plify`
+· `runnify` / `runify` / `promptify-run` · `promptify` / `prify` · `phasify` / `phaseify` / `phify` · `debugify` /
+`promptify-debug` / `dbgify` / `debify` · `addify` · `fromify` · `ify`.
 
 Never select `docify`. A later verb word stays in the prompt.
 
@@ -124,8 +131,10 @@ the selected verb. Help, tldr, pass, and empty do not read files.
 ## Docify
 
 Cite `docs/docify_contract.md`. The rewritten line’s `docify` /
-`docpathify` writes that verb’s deliverable. Help, tldr, pass, and
-empty do not write. This skill does not write a second file.
+`docpathify` writes that verb’s deliverable. A write with no
+prompt writes the last ify deliverable. Help, tldr, and pass do
+not write. Empty `/docify` with no last ify does not write.
+This skill does not write a second file.
 
 ## Window title
 
@@ -147,4 +156,6 @@ The selected verb then sets its own prefix.
   Do not append `=<NAME>.html`. `docify:html` writes
   `CAPS.html`. `docify:html:path:test.md` writes markdown.
 - `Nimages` / `Npass` are handed to the selected verb.
-- Help, tldr, pass, and empty do not dispatch and do not write.
+- Help, tldr, and pass do not dispatch and do not write.
+  A write with no prompt writes the last ify deliverable.
+  Empty `/docify` with no last ify is short usage.

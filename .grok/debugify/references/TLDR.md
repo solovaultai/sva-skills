@@ -2,7 +2,7 @@
 
 Grok Debug Mode — full loop (default). Runtime evidence loop, not a
 speculative-fix loop: hypothesize → instrument → repro → analyze → fix
-→ verify → clean. Alias: `/debug`.
+→ verify → clean. Aliases: `/dbgify`, `/debify`, `/debug`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
@@ -11,7 +11,9 @@ speculative-fix loop: hypothesize → instrument → repro → analyze → fix
 /debugify help              — this reference (also --help / /?)
 /debugify tldr              — short form (stop)
 /debugify pass              — Pass (Npass) subsection only (also pass help)
+/dbgify <bug report>       — alias of /debugify
 /debug <bug report>         — alias of /debugify
+/debify <bug report>        — alias of /debugify
 /debug-kickoff <bug report> — read-only brief (no edits)
 ```
 
@@ -21,6 +23,8 @@ speculative-fix loop: hypothesize → instrument → repro → analyze → fix
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
+| `dbgify` | Alias of `/debugify` | Short name |
+| `debify` | Alias of `/debugify` | Short name |
 | `debug` | Alias of `/debugify` | Same full loop under the shorter name |
 | `debug-kickoff` | Read-only brief (no edits) | Kickoff only — do not run this full loop |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` as existing evidence during Phase 0 | Visual evidence for Investigate |

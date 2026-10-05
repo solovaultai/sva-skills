@@ -4,7 +4,7 @@ description: >
   Debugify — Grok Debug Mode (full loop). Default debug skill: form falsifiable
   hypotheses, add temporary instrumentation, reproduce for runtime evidence, apply
   a minimal evidence-backed fix, verify, then remove probes. Use when the user runs
-  /debugify, /debug (alias), "debug this", "debug this bug", "root-cause this",
+  /debugify, /dbgify, /debify, /debug (alias), "debug this", "debug this bug", "root-cause this",
   "why is this failing", "instrument and fix", or wants Cursor-style Debug Mode
   behavior inside Grok. Prefer this over /debug-kickoff unless they only want a
   kickoff brief. Print a complete reference with `/debugify help` or
@@ -22,7 +22,7 @@ a speculative-fix loop. Default behavior is the **full loop** (hypothesize →
 instrument → repro → analyze → fix → verify → clean). For a read-only kickoff brief
 only, the user should run `/debug-kickoff`.
 
-Treat `/debug` as an alias of this skill.
+Treat `/dbgify`, `/debug`, and `/debify` as aliases of this skill.
 
 ## Loop (mandatory order)
 

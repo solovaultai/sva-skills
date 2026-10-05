@@ -273,11 +273,11 @@ A verb token is not searched for later in the line. `/docify 2pass plannify crea
 | Token | Selects |
 |-------|---------|
 | `askify`, `promptify-ask` | askify |
-| `plannify`, `planify`, `promptify-plan` | plannify |
-| `runnify`, `promptify-run` | runnify |
-| `promptify` | promptify |
-| `phasify` | phasify |
-| `debugify`, `promptify-debug` | debugify |
+| `plannify`, `planify`, `promptify-plan`, `plify` | plannify |
+| `runnify`, `runify`, `promptify-run` | runnify |
+| `promptify`, `prify` | promptify |
+| `phasify`, `phaseify`, `phify` | phasify |
+| `debugify`, `promptify-debug`, `dbgify`, `debify` | debugify |
 | `addify` | addify |
 | `fromify` | fromify |
 | `ify` | ify |
@@ -292,7 +292,7 @@ One token, appended after the prompt. Pieces stay in encounter order, joined by 
 
 No filename: the format token sets the extension of the generated name. The directive does that. This skill does not append `=<NAME>.html`. `docify:html` writes `CAPS.html`. `docify:html:path:test.md` writes markdown, because the filename extension overrides the format token. `html:page` with no filename stays in the trailing token as `page`. The directive generates the `.html` name and opens the browser.
 
-`set` / `clear` with no prompt: apply them through `./scripts/cli.sh docify` (or `cli.ps1`) and stop. Do not dispatch. A write control with no prompt: short usage. A prompt is required. Do not write an empty document.
+`set` / `clear` with no prompt: apply them through `./scripts/cli.sh docify` (or `cli.ps1`) and stop. Do not dispatch. A write with no prompt documents the last ify in this conversation. Cite **No prompt** in `docs/docify_contract.md`. Do not dispatch askify. No recoverable ify: **Error:** nothing to docify, then short usage. Do not write an empty document.
 
 ## Dispatch
 
@@ -436,17 +436,21 @@ piece. `docpathify` is a control, not a skill.
 
 `set` / `clear` with no prompt: `./scripts/cli.sh docify` or
 `scripts/cli.ps1 docify`, then stop. The store changes. Do not
-dispatch. Do not write. A write control with no prompt: short
-usage. A prompt is required. Do not write an empty document.
+dispatch. Do not write. A write with no prompt, including bare
+`/docify` and `/docify:html`, documents the last ify in this
+conversation. Cite **No prompt** in `docs/docify_contract.md`.
+Do not dispatch askify. Do not re-run the verb. No recoverable
+ify: **Error:** nothing to docify, then short usage. Do not
+write an empty document.
 
 ## Verb
 
 First non-control token only. Optional `/`. Case-insensitive.
 Remove it when it matches. Otherwise askify, and the token stays.
 
-`askify` / `promptify-ask` · `plannify` / `planify` / `promptify-plan`
-· `runnify` / `promptify-run` · `promptify` · `phasify` · `debugify` /
-`promptify-debug` · `addify` · `fromify` · `ify`.
+`askify` / `promptify-ask` · `plannify` / `planify` / `promptify-plan` / `plify`
+· `runnify` / `runify` / `promptify-run` · `promptify` / `prify` · `phasify` / `phaseify` / `phify` · `debugify` /
+`promptify-debug` / `dbgify` / `debify` · `addify` · `fromify` · `ify`.
 
 Never select `docify`. A later verb word stays in the prompt.
 

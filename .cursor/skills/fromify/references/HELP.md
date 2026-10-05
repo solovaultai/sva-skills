@@ -96,9 +96,10 @@ in the body.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`.
 
-**Aliases:** `promptify-plan` / `planify` → plannify;
-`promptify-run` → runnify; `promptify-ask` → askify;
-`promptify-debug` → debugify; `savify` → saveify;
+**Aliases:** `promptify-plan` / `planify` / `plify` → plannify;
+`promptify-run` / `runify` → runnify; `promptify-ask` → askify;
+`promptify-debug` / `dbgify` / `debify` → debugify; `phaseify` / `phify` → phasify;
+`prify` → promptify; `savify` → saveify;
 `resumify` → resumeify.
 
 ---

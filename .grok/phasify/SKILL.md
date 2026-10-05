@@ -60,7 +60,7 @@ description: >
   phased-plan table (docs/phase_layout.txt). Capture Flags as specified:
   both Nimages and Npass, one of them, or no Flags row. Not a separate
   box, not a spanning cell, not plannify's interpreted or projected text.
-  Use when the user runs /phasify (no selector = next incomplete phase),
+  Use when the user runs /phasify, /phaseify, or /phify (no selector = next incomplete phase),
   "phasify 0", "phasify next", "phasify 3", "phasify done", "phasify
   finish", "phasify end", "phasify all", "phasify close", "phasify
   toend", "phasify to-end", "phasify to end", "phasify -",

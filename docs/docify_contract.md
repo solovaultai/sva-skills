@@ -76,9 +76,11 @@ markdown).
 
 ## When it does not write
 
-Help, `--help`, `/?`, tldr, `pass`, `pass help`, and
-empty usage short-circuit before any write and before
-any `set` / `clear`.
+Help, `--help`, `/?`, tldr, `pass`, and `pass help`
+short-circuit before any write and before any `set` /
+`clear`. Empty `/docify` with no recoverable last ify
+is short usage and does not write. Empty `/docify`
+with a last ify is a write of that deliverable.
 
 `set` and `clear` update the store and write a file
 only when the same line also has a write directive.
@@ -86,6 +88,39 @@ A write directive is `docpathify`, or `docify` with
 any piece other than `set` / `clear` and their keys.
 Bare `docify` is a write. `docify:txt` is a write.
 `docify:set:txt` is not.
+
+---
+
+## No prompt
+
+A write with no task text documents the last ify in
+this conversation. Chat only. There is no last-ify
+file. Same ify set and aliases as addify **Recover
+last ify**. Cite `.grok/addify/SKILL.md`. Do not
+paste that table.
+
+Do not skip saveify or resumeify. Those turns are
+the deliverable. Still skip help, tldr, pass, and
+empty usage. Do not re-run the verb. Do not dispatch
+askify on an empty prompt.
+
+The file body is that turn's already printed
+deliverable, using **What is written**. Resumeify
+writes the reprinted saved body. Saveify writes the
+snapshot: `plan.md` when `kind` is `plan`, otherwise
+`task.txt`, then `kickoff.md` and `extra.md` when
+those files exist. `plan.md` already holds one phase
+table. Do not append `table.txt`.
+
+Name words come from that task. When the task is
+empty, use the snapshot `display_name`. When both
+are empty, use `DOCIFY`.
+
+No recoverable ify: **Error:** nothing to docify.
+Then the short usage. Do not write an empty file.
+
+`set` / `clear` with no task still change the store
+only.
 
 ---
 
@@ -174,7 +209,9 @@ the normal reply.
 | ify | The catalog, recommendation, or other text it printed |
 | fromify | The selected verb writes one file |
 | addify | The restarted verb writes one file |
-| docify | The selected verb writes one file |
+| docify | The selected verb writes one file. No task text: the last ify deliverable |
+| resumeify | The reprinted saved body |
+| saveify | Snapshot `plan.md`, or `task.txt` then kickoff and notes |
 
 If the typed line names one heading that appears in
 that deliverable (the heading words, with or without
@@ -406,6 +443,9 @@ walk does not write into pytch-docs.
   skips the prefix once.
 - `docify:html` and no filename writes a generated
   `.html` file.
+- `/docify:html` with no prompt after a resume writes
+  that reprint. It does not print short usage. It
+  does not dispatch askify.
 - `docify:html:path:test.md` writes markdown.
 - `docify:html:page=out.html` writes a page, opens
   it, and the script tags are the pinned URLs above.

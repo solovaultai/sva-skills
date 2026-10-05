@@ -91,17 +91,17 @@ they said “ify this”.
 | Verb | When to use | Alias |
 |------|-------------|-------|
 | **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
-| **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify` |
-| **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run` |
-| **phasify** | Next phase / named PN / **runblock** / **remove** (`delete` alias) on the **current** plan | — |
-| **debugify** | Bug / failing / root cause — **kickoff only** (paste into Cursor Debug Mode; does not instrument or fix) | `/promptify-debug` |
-| **promptify** | Optimize the prompt only (no run, no plan, no answer) | — |
+| **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
+| **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
+| **phasify** | Next phase / named PN / **runblock** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
+| **debugify** | Bug / failing / root cause — **kickoff only** (paste into Cursor Debug Mode; does not instrument or fix) | `/promptify-debug`, `dbgify`, `debify` |
+| **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
 | **fromify** | Splice local files into a prompt. Defaults to plannify; a named ify verb on the line selects that verb. | — |
 | **docify** | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`. | — |
 | **ify** | Which verb / family help / tldr | — |
 | **saveify** | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. | `savify` |
-| **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` lists and does not restore. | `resumify` |
+| **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. | `resumify` |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
 `phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify`.
@@ -229,4 +229,4 @@ Frozen `smart` example shape:
 | `/debugify <bug>` | Debug Mode kickoff prompt (paste into Cursor Debug Mode) |
 | `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |
 | `/saveify` | Save the current ify context (auto-name if unnamed). Delete by name or # after yes/no. Empty `/saveify` is a real save. |
-| `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` lists and does not restore. |
+| `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. |

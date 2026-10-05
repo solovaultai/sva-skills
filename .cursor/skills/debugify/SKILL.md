@@ -4,7 +4,7 @@ description: >-
   Debugify — Promptify debug mode / debug-kickoff coach. Reworks any bug report
   into the ideal Cursor Debug Mode prompt via code analysis and prompt enrichment
   (hypotheses, suspect paths, repro, instrumentation intent), then returns a
-  copy-pasteable Debug-Kickoff Prompt. Use when the user runs /debugify,
+  copy-pasteable Debug-Kickoff Prompt. Use when the user runs /debugify, /dbgify, /debify,
   /promptify-debug (alias), "debugify", "debug this prompt", "prepare for debug
   mode", "turn this into a debug prompt", or wants a prompt set up for Cursor
   Debug Mode. Print a complete reference with `/debugify help` or
@@ -50,7 +50,7 @@ starts with verified paths, crisp repro, and testable hypotheses — not a vague
      score < 80)
    - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
 2. Force mode = **Debug** (`/debugify`), even if the user only said "debugify".
-3. Treat `/promptify-debug` as an alias of this skill.
+3. Treat `/dbgify`, `/promptify-debug`, and `/debify` as aliases of this skill.
 
 Override Promptify's **step 3** (optimized prompt) and **step 6** (mode branch)
 with the sections below. Also apply the Step 1 / Step 2 extensions.

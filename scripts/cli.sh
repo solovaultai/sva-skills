@@ -437,21 +437,44 @@ reason_for() {
 
 # ── local install ─────────────────────────────────────────────
 
+# Parent-skill aliases shown on install/skip lines. Keep identical to
+# Get-SkillAliasClause in scripts/cli.ps1. Empty when the skill has none.
+skill_alias_clause() {
+  local name="$1"
+  local aliases=""
+  case "$name" in
+    phasify) aliases="phaseify, phify" ;;
+    plannify) aliases="planify, plify, promptify-plan" ;;
+    promptify) aliases="prify" ;;
+    debugify) aliases="dbgify, debify, debug, promptify-debug" ;;
+    runnify) aliases="runify, promptify-run" ;;
+    saveify) aliases="savify" ;;
+    resumeify) aliases="resumify" ;;
+    askify) aliases="promptify-ask" ;;
+  esac
+  if [[ -n "$aliases" ]]; then
+    printf '  (aliases: %s)' "$aliases"
+  fi
+  return 0
+}
+
 install_skill_local() {
   local name="$1"
   local src="$2"
   local dest_parent="$3"
   local dest="${dest_parent}/${name}"
 
+  local alias_clause
+  alias_clause="$(skill_alias_clause "$name")"
   if ! should_install "$src" "$dest"; then
-    echo "  skip  ${name}  ($(reason_for "$src" "$dest"))"
+    echo "  skip  ${name}${alias_clause}  ($(reason_for "$src" "$dest"))"
     return 0
   fi
 
   local why
   why="$(reason_for "$src" "$dest")"
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "  would install  ${name}  (${why})  →  ${dest}"
+    echo "  would install  ${name}${alias_clause}  (${why})  →  ${dest}"
     return 0
   fi
 
@@ -464,7 +487,7 @@ install_skill_local() {
   fi
   rm -rf "$dest"
   mv "$staging" "$dest"
-  echo "  install  ${name}  (${why})  →  ${dest}"
+  echo "  install  ${name}${alias_clause}  (${why})  →  ${dest}"
 }
 
 install_target_local() {
@@ -823,14 +846,16 @@ install_skill_remote() {
   local src_ts dest_ts why
   src_ts="$(newest_mtime "$src")"
   dest_ts="${REMOTE_MTIME[$name]:-0}"
+  local alias_clause
+  alias_clause="$(skill_alias_clause "$name")"
   if ! should_install_ts "$src_ts" "$dest_ts"; then
-    echo "  skip  ${name}  ($(reason_for_ts "$src_ts" "$dest_ts"))"
+    echo "  skip  ${name}${alias_clause}  ($(reason_for_ts "$src_ts" "$dest_ts"))"
     return 0
   fi
   why="$(reason_for_ts "$src_ts" "$dest_ts")"
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "  would install  ${name}  (${why})  →  ${RESOLVED_USER}@${RESOLVED_HOST}:~/${rel_parent}/${name}"
+    echo "  would install  ${name}${alias_clause}  (${why})  →  ${RESOLVED_USER}@${RESOLVED_HOST}:~/${rel_parent}/${name}"
     return 0
   fi
 
@@ -887,7 +912,7 @@ EOF
     return 1
   fi
 
-  echo "  install  ${name}  (${why})  →  ${RESOLVED_USER}@${RESOLVED_HOST}:~/${rel_parent}/${name}"
+  echo "  install  ${name}${alias_clause}  (${why})  →  ${RESOLVED_USER}@${RESOLVED_HOST}:~/${rel_parent}/${name}"
 }
 
 install_target_remote() {

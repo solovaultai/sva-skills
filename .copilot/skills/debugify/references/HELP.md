@@ -18,7 +18,7 @@ Empty `/debugify` is the short usage cheat, not this page.
 
 **Copilot Debug Mode — full loop** (default). Runtime evidence loop, not
 a speculative-fix loop: hypothesize → instrument → repro → analyze →
-fix → verify → clean. Alias: `/debug`.
+fix → verify → clean. Aliases: `/dbgify`, `/debify`, `/debug`.
 
 This tree has no `/debug-kickoff`. For a brief only, say so; the
 agent stops after Investigate + Hypothesize (no instrument/fix).
@@ -34,7 +34,9 @@ agent stops after Investigate + Hypothesize (no instrument/fix).
 /debugify help              — this reference (also --help / /?)
 /debugify tldr              — short form; stop
 /debugify pass              — Pass (Npass) subsection only (also pass help)
+/dbgify <bug report>       — alias of /debugify
 /debug <bug report>         — alias of /debugify
+/debify <bug report>        — alias of /debugify
 ```
 
 Exact remaining body after flag strip must be `help`, `--help`,

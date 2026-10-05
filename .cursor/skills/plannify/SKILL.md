@@ -4,7 +4,7 @@ description: >-
   Plannify — Promptify planning mode / planning-prompt coach. Reworks any request
   into the ideal Cursor prompt for kicking off a PLANNING agent run, then runs that
   optimized prompt read-only to produce a structured plan. Use when the user runs
-  /plannify, /promptify-plan (alias), /plannify fromhere (alias planify
+  /plannify, /planify, /plify, /promptify-plan (alias), /plannify fromhere (alias planify
   fromhere), /plannify add, "plannify", "plan this prompt", "turn this
   into a planning prompt", or wants a prompt reworked for a
   planning/design run and the plan produced. `/plannify fromhere`
@@ -40,7 +40,7 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
      score < 80)
    - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
 2. Force mode = **Planning** (`/plannify`), even if the user only said "plannify".
-3. Treat `/promptify-plan` as an alias of this skill.
+3. Treat `/planify`, `/promptify-plan`, and `/plify` as aliases of this skill.
 4. Treat `/plannify fromhere` and `planify fromhere` as **fromhere**
    (see **`/plannify fromhere`**). Not a greenfield plan.
 5. Treat `/plannify add <feature>` as **Add** (see **`/plannify
