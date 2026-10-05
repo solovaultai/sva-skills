@@ -2,7 +2,7 @@
 name: ify
 description: >-
   Ify — catalog, help, and router for the Promptify family (plannify,
-  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, ify). Does not
+  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, saveify, resumeify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, /ify help, /ify help <verb>, /ify tldr, /ify smart, or
   /ify which. smart (alias which) recommends a verb and does not
@@ -156,7 +156,7 @@ verb’s HELP.md.
 ### Ify set (known verbs)
 
 `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
-· `plannify` · `promptify` · `runnify`
+· `plannify` · `promptify` · `resumeify` · `runnify` · `saveify`
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
@@ -168,11 +168,14 @@ verb’s HELP.md.
 | `promptify-run` | runnify |
 | `promptify-ask` | askify |
 | `promptify-debug` | debugify |
+| `savify` | saveify |
+| `resumify` | resumeify |
 | `ify` | ify (own HELP / own tldr) |
 
 **Not ify** (never a `<verb>`): anything outside this tree’s family
 (`promptify`, `runnify`, `askify`, `plannify`, `phasify`,
-`debugify`, `addify`, `ify`). This tree does not ship Grok
+`debugify`, `addify`, `fromify`, `docify`, `ify`, `saveify`,
+`resumeify`). This tree does not ship Grok
 `/image` `/imagine` `/help` `/create-skill` `/debug-kickoff`.
 
 Unknown token → short usage + `unknown verb; try /ify smart …`.
@@ -219,7 +222,7 @@ ify help — <canonical-verb> (this tree: copilot)
 2. Print that verb’s **user-facing help in full**:
    `references/HELP.md` if that file exists in the verb’s folder
    (promptify, plannify, phasify, addify, runnify, askify,
-   debugify, docify, ify). Else the `## User help` section of that verb’s
+   debugify, docify, saveify, resumeify, ify). Else the `## User help` section of that verb’s
    `SKILL.md`.
 3. Then print the **rest** of that verb’s `SKILL.md` under a
    heading **Agent instructions**. Skip re-printing `## User help`

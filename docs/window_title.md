@@ -26,6 +26,8 @@ Leave the name when the turn ends. Do not restore `gHHMMSS`.
 
 **Do not retitle** help, `--help`, `/?`, tldr, `pass`, `pass help`,
 or empty usage. Empty `/phasify` is Next, so it does set the name.
+Empty `/saveify` is a real save, so it does set the name. Empty
+`/resumeify` lists and leaves the name.
 
 ---
 
@@ -47,6 +49,8 @@ from the end of the summary until it fits. Never cut the prefix.
 | docify | `DOC: <summary>` |
 | addify | No prefix of its own. Re-apply the **ancestor** verb's row to the combined text. |
 | phasify | `PHASE:P<n>/<total>:<PREFIX>: <summary>` |
+| saveify | `SAVE: <summary>` |
+| resumeify | `RESUME: <summary>` |
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
 `ASK`, `IFY`, `FROM`, `DOC`). `<summary>` is a few words of the recovered Task, not

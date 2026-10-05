@@ -2,7 +2,7 @@
 name: ify
 description: >-
   Ify — catalog, help, and router for the Promptify family (plannify,
-  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, ify). Does not
+  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, saveify, resumeify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, "ify", /ify help, /ify help <verb>, /ify tldr, /ify tldr
   <verb>, /ify smart, /ify which, or wants to know which ify verb to
@@ -164,7 +164,7 @@ verb’s HELP.md.
 ### Ify set (known verbs)
 
 `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
-· `plannify` · `promptify` · `runnify`
+· `plannify` · `promptify` · `resumeify` · `runnify` · `saveify`
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`.
 
@@ -176,6 +176,8 @@ verb’s HELP.md.
 | `promptify-run` | runnify |
 | `promptify-ask` | askify |
 | `promptify-debug` | debugify |
+| `savify` | saveify |
+| `resumify` | resumeify |
 | `ify` | ify (own HELP / own tldr) |
 
 **Not ify** (never a `<verb>`; Grok-only utilities stay Not ify):
@@ -225,7 +227,7 @@ ify help — <canonical-verb> (this tree: cursor)
 2. Print that verb’s **user-facing help in full**:
    `references/HELP.md` if that file exists in the verb’s folder
    (promptify, plannify, phasify, addify, runnify, askify,
-   debugify, docify, ify). Else the `## User help` section of that verb’s
+   debugify, docify, saveify, resumeify, ify). Else the `## User help` section of that verb’s
    `SKILL.md`.
 3. Then print the **rest** of that verb’s `SKILL.md` under a
    heading **Agent instructions**. Skip re-printing `## User help`

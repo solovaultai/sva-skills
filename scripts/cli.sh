@@ -25,6 +25,7 @@
 #   ./scripts/cli.sh list                             # list sshub connections
 #   ./scripts/cli.sh scratch show|set|search|detect|ls
 #   ./scripts/cli.sh docify show|set|clear
+#   ./scripts/cli.sh saveify dir|ls|resolve|rm
 #
 # Options:
 #   --force       Always install, even if dest is newer
@@ -106,6 +107,7 @@ Usage:
   ./scripts/cli.sh scratch show                     # screenshot folder for ify Nimages / Grok /image
   ./scripts/cli.sh scratch ls [N]                   # last-N image paths (default 5)
   ./scripts/cli.sh docify show                      # docify defaults (scratch, format, path, prefix)
+  ./scripts/cli.sh saveify dir                      # saveify snapshot store
 
 Options:
   --force       Always install, even if dest is newer
@@ -166,6 +168,17 @@ Docify defaults (typed-line docify / docpathify):
   ./scripts/cli.sh docify clear scratch|format|path|prefix
 Config: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/docify.env
 Keys: scratch, format, path, prefix. docif and scrach are not keys.
+
+Saveify snapshots (see docs/saveify_contract.md):
+  ./scripts/cli.sh saveify dir
+  ./scripts/cli.sh saveify ls
+  ./scripts/cli.sh saveify resolve <slug>
+  ./scripts/cli.sh saveify rm <slug> --yes
+Store: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/saveify
+ls is newest first (1 = newest), tab-separated:
+  <n> <saved_at> <slug> <display_name> <verb> <stage> <cwd>
+resolve takes a slug, not a list number or a display name.
+rm refuses unless --yes. It does not prompt.
 EOF
 }
 
@@ -1125,8 +1138,10 @@ source "$ROOT/scripts/lib/scratch_resolve.sh"
 # scratch_cmd_show / scratch_print_unset_state / scratch_die_unset live in that file.
 # shellcheck source=lib/docify_resolve.sh
 source "$ROOT/scripts/lib/docify_resolve.sh"
+# shellcheck source=lib/saveify_resolve.sh
+source "$ROOT/scripts/lib/saveify_resolve.sh"
 
-# scratch and docify have their own flags; handle before installer flags.
+# scratch, docify, and saveify have their own flags; handle before installer flags.
 if [[ "${1:-}" == "scratch" ]]; then
   shift
   scratch_cmd "$@"
@@ -1135,6 +1150,11 @@ fi
 if [[ "${1:-}" == "docify" ]]; then
   shift
   docify_cmd "$@"
+  exit $?
+fi
+if [[ "${1:-}" == "saveify" ]]; then
+  shift
+  saveify_cmd "$@"
   exit $?
 fi
 
@@ -1358,6 +1378,6 @@ case "$CMD" in
     exit $?
     ;;
   *)
-    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, docify, tmux, --help)"
+    die "unknown command: $CMD (try: install, pullinst, project, status, list, scratch, docify, saveify, tmux, --help)"
     ;;
 esac

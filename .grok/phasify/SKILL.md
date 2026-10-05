@@ -1189,6 +1189,9 @@ Keep two things separate:
 
 1. **Phased plan table** (what you execute / update) — from the latest
    `/plannify` (or equivalent) `## Phased plan`, or a verified plan file.
+   A resumeify restore in this conversation is a current plan. The
+   snapshot path printed in the resume banner (`plan.md`) is a verified
+   plan file. Read it for the plan body. Cite `docs/saveify_contract.md`.
    If no plan is found, stop and tell the user to `/plannify` first.
    Do not invent phases.
 2. **Original ify text** (what you put in the **Task** row) — the user's
@@ -1196,7 +1199,8 @@ Keep two things separate:
    debugify, addify, or whatever ify produced this plan. That is the
    text they typed after the slash command (or the free-text they asked
    to ify). When the plan came from `/addify`, use the **combined**
-   text (ancestor body + addify bodies). It is **not** Intent Analysis,
+   text (ancestor body + addify bodies). When the plan is a resumeify
+   restore, the Task is the reprinted Task. It is **not** Intent Analysis,
    not the Kickoff/Optimized Prompt, not `## Plan`, and not any
    interpreted, projected, or updated text the ify created.
 
@@ -1216,7 +1220,8 @@ spanning cell.
 **Description** = the verbatim original ify Task text (the words the
 user typed for promptify / askify / runnify / plannify / debugify /
 addify). When the plan came from `/addify`, this is the **combined**
-text (ancestor body + addify bodies). Not `## Plan`, not Intent
+text (ancestor body + addify bodies). When the plan is a resumeify
+restore, the Task is the reprinted Task. Not `## Plan`, not Intent
 Analysis, not the Kickoff/Optimized Prompt, not scores, not any
 interpreted / projected / updated text an ify generated. Do not
 rewrite or summarize.

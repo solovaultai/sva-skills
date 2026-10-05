@@ -69,20 +69,29 @@ task (append that text).
 Scan **this conversation** newest-first. Chat only — no disk store.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify` ·
+`saveify` · `resumeify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
 **Aliases:** `/promptify-plan` / `planify fromhere` → plannify;
 `/promptify-run` → runnify; `/promptify-ask` → askify;
-`/promptify-debug` → debugify.
+`/promptify-debug` → debugify; `savify` → saveify;
+`resumify` → resumeify.
 
 **Skip:** help-only turns; exact `tldr` on any ify verb (same as
 help); empty-usage turns (not a task);
 `/ify` empty; `/ify help` / `help <verb>`; `/ify tldr` /
-`tldr <verb>`; `/ify pass`. **Do not skip** empty `/phasify`
+`tldr <verb>`; `/ify pass`; `/saveify` and `/resumeify` (not a
+task), same as help / tldr. **Do not skip** empty `/phasify`
 (that is Next). **Do not skip** `/ify smart`, `/ify which`,
 or bare `/ify <prompt>` (implicit smart).
+
+**Resume banner.** If this conversation's newest ify context is a
+resumeify restore banner, the last ify is the saved verb named in
+that banner, and the Task is the reprinted Task. Do not restart
+saveify or resumeify as if they were plannify. Cite
+`docs/saveify_contract.md`.
 
 **If last is addify:** walk back to the last non-addify ancestor.
 Combined body = ancestor + every later addify body in order.

@@ -90,6 +90,9 @@ passes 2–N use that base for the final plan.
 Read-only replan from the **current** plan's statuses. Not a greenfield
 plan. If the task body is `fromhere` (or the user said `planify
 fromhere`), use this path — do not treat it as an empty `/plannify`.
+A resume reprint in this conversation is the current plan. The
+snapshot path printed in the resume banner (`plan.md`) is a verified
+plan file. Read it for the plan body. Cite `docs/saveify_contract.md`.
 If no current plan exists, tell the user to `/plannify` first.
 
 1. Recover Task row text (original ify wording) and Flags (`Nimages` /

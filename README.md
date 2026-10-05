@@ -23,6 +23,8 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 | **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
+| **saveify** | `/saveify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is a wording alias, not a folder. See `.grok/saveify/SKILL.md`. |
+| **resumeify** | `/resumeify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` lists and does not restore. `resumify` is a wording alias, not a folder. See `.grok/resumeify/SKILL.md`. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
@@ -104,6 +106,8 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -128,6 +132,8 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 | **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.cursor/skills/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
+| **saveify** | `/saveify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is a wording alias, not a folder. See `.cursor/skills/saveify/SKILL.md`. |
+| **resumeify** | `/resumeify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` lists and does not restore. `resumify` is a wording alias, not a folder. See `.cursor/skills/resumeify/SKILL.md`. |
 
 **Promptify family (Cursor):**
 
@@ -202,6 +208,8 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -224,6 +232,8 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Copilot tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
 | **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. Slash-preferable. `/fromify help` (also `--help`, `/?`) prints the full reference. |
 | **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
+| **saveify** | `/saveify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is a wording alias, not a folder. See `.copilot/skills/saveify/SKILL.md`. |
+| **resumeify** | `/resumeify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` lists and does not restore. `resumify` is a wording alias, not a folder. See `.copilot/skills/resumeify/SKILL.md`. |
 
 **Promptify family (Copilot):**
 
@@ -298,6 +308,8 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).

@@ -210,6 +210,8 @@ empty plannify run.
 | `addify` | addify |
 | `ify` | ify |
 | `docify` | docify |
+| `saveify`, `savify` | saveify |
+| `resumeify`, `resumify` | resumeify |
 
 `which` and `delete` are mode aliases, not verbs. They
 stay prose. These are not verbs either: `image`,
@@ -308,7 +310,8 @@ is runnify plus the exact text of `test.txt`. The token
 ## Scope
 
 Ify set only: promptify, runnify, askify, plannify,
-phasify, debugify, addify, ify, fromify, docify.
+phasify, debugify, addify, ify, fromify, docify,
+saveify, resumeify.
 
 Not Grok utilities: `image`, `imagine`, `help`,
 `check-work`, `code-review`, `create-skill`,

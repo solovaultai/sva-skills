@@ -109,7 +109,8 @@ invokes an ify via slash, alias, or free-text (`"plannify this"`,
 store. Chat only.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
-`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify`.
+`debugify` · `askify` · `ify` · `addify` · `fromify` · `docify` ·
+`saveify` · `resumeify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
@@ -121,6 +122,8 @@ store. Chat only.
 | `/promptify-run` | runnify |
 | `/promptify-ask` | askify |
 | `/promptify-debug` | debugify |
+| `savify` | saveify |
+| `resumify` | resumeify |
 
 **Not ify** (do not treat as last ify): tokens outside this tree’s
 family. This tree does not ship Grok `/image` `/imagine` `/help`
@@ -133,10 +136,17 @@ family. This tree does not ship Grok `/image` `/imagine` `/help`
 - Empty usage for skills whose empty is usage (not a task)
 - `/ify` empty usage; `/ify help` / `help <verb>`; `/ify tldr` /
   `tldr <verb>`; `/ify pass` / `pass help`
+- `/saveify` and `/resumeify` (not a task), same as help / tldr
 
 **Do not skip** empty `/phasify` (that is **Next**).
 **Do not skip** `/ify smart`, `/ify which`, or bare
 `/ify <prompt>` (implicit smart).
+
+**Resume banner.** If this conversation's newest ify context is a
+resumeify restore banner, the last ify is the saved verb named in
+that banner, and the Task is the reprinted Task. Do not restart
+saveify or resumeify as if they were plannify. Cite
+`docs/saveify_contract.md`.
 
 **If last is addify:** keep walking to the last **non-addify** ancestor.
 Combined body = ancestor body + every later addify body **in

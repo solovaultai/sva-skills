@@ -15,7 +15,7 @@ token, not a verb and not a skill.
 ## Scope
 
 Ify set: addify, askify, debugify, docify, fromify, ify,
-phasify, plannify, promptify, runnify.
+phasify, plannify, promptify, resumeify, runnify, saveify.
 
 Not ify utilities. They do not detect docify: `image`,
 `imagine`, `help`, `check-work`, `code-review`,

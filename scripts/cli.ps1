@@ -23,6 +23,7 @@
   .\scripts\cli.ps1 scratch show
   .\scripts\cli.ps1 scratch ls 3
   .\scripts\cli.ps1 docify show
+  .\scripts\cli.ps1 saveify dir
 #>
 # Do not use [CmdletBinding()]/param() — bash-style --force/--remote must
 # reach the manual parser instead of PowerShell parameter binding.
@@ -150,6 +151,7 @@ Usage:
   .\scripts\cli.ps1 scratch show                     # screenshot folder for ify Nimages / Grok /image
   .\scripts\cli.ps1 scratch ls [N]                   # last-N image paths (default 5)
   .\scripts\cli.ps1 docify show                      # docify defaults (scratch, format, path, prefix)
+  .\scripts\cli.ps1 saveify dir                      # saveify snapshot store
 
 Options:
   --force       Always install, even if dest is newer
@@ -205,6 +207,17 @@ Docify defaults (typed-line docify / docpathify):
   .\scripts\cli.ps1 docify clear scratch|format|path|prefix
 Config: %LOCALAPPDATA%\sva-skills\docify.env
 Keys: scratch, format, path, prefix. docif and scrach are not keys.
+
+Saveify snapshots (see docs/saveify_contract.md):
+  .\scripts\cli.ps1 saveify dir
+  .\scripts\cli.ps1 saveify ls
+  .\scripts\cli.ps1 saveify resolve <slug>
+  .\scripts\cli.ps1 saveify rm <slug> --yes
+Store: %LOCALAPPDATA%\sva-skills\saveify
+ls is newest first (1 = newest), tab-separated:
+  <n> <saved_at> <slug> <display_name> <verb> <stage> <cwd>
+resolve takes a slug, not a list number or a display name.
+rm refuses unless --yes. It does not prompt.
 '@
     Write-Out $text
 }
@@ -1156,6 +1169,16 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'docify') {
     exit 0
 }
 
+. (Join-Path $PSScriptRoot 'lib\saveify_resolve.ps1')
+if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'saveify') {
+    $saveifyRest = @()
+    if ($CliArgs.Count -gt 1) {
+        $saveifyRest = @($CliArgs[1..($CliArgs.Count - 1)])
+    }
+    Invoke-SaveifyCommand -SaveifyArgs $saveifyRest
+    exit 0
+}
+
 # ── arg parse (same rules as cli.sh) ──────────────────────────
 
 function Test-KnownTarget {
@@ -1356,6 +1379,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, docify, --help)"
+        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, docify, saveify, --help)"
     }
 }

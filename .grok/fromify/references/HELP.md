@@ -92,13 +92,14 @@ Default **plannify**. Never select `fromify`. A later verb word stays
 in the body.
 
 **Ify verbs:** `addify` · `askify` · `debugify` · `docify` · `ify` · `phasify` ·
-`plannify` · `promptify` · `runnify`.
+`plannify` · `promptify` · `resumeify` · `runnify` · `saveify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 
 **Aliases:** `promptify-plan` / `planify` → plannify;
 `promptify-run` → runnify; `promptify-ask` → askify;
-`promptify-debug` → debugify.
+`promptify-debug` → debugify; `savify` → saveify;
+`resumify` → resumeify.
 
 ---
 

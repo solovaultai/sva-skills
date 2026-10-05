@@ -100,9 +100,11 @@ they said “ify this”.
 | **fromify** | Splice local files into a prompt. Defaults to plannify; a named ify verb on the line selects that verb. | — |
 | **docify** | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`. | — |
 | **ify** | Which verb / family help / tldr | — |
+| **saveify** | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. | `savify` |
+| **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` lists and does not restore. | `resumify` |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
-`phasify` · `plannify` · `promptify` · `runnify`.
+`phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify`.
 
 ---
 
@@ -230,3 +232,5 @@ Load dests: `docs/COPILOT_LOAD.md`.
 | `/debugify <bug>` | Full in-agent debug loop (instrument → fix → verify) |
 | `/debug` | Alias of `/debugify` (this tree: full loop; not Cursor kickoff) |
 | `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |
+| `/saveify` | Save the current ify context (auto-name if unnamed). Delete by name or # after yes/no. Empty `/saveify` is a real save. |
+| `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` lists and does not restore. |
