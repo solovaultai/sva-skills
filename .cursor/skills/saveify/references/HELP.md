@@ -32,6 +32,7 @@ Canonical slash is `/saveify`.
 ```text
 /saveify                 — auto-name save
 /saveify <name>          — save under that name
+/saveify list            — list, pick a number, display only
 /saveify delete          — list, pick, then yes/no
 /saveify delete <name>   — that row, then yes/no
 /saveify delete <#>      — that position, then yes/no
@@ -53,6 +54,7 @@ is written.
 ```text
 /saveify
 /saveify testme
+/saveify list
 /saveify delete
 /saveify delete testme
 /saveify delete 2
@@ -79,6 +81,7 @@ taken off. A free-text “save the ify context” is this verb too.
 |------------|------|----------------|
 | `/saveify` *(empty)* | **Auto-name save** | Real save. Not short usage. Sets `SAVE:` |
 | `/saveify <name>` | **Named save** | Write that snapshot. Existing name asks yes/no first |
+| `/saveify list` | **List** | Print the list. You pick a number. Display only. No `/phasify` |
 | `/saveify delete` | **Delete** | Print the list. You pick. Then yes/no |
 | `/saveify delete <name>` | **Delete** | Show that row. Yes/no |
 | `/saveify delete <#>` | **Delete** | Show that position. Yes/no |
@@ -87,9 +90,10 @@ taken off. A free-text “save the ify context” is this verb too.
 | `/saveify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
 
 After flag strip, the first whole token selects the mode when it is
-`delete`, `help`, `tldr`, `pass`, `--help`, or `/?` (case-insensitive).
-`pass help` is pass. Those lines do not save and do not retitle.
-`password` and `helpful` are names.
+`delete`, `list`, `help`, `tldr`, `pass`, `--help`, or `/?`
+(case-insensitive). `pass help` is pass. Those lines do not save
+and do not retitle. `password` and `helpful` are names. `list` is
+not a snapshot name. Further words stay on list.
 
 `/saveify delete help` deletes a snapshot named `help` (after
 yes/no). It does not print this page.
@@ -108,6 +112,28 @@ written.
 
 The list is newest first. `#` is the position when the list was
 printed. It is not a permanent id.
+
+---
+
+## List
+
+`/saveify list` prints every saved context, then asks for a number.
+The row is **List** in `docs/saveify_contract.md`:
+
+```text
+<n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
+```
+
+Phase count once, after the verb. Then the stage, then Blocks,
+then Defers, then cwd. The same row is used for delete and for
+empty `/resumeify`.
+
+A number redisplays that snapshot (banner, plan and phase table,
+or task / kickoff / notes). It does not say the next command is
+`/phasify`. It does not run a phase. A number that no longer
+points at the same snapshot: **Error:** list changed.
+
+Empty `/saveify` is still an auto-name save, not this list.
 
 ---
 
@@ -133,10 +159,12 @@ Replace this snapshot? (yes/no)
 
 ```text
 **Saveify — confirm delete.**
-- <n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
+- <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 
 Delete this snapshot? (yes/no)
 ```
+
+The bullet is the **List** row.
 
 For a set, the question is `Delete these snapshot(s)? (yes/no)`.
 
@@ -217,7 +245,7 @@ Cite `docs/window_title.md`. Prefix: `SAVE:`. A save, including
 empty `/saveify`, sets it. The summary is three to six words of the
 task, or the display name when the task has no usable words.
 
-Help, tldr, pass, delete, `--help`, and `/?` leave the current
+Help, tldr, pass, list, delete, `--help`, and `/?` leave the current
 name.
 
 ---
@@ -229,8 +257,11 @@ name.
 - Empty `/saveify` is an auto-name save, not short usage.
 - An existing name asks yes/no before replace. Auto-name does not
   overwrite.
+- `/saveify list` shows the **List** row and displays the number
+  you pick. Display only. It does not hand off to `/phasify`.
 - Every delete asks yes/no. Bare delete lists, you pick, then
-  yes/no. Nothing is deleted on the proposing line.
+  yes/no. Nothing is deleted on the proposing line. The candidate
+  rows use that same **List** line.
 - A later command that is not yes/no cancels. A `#` that moved is
   **Error:** list changed.
 - No ify context: **Error:** nothing to save.

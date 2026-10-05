@@ -89,9 +89,11 @@ Usage:
   ./scripts/cli.sh saveify rm <slug> --yes
 
 Store: $(saveify_store_root)
-ls: newest first. Empty store prints nothing.
-  <n> <saved_at> <slug> <display_name> <verb> <stage> <cwd>
-  tab-separated. 1 is the newest. A directory with no meta.json is not a row.
+ls: newest first. Empty store prints nothing. Does not require --yes.
+  <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
+  then a tab, then the slug. 1 is the newest. Show the row; map # via the slug.
+  Counts come from table.txt (phase_layout box or a markdown phase table).
+  No table.txt: 0 Phases, 0 Blocks, 0 Defers. A directory with no meta.json is not a row.
 resolve prints that slug's directory. It takes a slug, not a list number
 or a display name.
 rm deletes that slug only when --yes is present. It does not prompt.
@@ -111,11 +113,17 @@ saveify_cmd_ls() {
   python3 - "$root" <<'PY'
 import json
 import os
+import re
 import sys
 
 root = sys.argv[1]
 if not os.path.isdir(root) or os.path.islink(root):
     sys.exit(0)
+
+WORK_RE = re.compile(r"(?i)^(?:P\d+|Phase\s+\d+)\b")
+BLOCKED = {"blocked", "def-blocked"}
+DEFERRED = {"deferred", "def-blocked"}
+
 
 def field(data, key):
     val = data.get(key, "")
@@ -124,6 +132,112 @@ def field(data, key):
     if not isinstance(val, str):
         val = str(val)
     return val.replace("\t", " ").replace("\r", "").replace("\n", " ")
+
+
+def cells_of(line, sep):
+    parts = line.split(sep)
+    if len(parts) >= 2 and parts[0].strip() == "" and parts[-1].strip() == "":
+        parts = parts[1:-1]
+    return [p.strip() for p in parts]
+
+
+def header_indexes(cells):
+    lows = [c.lower() for c in cells]
+    if "phase" not in lows or "status" not in lows:
+        return None
+    return lows.index("phase"), lows.index("status")
+
+
+def is_rule(cells):
+    if not cells:
+        return False
+    return all(re.fullmatch(r":?-{1,}:?", c.replace(" ", "")) for c in cells if c != "")
+
+
+def parse_box(text):
+    rows = []
+    found = False
+    phase_i = status_i = None
+    for line in text.splitlines():
+        if "\u2502" not in line:
+            continue
+        cells = cells_of(line, "\u2502")
+        if phase_i is None:
+            idx = header_indexes(cells)
+            if idx is None:
+                continue
+            phase_i, status_i = idx
+            found = True
+            continue
+        if len(cells) <= max(phase_i, status_i):
+            continue
+        phase = cells[phase_i]
+        if not phase:
+            continue
+        rows.append((phase, cells[status_i]))
+    return rows, found
+
+
+def parse_md(text):
+    rows = []
+    found = False
+    phase_i = status_i = None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            if found and stripped:
+                break
+            continue
+        cells = cells_of(stripped, "|")
+        if phase_i is None:
+            idx = header_indexes(cells)
+            if idx is None:
+                continue
+            phase_i, status_i = idx
+            found = True
+            continue
+        if is_rule(cells):
+            continue
+        if len(cells) <= max(phase_i, status_i):
+            continue
+        phase = cells[phase_i]
+        if not phase:
+            continue
+        rows.append((phase, cells[status_i]))
+    return rows, found
+
+
+def norm_status(status):
+    text = status.replace("\u2013", "-").replace("\u2014", "-")
+    return " ".join(text.split()).strip().lower()
+
+
+def phase_counts(directory):
+    path = os.path.join(directory, "table.txt")
+    if os.path.islink(path) or not os.path.isfile(path):
+        return 0, 0, 0
+    try:
+        with open(path, encoding="utf-8-sig") as fh:
+            text = fh.read()
+    except (OSError, UnicodeError):
+        return 0, 0, 0
+    rows, found = parse_box(text)
+    if not found:
+        rows, found = parse_md(text)
+    if not found:
+        return 0, 0, 0
+    phases = blocks = defers = 0
+    for phase, status in rows:
+        if WORK_RE.match(phase.strip()) is None:
+            continue
+        phases += 1
+        st = norm_status(status)
+        if st in BLOCKED:
+            blocks += 1
+        if st in DEFERRED:
+            defers += 1
+    return phases, blocks, defers
+
 
 rows = []
 try:
@@ -148,6 +262,7 @@ for name in names:
         continue
     if not isinstance(data, dict):
         continue
+    phases, blocks, defers = phase_counts(d)
     rows.append((
         field(data, "saved_at"),
         name,
@@ -155,15 +270,20 @@ for name in names:
         field(data, "verb"),
         field(data, "stage"),
         field(data, "cwd"),
+        phases,
+        blocks,
+        defers,
     ))
 
 rows.sort(key=lambda r: r[1])
 rows.sort(key=lambda r: (r[0] != "", r[0]), reverse=True)
 for i, row in enumerate(rows, 1):
-    saved, slug, display, verb, stage, cwd = row
-    sys.stdout.write(
-        "%d\t%s\t%s\t%s\t%s\t%s\t%s\n" % (i, saved, slug, display, verb, stage, cwd)
+    saved, slug, display, verb, stage, cwd, phases, blocks, defers = row
+    printed = (
+        "%d  %s  %s  %s, %d Phases, %s, %d Blocks, %d Defers, %s"
+        % (i, saved, display, verb, phases, stage, blocks, defers, cwd)
     )
+    sys.stdout.write("%s\t%s\n" % (printed, slug))
 PY
 }
 

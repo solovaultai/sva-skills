@@ -6,6 +6,7 @@ reprint follow `docs/saveify_contract.md`.
 
 ```text
 /resumeify                — list, newest first; do not restore
+/resumeify list           — same list, then restore the one you pick
 /resumeify <name>         — restore that snapshot
 /resumeify <#>            — restore list position (1 = newest)
 /resumeify help           — full reference (also --help / /?)
@@ -15,7 +16,8 @@ reprint follow `docs/saveify_contract.md`.
 
 | Argument | What it does | Why |
 |----------|--------------|-----|
-| *(empty)* | List number, date, name, verb, stage, cwd. Newest first | Empty is not a save and does not restore or retitle |
+| *(empty)* | List the **List** row from `docs/saveify_contract.md`. Newest first | Empty is not a save and does not restore, ask, or retitle |
+| `list` | Same list, then restore the number or name you pick | Exact `list` is not a snapshot name. The pick can continue with `/phasify` |
 | `<name>` | Reprint that snapshot | A later `/phasify` can continue |
 | `<#>` | Reprint list position `1` = newest | The number is not a stable id |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |

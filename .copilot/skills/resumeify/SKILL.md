@@ -3,8 +3,10 @@ name: resumeify
 description: >-
   Resumeify — list and restore a saved ify context. Empty /resumeify
   lists saved contexts, newest first, and does not restore or retitle.
-  /resumeify <name> or /resumeify <#> reprints that row so a later
-  /phasify can continue. # is the current list position (1 = newest),
+  /resumeify list prints that list and restores the one you pick so a
+  later /phasify can continue. /resumeify <name> or /resumeify <#>
+  reprints that row so a later /phasify can continue. # is the current
+  list position (1 = newest),
   not a stable id. Use when the user runs /resumeify, "resumify", or
   wants to resume a saved ify context. Does not plan or execute
   phases. Does not write or delete. Print a complete reference with
@@ -14,7 +16,7 @@ description: >-
   N images / N-images and npass / Npass / N-pass / N pass per
   promptify Flag parse order. Resumeify does not run its own second
   pass loop.
-argument-hint: "[<name or #>]"
+argument-hint: "[<name|#|list>]"
 user-invocable: true
 ---
 
@@ -25,14 +27,18 @@ end** in the Promptify family. You list saved ify contexts and
 reprint one. You do not plan, execute phases, or delete. You do not
 run `/phasify`.
 
-1. Parse help / tldr / pass / flags on the typed line.
-2. Empty remaining body: list. Do not restore.
-3. A name or `#`: load that row and reprint it.
-4. Stop. A later `/phasify` continues from the reprint.
+1. If a list pick is pending, handle that reply first.
+2. Parse help / tldr / pass / list / flags on the typed line.
+3. Empty remaining body: list. Do not restore. Do not ask.
+4. Remaining body exactly `list`: print the list and ask. Do not
+   restore yet.
+5. A name or `#`: load that row and reprint it.
+6. Stop. A later `/phasify` continues from a restore.
 
 Cite `docs/saveify_contract.md`. List and restore go through that
 store. Help, tldr, and pass do not write. Empty `/resumeify` lists
-and does not restore. Do not paste a second store format.
+and does not restore. `/resumeify list` restores the pick so
+`/phasify` can continue. Do not paste a second store format.
 
 Follow `~/.copilot/skills/promptify/SKILL.md` for **Flag parse order**.
 Do not fork a second parse. Do not run a second pass loop.
@@ -56,10 +62,13 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
 - Remaining body exactly `pass` or `pass help` (case-insensitive):
   print the **Pass (`Npass`)** section of `references/HELP.md` and
   **stop**. There is no `/pass` skill.
+- Remaining body exactly `list` (case-insensitive): **List select**.
+  Not a snapshot name. Not Help.
 
-Do not list, resolve, or retitle. `help me …` is a **name**, not
-Help. A flag-only line (`/resumeify 2pass`, `/resumeify 1image`) is
-**empty** after the strip: list, do not restore.
+Do not list, resolve, or retitle on help, tldr, or pass. `help me …`
+is a **name**, not Help. `list` is reserved only when it is the whole
+remaining body. A flag-only line (`/resumeify 2pass`, `/resumeify 1image`)
+is **empty** after the strip: list, do not restore.
 
 ---
 
@@ -92,24 +101,55 @@ on Windows. Do not call `saveify rm`. Do not delete. Do not invent a
 store path. A directory the CLI omits is not a row.
 
 `ls` is newest first and exits 0 when nothing is saved. One snapshot
-per line, tab-separated:
-
-```text
-<n>\t<saved_at>\t<slug>\t<display_name>\t<verb>\t<stage>\t<cwd>
-```
+per line: the **List** row from `docs/saveify_contract.md`, then a
+tab, then the slug. Show the row. Keep the slug. Do not invent a
+second line. Do not re-sort.
 
 `<n>` is the 1-based position in that line order. `1` is the newest.
 It is not stored and it is not a stable id.
 
-No lines: print `Nothing is saved.` and stop.
+No lines: print `Nothing is saved.` and stop. Do not ask.
 
-Otherwise print this banner, then one row per line. Drop `<slug>`
-from the row. Do not add columns. Do not re-sort.
+Otherwise print this banner, then one row per line (the text before
+the tab):
 
 ```text
 **Resumeify — saved contexts.**
-<n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
 ```
+
+Empty `/resumeify` stops there. It does not ask and it does not
+restore.
+
+---
+
+## List select (`/resumeify list`)
+
+Remaining body exactly `list`. Same numbered list as empty
+`/resumeify`. This is not a save. The asking turn does not retitle
+and does not restore.
+
+No lines: `Nothing is saved.` Stop. Do not ask.
+
+Otherwise print the list and wait for a number or a name. Same wait
+as saveify’s delete pick. Stop. The next user message is the reply.
+
+A digits-only reply is that `#`. Run `saveify ls` again. If that
+position is a different slug than the one shown, **Error:** list
+changed. Do not restore.
+
+A name uses the restore match below (slug, then display name).
+
+Out of range, or a name that matches nothing: **Error:**, then the
+list. Do not restore. More than one display name: **Error:**
+ambiguous, then the list.
+
+A later slash command cancels the pending pick and runs that
+command. Any other reply re-asks. Do not restore.
+
+On a match: this is a restore. Follow **Restore** and **Reprint**,
+including the `/phasify` sentence when any work phase is not Done,
+and the plan is complete when every work phase is Done. Set
+`RESUME:` on that restore. Do not run `/phasify`.
 
 ---
 
@@ -213,7 +253,8 @@ Set the tmux window name per that contract on a real restore.
 The summary is the words after the ancestor prefix in the snapshot
 `window_title`. When that is empty, use the first words of
 `display_name`. Do not invent a second prefix.
-Help, tldr, pass, and empty `/resumeify` do not retitle.
+Help, tldr, pass, empty `/resumeify`, and the asking turn of
+`/resumeify list` do not retitle. The restore after a list pick does.
 
 ## Hard rules
 
@@ -226,6 +267,10 @@ Help, tldr, pass, and empty `/resumeify` do not retitle.
   format.
 - Empty `/resumeify` lists newest first and does not restore. It
   is not a save and it does not retitle. No rows: `Nothing is saved.`
+- `/resumeify list` is the same list, then a number or a name.
+  That pick is a restore (next command `/phasify` when any work
+  phase is not Done). Exact body `list` is not a snapshot name.
+  The asking turn does not retitle.
 - `#` is the current list position (`1` = newest), not a stable id.
   Digits are always a position. If that position's slug changed
   before you read, **Error:** list changed. Do not restore.
@@ -241,5 +286,6 @@ Help, tldr, pass, and empty `/resumeify` do not retitle.
   `references/TLDR.md` and stop. Exact `pass` / `pass help`: print
   the **Pass (`Npass`)** section and stop.
 - Cite `docs/window_title.md`. Prefix `RESUME:`. Set it on a real
-  restore. Help, tldr, pass, and empty list do not retitle.
+  restore, including a `/resumeify list` pick. Help, tldr, pass,
+  empty list, and the asking turn do not retitle.
 - Canonical slash is `/resumeify`. `resumify` is not a folder.

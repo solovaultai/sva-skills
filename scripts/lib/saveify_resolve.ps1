@@ -34,14 +34,24 @@ function Test-SaveifySlug {
     return $true
 }
 
-function Get-SaveifyTextField {
-    param($Obj, [string]$Name)
-    if ($null -eq $Obj) { return '' }
-    $prop = $Obj.PSObject.Properties[$Name]
-    if ($null -eq $prop -or $null -eq $prop.Value) { return '' }
-    $text = [string]$prop.Value
-    $text = $text.Replace("`t", ' ').Replace("`r", '').Replace("`n", ' ')
-    return $text
+# JSON string as stored. ConvertFrom-Json turns saved_at into a DateTime.
+function Get-SaveifyJsonString {
+    param($Element, [string]$Name)
+    $prop = [System.Text.Json.JsonElement]::new()
+    $found = $Element.TryGetProperty($Name, [ref]$prop)
+    if (-not $found) { return '' }
+    $kind = $prop.ValueKind
+    if ($kind -eq [System.Text.Json.JsonValueKind]::String) {
+        $text = $prop.GetString()
+    }
+    elseif ($kind -eq [System.Text.Json.JsonValueKind]::Null -or $kind -eq [System.Text.Json.JsonValueKind]::Undefined) {
+        return ''
+    }
+    else {
+        $text = $prop.ToString()
+    }
+    if ($null -eq $text) { return '' }
+    return $text.Replace("`t", ' ').Replace("`r", '').Replace("`n", ' ')
 }
 
 # Absolute snapshot directory, or $null when it is not a snapshot.
@@ -75,9 +85,11 @@ Usage:
   .\scripts\cli.ps1 saveify rm <slug> --yes
 
 Store: $store
-ls: newest first. Empty store prints nothing.
-  <n> <saved_at> <slug> <display_name> <verb> <stage> <cwd>
-  tab-separated. 1 is the newest. A directory with no meta.json is not a row.
+ls: newest first. Empty store prints nothing. Does not require --yes.
+  <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
+  then a tab, then the slug. 1 is the newest. Show the row; map # via the slug.
+  Counts come from table.txt (phase_layout box or a markdown phase table).
+  No table.txt: 0 Phases, 0 Blocks, 0 Defers. A directory with no meta.json is not a row.
 resolve prints that slug's directory. It takes a slug, not a list number
 or a display name.
 rm deletes that slug only when --yes is present. It does not prompt.
@@ -90,6 +102,127 @@ function Show-SaveifyDir {
         Die 'usage: saveify dir'
     }
     Write-Out (Get-SaveifyStoreRoot)
+}
+
+function Get-SaveifyHeaderIndexes {
+    param([string[]]$Cells)
+    $phaseI = -1
+    $statusI = -1
+    for ($i = 0; $i -lt $Cells.Count; $i++) {
+        $low = $Cells[$i].ToLowerInvariant()
+        if ($low -eq 'phase' -and $phaseI -lt 0) { $phaseI = $i }
+        if ($low -eq 'status' -and $statusI -lt 0) { $statusI = $i }
+    }
+    if ($phaseI -lt 0 -or $statusI -lt 0) { return $null }
+    return @($phaseI, $statusI)
+}
+
+function Split-SaveifyCells {
+    param([string]$Line, [char]$Sep)
+    $parts = $Line.Split($Sep)
+    if ($parts.Count -ge 2 -and [string]::IsNullOrWhiteSpace($parts[0]) -and [string]::IsNullOrWhiteSpace($parts[$parts.Count - 1])) {
+        if ($parts.Count -eq 2) { return @() }
+        $parts = $parts[1..($parts.Count - 2)]
+    }
+    $cells = New-Object System.Collections.Generic.List[string]
+    foreach ($p in $parts) { [void]$cells.Add($p.Trim()) }
+    return ,$cells.ToArray()
+}
+
+function Test-SaveifyRuleRow {
+    param([string[]]$Cells)
+    if ($null -eq $Cells -or $Cells.Count -eq 0) { return $false }
+    foreach ($c in $Cells) {
+        if ([string]::IsNullOrWhiteSpace($c)) { continue }
+        if ($c.Replace(' ', '') -notmatch '^:?-+:?$') { return $false }
+    }
+    return $true
+}
+
+function Get-SaveifyNormStatus {
+    param([string]$Status)
+    if ($null -eq $Status) { return '' }
+    $text = $Status.Replace([char]0x2013, '-').Replace([char]0x2014, '-')
+    $text = [regex]::Replace($text, '\s+', ' ').Trim().ToLowerInvariant()
+    return $text
+}
+
+# Work-phase counts from table.txt. Missing or unreadable: 0, 0, 0.
+function Get-SaveifyPhaseCounts {
+    param([string]$Dir)
+    $zeros = @(0, 0, 0)
+    $table = Join-Path $Dir 'table.txt'
+    if (-not (Test-Path -LiteralPath $table -PathType Leaf)) { return $zeros }
+    $item = Get-Item -LiteralPath $table -Force
+    if ($item.PSIsContainer) { return $zeros }
+    if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { return $zeros }
+    try {
+        $text = [System.IO.File]::ReadAllText($table)
+    }
+    catch {
+        return $zeros
+    }
+    $workRe = [regex]'(?i)^(?:P\d+|Phase\s+\d+)\b'
+    $box = [char]0x2502
+    $rows = New-Object System.Collections.Generic.List[object]
+    $found = $false
+    $phaseI = -1
+    $statusI = -1
+    foreach ($line in ($text -split "`r?`n")) {
+        if ($line.IndexOf($box) -lt 0) { continue }
+        $cells = Split-SaveifyCells -Line $line -Sep $box
+        if ($phaseI -lt 0) {
+            $idx = Get-SaveifyHeaderIndexes -Cells $cells
+            if ($null -eq $idx) { continue }
+            $phaseI = $idx[0]
+            $statusI = $idx[1]
+            $found = $true
+            continue
+        }
+        $need = [Math]::Max($phaseI, $statusI)
+        if ($cells.Count -le $need) { continue }
+        if ([string]::IsNullOrWhiteSpace($cells[$phaseI])) { continue }
+        [void]$rows.Add(@($cells[$phaseI], $cells[$statusI]))
+    }
+    if (-not $found) {
+        $rows.Clear()
+        $phaseI = -1
+        $statusI = -1
+        foreach ($line in ($text -split "`r?`n")) {
+            $stripped = $line.Trim()
+            if (-not $stripped.StartsWith('|')) {
+                if ($found -and -not [string]::IsNullOrWhiteSpace($stripped)) { break }
+                continue
+            }
+            $cells = Split-SaveifyCells -Line $stripped -Sep '|'
+            if ($phaseI -lt 0) {
+                $idx = Get-SaveifyHeaderIndexes -Cells $cells
+                if ($null -eq $idx) { continue }
+                $phaseI = $idx[0]
+                $statusI = $idx[1]
+                $found = $true
+                continue
+            }
+            if (Test-SaveifyRuleRow -Cells $cells) { continue }
+            $need = [Math]::Max($phaseI, $statusI)
+            if ($cells.Count -le $need) { continue }
+            if ([string]::IsNullOrWhiteSpace($cells[$phaseI])) { continue }
+            [void]$rows.Add(@($cells[$phaseI], $cells[$statusI]))
+        }
+    }
+    if (-not $found) { return $zeros }
+    $phases = 0
+    $blocks = 0
+    $defers = 0
+    foreach ($pair in $rows) {
+        $phase = ([string]$pair[0]).Trim()
+        if (-not $workRe.IsMatch($phase)) { continue }
+        $phases++
+        $st = Get-SaveifyNormStatus -Status ([string]$pair[1])
+        if ($st -eq 'blocked' -or $st -eq 'def-blocked') { $blocks++ }
+        if ($st -eq 'deferred' -or $st -eq 'def-blocked') { $defers++ }
+    }
+    return @($phases, $blocks, $defers)
 }
 
 function Show-SaveifyList {
@@ -112,22 +245,31 @@ function Show-SaveifyList {
         $metaItem = Get-Item -LiteralPath $meta -Force
         if ($metaItem.PSIsContainer) { continue }
         if ($metaItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) { continue }
+        $doc = $null
         try {
             $raw = [System.IO.File]::ReadAllText($meta)
-            $obj = $raw | ConvertFrom-Json
+            $doc = [System.Text.Json.JsonDocument]::Parse($raw)
+            $rootEl = $doc.RootElement
+            if ($rootEl.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { continue }
+            $counts = Get-SaveifyPhaseCounts -Dir $d.FullName
+            [void]$rows.Add([pscustomobject]@{
+                    SavedAt     = (Get-SaveifyJsonString $rootEl 'saved_at')
+                    Slug        = $name
+                    DisplayName = (Get-SaveifyJsonString $rootEl 'display_name')
+                    Verb        = (Get-SaveifyJsonString $rootEl 'verb')
+                    Stage       = (Get-SaveifyJsonString $rootEl 'stage')
+                    Cwd         = (Get-SaveifyJsonString $rootEl 'cwd')
+                    Phases      = $counts[0]
+                    Blocks      = $counts[1]
+                    Defers      = $counts[2]
+                })
         }
         catch {
             continue
         }
-        if ($null -eq $obj -or $obj -is [System.Array]) { continue }
-        [void]$rows.Add([pscustomobject]@{
-                SavedAt     = (Get-SaveifyTextField $obj 'saved_at')
-                Slug        = $name
-                DisplayName = (Get-SaveifyTextField $obj 'display_name')
-                Verb        = (Get-SaveifyTextField $obj 'verb')
-                Stage       = (Get-SaveifyTextField $obj 'stage')
-                Cwd         = (Get-SaveifyTextField $obj 'cwd')
-            })
+        finally {
+            if ($null -ne $doc) { $doc.Dispose() }
+        }
     }
 
     $sorted = @($rows | Sort-Object -Property `
@@ -136,7 +278,8 @@ function Show-SaveifyList {
         @{ Expression = { $_.Slug }; Descending = $false })
     $n = 1
     foreach ($r in $sorted) {
-        Write-Out ("{0}`t{1}`t{2}`t{3}`t{4}`t{5}`t{6}" -f $n, $r.SavedAt, $r.Slug, $r.DisplayName, $r.Verb, $r.Stage, $r.Cwd)
+        $printed = "{0}  {1}  {2}  {3}, {4} Phases, {5}, {6} Blocks, {7} Defers, {8}" -f $n, $r.SavedAt, $r.DisplayName, $r.Verb, $r.Phases, $r.Stage, $r.Blocks, $r.Defers, $r.Cwd
+        Write-Out ("{0}`t{1}" -f $printed, $r.Slug)
         $n++
     }
 }

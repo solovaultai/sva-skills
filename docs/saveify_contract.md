@@ -141,9 +141,14 @@ Same exception shape as empty `/phasify` = Next. It
 auto-names. It does set the window title.
 
 Reserved first tokens are modes, not names. Whole token,
-case-insensitive, after flag strip: `delete`, `help`,
-`tldr`, `pass`, `--help`, `/?`. `pass help` is pass.
-These do not write a snapshot and do not retitle.
+case-insensitive, after flag strip: `delete`, `list`,
+`help`, `tldr`, `pass`, `--help`, `/?`. `pass help` is
+pass. These do not write a snapshot and do not retitle.
+
+`list` is that mode. `/saveify list` is not a snapshot
+name. On saveify, further words stay on list. On
+resumeify, the remaining body exactly `list` is this
+mode. Neither writes a snapshot.
 
 ### Slug
 
@@ -189,13 +194,41 @@ that list at the moment it is printed. `1` is the newest.
 A token that is only digits is a position on resume and
 on delete. On save, digits are a name (`/saveify 2`
 stores the name `2`). `/resumeify 2` is position 2.
+`/saveify list` is the list mode, not the name `list`.
 
-Printed row, for `/resumeify` with no target and for
-bare `/saveify delete`:
+Printed row, wherever a saved-context list is shown.
+That is `/saveify list`, `/resumeify list`, empty
+`/resumeify`, bare `/saveify delete`, and each
+delete-confirm bullet. One shape. Do not invent a
+second line.
 
 ```text
-<n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
+<n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 ```
+
+Two spaces between `<n>`, `<saved_at>`, and
+`<display_name>`. Then `<verb>,` and the rest. Phase
+count once, immediately after the verb. Then the stage.
+Then Blocks, then Defers, then cwd. Do not print the
+phase count a second time. The words stay plural
+(`0 Phases`, `1 Blocks`, `1 Defers`).
+
+`<phases>` counts work phases in that snapshot’s
+`table.txt`. Task and Flags do not count. A work phase
+is a row whose Phase cell starts with `P` and digits
+(`P0`, `P1 — Spec`) or with `Phase` and a number. Cite
+`docs/phase_layout.txt` for the box. A markdown phase
+table counts the same way. No `table.txt`, or no phase
+table in it: `<phases>`, `<blocks>`, and `<defers>`
+are 0.
+
+`<blocks>` counts those work phases whose status is
+`Blocked` or `Def-Blocked`. `<defers>` counts those
+whose status is `Deferred` or `Def-Blocked`.
+`Def-Blocked` counts in both.
+
+`<stage>` is the stored `stage` string. Examples:
+`P1 Done; next P2`, `planned, not phasified`.
 
 Match a non-digit name to `slug`, then to `display_name`,
 case-insensitive, whole value. Zero matches or more than
@@ -207,17 +240,19 @@ A directory with no `meta.json` is not a row.
 
 ## Commands
 
-Help, `--help`, `/?`, tldr, and `pass` short-circuit
+Help, `--help`, `/?`, tldr, pass, and `list` short-circuit
 before any write or delete.
 
 | Typed | Effect |
 |-------|--------|
-| `/saveify` | Auto-name save. |
+| `/saveify` | Auto-name save. Not list. |
 | `/saveify <name>` | Save under that name. |
+| `/saveify list` | Print the list. User picks a number. Display that snapshot. No phasify handoff. |
 | `/saveify delete` | Print the list. User picks. Then yes/no. |
 | `/saveify delete <name>` | Show that row. Yes/no. |
 | `/saveify delete <#>` | Show that row. Yes/no. |
-| `/resumeify` | List only. Do not restore. |
+| `/resumeify` | List only. Do not restore. Do not ask. |
+| `/resumeify list` | Print the list. User picks a number or a name. Restore that row. |
 | `/resumeify <name>` | Restore that row. |
 | `/resumeify <#>` | Restore that position. |
 
@@ -260,10 +295,12 @@ Replace this snapshot? (yes/no)
 
 ```text
 **Saveify — confirm delete.**
-- <n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
+- <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 
 Delete this snapshot? (yes/no)
 ```
+
+The bullet is the printed row from **List**.
 
 For a set, the question is `Delete these snapshot(s)? (yes/no)`.
 
@@ -331,6 +368,61 @@ the plan is complete. `kind` `other` does not say either.
 
 ---
 
+## List select
+
+`/saveify list` and `/resumeify list` print the **List**
+row, then ask for a number. Do not load on that turn.
+Cursor uses AskQuestion when the tool exists. Options
+are the list numbers. Grok and Copilot print the list
+and wait, the same wait as the delete pick.
+
+No rows: `Nothing is saved.` Do not ask.
+
+A digits-only reply is that `#`. Run `ls` again. If
+that position is a different slug than the one shown,
+stop. **Error:** list changed. Do not display. Do not
+restore. Same `#` stability rule as delete.
+
+`#` out of range: **Error:** not found: `<n>`.
+
+A later command that is not the pick cancels the
+pending pick, then runs. On `/saveify list`, any other
+reply re-asks. Do not load.
+
+`/resumeify list` also accepts a name on that reply.
+Match it the same way as `/resumeify <name>`.
+
+### `/saveify list`
+
+Display only. Do not hand off to phasify. Do not say
+the next command is `/phasify`. Do not say the plan is
+complete. Do not execute a phase. Do not retitle.
+Do not pass `--yes`.
+
+```text
+**Saveify — `<name>`.**
+Saved <date>. Verb `<verb>`. Stage: <stage>. Workspace: <cwd>.
+```
+
+Then the same body as **Resume** (plan path, the
+workspace line when `cwd` differs, `plan.md`,
+`table.txt`, or task / kickoff / notes). Stop before
+the `/phasify` sentence.
+
+### `/resumeify list`
+
+This pick is a restore. Same reprint as **Resume**,
+including the next-command sentence: `/phasify` when
+any work phase is not Done, and the plan is complete
+when every work phase is Done. That restore sets
+`RESUME:`. The asking turn does not retitle.
+
+Empty `/resumeify` prints the **List** row and stops.
+It does not ask and it does not restore. It is not an
+auto-save and it is not `/resumeify list`.
+
+---
+
 ## Addify and phasify
 
 Addify walks past `/saveify` and `/resumeify`. They are
@@ -366,19 +458,21 @@ saveify rm <slug> --yes
 | Subcommand | Effect |
 |------------|--------|
 | `dir` | Print the store root, one absolute path. Do not create it. |
-| `ls` | Newest first. One snapshot per line. Empty store prints nothing and exits 0. |
+| `ls` | Newest first. One snapshot per line. Empty store prints nothing and exits 0. No `--yes`. |
 | `resolve` | Print that slug's absolute directory. |
 | `rm` | Delete that slug only when `--yes` is present. |
 
-`ls` line, tab-separated:
+`ls` prints the **List** row, then a tab, then the slug:
 
 ```text
-<n>\t<saved_at>\t<slug>\t<display_name>\t<verb>\t<stage>\t<cwd>
+<printed row>\t<slug>
 ```
 
-`resolve` takes a slug, not a list number and not a
-display name. The skill maps a name or `#` to a slug,
-then calls `resolve` or `rm`.
+The printed row is the shape in **List**. Skills show
+that text and drop the tab and the slug. The slug is
+how a selected `#` maps to `resolve` or `rm`. `resolve`
+takes a slug, not a list number and not a display name.
+`ls` does not prompt and does not require `--yes`.
 
 `rm` without `--yes` refuses and does not delete. The
 skill passes `--yes` only after the user confirms.
@@ -419,8 +513,10 @@ A restore sets `RESUME:`. The summary is the words after
 the ancestor prefix in `window_title`. When that is
 empty, use the first words of `display_name`.
 
-List-only `/resumeify`, delete, help, tldr, pass,
-`--help`, and `/?` do not retitle.
+List-only `/resumeify`, `/saveify list`, the asking
+turn of `/resumeify list`, delete, help, tldr, pass,
+`--help`, and `/?` do not retitle. A `/resumeify list`
+pick that restores does set `RESUME:`.
 
 `SAVE` and `RESUME` are not phasify ancestor prefixes.
 Phasify keeps the saved verb's prefix.
@@ -458,8 +554,9 @@ file. Put the same cite in `.grok/<verb>/`,
 `.cursor/skills/<verb>/`, and `.copilot/skills/<verb>/`.
 
 ```markdown
-Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, and pass do not write. Empty `/saveify` is an auto-name save.
+Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` displays one snapshot and does not hand off to phasify.
 ```
 
 Resumeify cites the same file. Its empty invocation lists
-and does not restore.
+and does not restore. `/resumeify list` restores the pick
+so `/phasify` can continue.

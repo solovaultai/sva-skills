@@ -106,8 +106,8 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
-/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
-/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); `/saveify list` displays one; delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; `/resumeify list` selects one for /phasify; restore by name or # (empty lists and does not restore)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -208,8 +208,8 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
-/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
-/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); `/saveify list` displays one; delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; `/resumeify list` selects one for /phasify; restore by name or # (empty lists and does not restore)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -308,8 +308,8 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /docify help              — full docify reference (also --help, /?)
 /docify tldr              — short form (stop)
 <verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
-/saveify [<name>]         — save current ify context (auto-name if unnamed); delete by name or # after yes/no (empty is a real save)
-/resumeify [<name|#>]     — list newest-first with dates; restore by name or # so /phasify can continue (empty lists and does not restore)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); `/saveify list` displays one; delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; `/resumeify list` selects one for /phasify; restore by name or # (empty lists and does not restore)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).

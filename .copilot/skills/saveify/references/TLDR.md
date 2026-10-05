@@ -9,6 +9,7 @@ word, not a command.
 ```text
 /saveify                 — auto-name save
 /saveify <name>          — save under that name
+/saveify list            — list, pick a number, display only
 /saveify delete          — list, pick, then yes/no
 /saveify delete <name>   — that row, then yes/no
 /saveify delete <#>      — that position, then yes/no
@@ -23,6 +24,7 @@ Empty `/saveify` is a real auto-name save, not short usage.
 |----------|--------------|-----|
 | *(empty)* | Auto-name save | Same exception shape as empty `/phasify` = Next |
 | `<name>` | Save under that name | An existing slug asks yes/no before replace |
+| `list` | Show every saved context, then display the number you pick | Not a name. Does not run `/phasify`. Empty `/saveify` still saves |
 | `delete` | List, then you pick, then yes/no | Nothing is deleted on the proposing line |
 | `delete <name>` | Show that row, then yes/no | Name matches slug, then display name |
 | `delete <#>` | Show that position, then yes/no | `#` is the list position right now; 1 is newest |

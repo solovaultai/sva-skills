@@ -175,8 +175,8 @@ Saveify snapshots (see docs/saveify_contract.md):
   ./scripts/cli.sh saveify resolve <slug>
   ./scripts/cli.sh saveify rm <slug> --yes
 Store: ${XDG_DATA_HOME:-~/.local/share}/sva-skills/saveify
-ls is newest first (1 = newest), tab-separated:
-  <n> <saved_at> <slug> <display_name> <verb> <stage> <cwd>
+ls is newest first (1 = newest). Printed row, then a tab, then the slug:
+  <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 resolve takes a slug, not a list number or a display name.
 rm refuses unless --yes. It does not prompt.
 EOF

@@ -27,6 +27,7 @@ This page does not restate that store.
 
 ```text
 /resumeify                — list, newest first; do not restore
+/resumeify list           — same list, then restore the one you pick
 /resumeify <name>         — restore that snapshot
 /resumeify <#>            — restore list position (1 = newest)
 /resumeify help           — this reference (also --help / /?)
@@ -42,6 +43,7 @@ Canonical slash is `/resumeify`. `resumify` is not a command.
 
 ```text
 /resumeify
+/resumeify list
 /resumeify 1
 /resumeify my saved plan
 /resumeify help
@@ -64,7 +66,8 @@ when they said “resumeify that plan”.
 
 | Invocation | Mode | What happens |
 |------------|------|----------------|
-| `/resumeify` *(empty)* | **List** | Newest first. No restore. Name unchanged |
+| `/resumeify` *(empty)* | **List** | Newest first. No restore. Does not ask. Name unchanged |
+| `/resumeify list` | **List select** | Same list, then a number or a name. That pick restores for `/phasify` |
 | `/resumeify <name>` | **Restore** | Reprint that snapshot |
 | `/resumeify <#>` | **Restore** | `#` is current position, 1 = newest |
 | `/resumeify help` / `--help` / `/?` | **Help** | Print this page; stop |
@@ -73,21 +76,31 @@ when they said “resumeify that plan”.
 | `/resumeify 2pass` / `1image` | **Flags** | Stripped, then list |
 
 Exact remaining body after flag strip must be `help`, `--help`,
-`/?`, `tldr`, `pass`, or `pass help`. `help me write a login form`
-is a name (look up that snapshot).
+`/?`, `tldr`, `pass`, `pass help`, or `list`. `list` is that mode,
+not a snapshot name. `help me write a login form` is a name (look
+up that snapshot).
 
 ---
 
 ## List
 
-Newest saved first. Columns:
+Newest saved first. The row is **List** in `docs/saveify_contract.md`:
 
 ```text
-<n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
+<n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 ```
 
-No rows: nothing is saved. The list does not restore and does not
-change the window name.
+Phase count once, after the verb. Then the stage, then Blocks,
+then Defers, then cwd.
+
+No rows: nothing is saved. Empty `/resumeify` does not restore and
+does not change the window name. It does not ask.
+
+`/resumeify list` prints that same list and asks for a number or a
+name. The pick reprints the snapshot. If any work phase is not
+Done, the next command is `/phasify`. If every work phase is Done,
+the plan is complete. The asking turn does not retitle. The restore
+does.
 
 ---
 
@@ -180,6 +193,8 @@ was no plan. Resumeify stops there.
 - Thin front end: list, or restore one snapshot. No planning. No
   phase execution. No delete.
 - Empty `/resumeify` lists newest first and does not restore.
+  `/resumeify list` asks, then restores that pick for `/phasify`.
+  Exact `list` is not a snapshot name.
 - `<#>` is the current list position. `1` is newest. It is not a
   stable id.
 - A different workspace is announced. The directory stays.

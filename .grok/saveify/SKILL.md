@@ -10,7 +10,9 @@ description: >-
   usage. /saveify delete lists, the user picks, then yes/no.
   /saveify delete <name> and /saveify delete <#> show that row, then
   yes/no. Every delete requires confirmation. Nothing is deleted on
-  the proposing turn. /saveify help or /saveify --help (also /?)
+  the proposing turn. /saveify list prints every saved context and
+  displays the one you pick. It does not hand off to phasify and it
+  does not execute a phase. /saveify help or /saveify --help (also /?)
   prints the full reference. /saveify tldr prints the short page.
   /saveify pass and pass help print the Pass (Npass) subsection.
   savify is a trigger word, not a command and not a folder. Canonical
@@ -29,15 +31,15 @@ in the Promptify family. You write or delete one saved ify context.
 You do not plan, execute, debug, answer, or restore. Restoring is
 `/resumeify`. There is no `smart` mode.
 
-1. If a delete pick or a yes/no confirm is pending, handle that
-   reply first.
+1. If a list pick, a delete pick, or a yes/no confirm is pending,
+   handle that reply first.
 2. Strip `Nimages` / `Npass` on the typed line (Flag parse order).
-3. Dispatch help, tldr, pass, delete, empty, or a named save.
+3. Dispatch help, tldr, pass, list, delete, empty, or a named save.
 4. On a save, write the snapshot the contract names, through the
    CLI below.
 5. Set the window title on a save.
 
-Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, and pass do not write. Empty `/saveify` is an auto-name save.
+Cite `docs/saveify_contract.md`. Writes and deletes go through that store. Help, tldr, pass, and list do not write. Empty `/saveify` is an auto-name save. `/saveify list` displays one snapshot and does not hand off to phasify.
 
 Read that file and follow it. Do not paste a second store path,
 snapshot layout, auto-name, list order, or confirm rule. `savify`
@@ -53,7 +55,8 @@ only. Do not run a second pass loop. Do not run Scratch images.
 
 Strip `Nimages` / `Npass` first (Flag parse order). Then take the
 first whole token, case-insensitive. Reserved first tokens are
-modes, not names: `delete`, `help`, `tldr`, `pass`, `--help`, `/?`.
+modes, not names: `delete`, `list`, `help`, `tldr`, `pass`,
+`--help`, `/?`.
 `pass help` is pass. These do not write a snapshot and do not
 retitle.
 
@@ -76,6 +79,7 @@ Same exception shape as empty `/phasify` = Next.
 ```text
 /saveify                 — auto-name save
 /saveify <name>          — save under that name
+/saveify list            — list, pick a number, display only
 /saveify delete          — list, pick, then yes/no
 /saveify delete <name>   — that row, then yes/no
 /saveify delete <#>      — that position, then yes/no
@@ -120,8 +124,11 @@ to replace.
 A user name that slugs to empty: **Error:** name is empty. Do not
 write.
 
-Parse `delete` before the other modes when it is the first token.
-`/saveify delete help` is a delete target, not Help.
+Parse `delete` and `list` before a named save when either is
+the first token. `/saveify delete help` is a delete target,
+not Help. `/saveify list` is not a snapshot name. Further
+words stay on list. `/saveify list delete` is list, not a
+save and not a delete.
 
 ---
 
@@ -158,6 +165,39 @@ Print the contract’s replace confirm and stop. See **Confirm**.
 
 ---
 
+## List (`/saveify list`)
+
+First token `list` is a mode, not a name. It does not write,
+delete, or retitle. It does not need an ify context. Empty
+`/saveify` stays an auto-name save. Do not pass `--yes`.
+
+Call `saveify ls`. Print the contract’s numbered row (**List**
+in `docs/saveify_contract.md`). Show the text before the tab.
+The slug after the tab is not part of the row. Do not invent
+a second line.
+
+No lines: `Nothing is saved.` Stop. Do not ask.
+
+Otherwise print the list and wait for a number. Same wait as
+the delete pick. Stop. Do not load yet. The next user message
+is the reply.
+
+A reply that is only digits is that `#`. Run `saveify ls`
+again. If that position is a different slug than the one
+shown, stop. **Error:** list changed. Do not display.
+
+Out of range: **Error:** not found: `<n>`.
+
+A later slash command cancels the pending pick and runs that
+command. Any other reply re-asks. Do not load.
+
+On a matching number: `resolve` that slug. Display only, per
+**List select** in the contract. Do not say the next command
+is `/phasify`. Do not say the plan is complete. Do not run
+`/phasify`. Do not execute a phase.
+
+---
+
 ## Delete
 
 Every delete requires confirmation. Never delete on the proposing
@@ -170,6 +210,8 @@ turn. Delete does not need an ify context and does not retitle.
 | `/saveify delete <#>` | Show that row. Yes/no. Do not delete yet. |
 
 Call `saveify ls`. Print the contract’s numbered row (**List**).
+Show the text before the tab. Keep the slug after the tab for
+the later `rm`. Do not invent a second line.
 `#` is the 1-based position in that list at the moment it is
 printed. `1` is the newest. `#` is not stored.
 
@@ -215,10 +257,12 @@ Replace this snapshot? (yes/no)
 
 ```text
 **Saveify — confirm delete.**
-- <n>  <saved_at>  <display_name>  <verb>  <stage>  <cwd>
+- <n>  <saved_at>  <display_name>  <verb>, <phases> Phases, <stage>, <blocks> Blocks, <defers> Defers, <cwd>
 
 Delete this snapshot? (yes/no)
 ```
+
+The bullet is the **List** row.
 
 | Reply | Effect |
 |-------|--------|
@@ -275,14 +319,12 @@ scripts/cli.ps1 saveify rm <slug> --yes
 | `resolve` | Print that slug’s absolute directory. |
 | `rm` | Delete that slug only when `--yes` is present. |
 
-`ls` line, tab-separated, per the contract:
-
-```text
-<n>\t<saved_at>\t<slug>\t<display_name>\t<verb>\t<stage>\t<cwd>
-```
+`ls` prints the **List** row, then a tab, then the slug. Show
+the row. Map a name or `#` to that slug, then call `resolve`
+or `rm`. Do not invent a second line. `ls` does not require
+`--yes`.
 
 `resolve` takes a slug, not a list number and not a display name.
-Map a name or `#` to a slug, then call `resolve` or `rm`.
 
 Pass `--yes` only after the user confirms. `rm` without `--yes`
 refuses and does not delete. One `rm` per slug. Unknown slug on
@@ -312,7 +354,7 @@ six words of the task, or the display name when the task has no
 usable words (`docs/saveify_contract.md`). Whole name at most 48
 characters. Do not invent a second prefix.
 
-Help, tldr, pass, delete, `--help`, and `/?` do not retitle.
+Help, tldr, pass, list, delete, `--help`, and `/?` do not retitle.
 `SAVE` is not a phasify ancestor prefix.
 
 ## Hard rules
@@ -338,8 +380,13 @@ Help, tldr, pass, delete, `--help`, and `/?` do not retitle.
 - Capture task, flags, phase table, plan body, and kickoff per the
   contract. Cite phasify **Capture Task and Flags**. Snapshot files
   are recoverable artifacts, not the raw transcript.
-- Reserved first tokens are modes, not names. Help, tldr, and pass
-  print their page and stop. `savify` is not a command.
+- `/saveify list` prints the **List** row, then displays the
+  snapshot for the number you pick. Display only. Do not say
+  `/phasify`. Do not execute a phase. A `#` that moved is
+  **Error:** list changed.
+- Reserved first tokens are modes, not names, including `list`.
+  Help, tldr, and pass print their page and stop. `savify` is
+  not a command. Empty `/saveify` is still an auto-name save.
 - `Nimages` / `Npass`: promptify Flag parse order. Do not fork. Do
   not loop.
 - Cite `docs/from_contract.md`, `docs/docify_contract.md`, and
