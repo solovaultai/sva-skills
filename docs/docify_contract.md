@@ -93,24 +93,29 @@ Bare `docify` is a write. `docify:txt` is a write.
 
 ## No prompt
 
-A write with no task text documents the last ify in
-this conversation. Chat only. There is no last-ify
-file. Same ify set and aliases as addify **Recover
-last ify**. Cite `.grok/addify/SKILL.md`. Do not
-paste that table.
+A write with no task text documents the newest ify
+turn in this conversation. A resumeify restore is
+that turn. The reprinted body is the file. When the
+restore printed a `plan.md` path, read that file and
+write it. `plan.md` already holds one phase table.
+Do not append `table.txt`. `/docify:html` writes
+that body as html.
 
-Do not skip saveify or resumeify. Those turns are
-the deliverable. Still skip help, tldr, pass, and
-empty usage. Do not re-run the verb. Do not dispatch
-askify on an empty prompt.
+Do not print short usage for that line. Do not say a
+prompt is required. Do not dispatch askify. Do not
+re-run the saved verb named in the resume banner.
 
-The file body is that turn's already printed
-deliverable, using **What is written**. Resumeify
-writes the reprinted saved body. Saveify writes the
-snapshot: `plan.md` when `kind` is `plan`, otherwise
-`task.txt`, then `kickoff.md` and `extra.md` when
-those files exist. `plan.md` already holds one phase
-table. Do not append `table.txt`.
+Chat only. There is no last-ify file. Aliases match
+addify **Recover last ify**. Cite
+`.grok/addify/SKILL.md` for the alias table only. Do
+not apply that section's skip of saveify and
+resumeify. Those turns are the deliverable. Still
+skip help, tldr, pass, and empty usage.
+
+Saveify writes the snapshot: `plan.md` when `kind`
+is `plan`, otherwise `task.txt`, then `kickoff.md`
+and `extra.md` when those files exist. Any other
+verb writes the deliverable in **What is written**.
 
 Name words come from that task. When the task is
 empty, use the snapshot `display_name`. When both

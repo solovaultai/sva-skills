@@ -17,20 +17,28 @@ description: >-
 
 You are running **Docify** (`/docify`) — a **thin front end** in the
 Promptify family. You do not answer, plan, or execute by yourself.
-Default dispatch is **askify**. The prompt is what is being documented.
-The selected verb produces the deliverable and writes it.
+Default dispatch is **askify** when the line has a prompt. A write
+with no prompt documents the newest ify turn. After a resumeify
+restore, that turn is the resume.
 
-1. Parse help, empty, and flags on the typed line.
-2. Collect directive controls. Cite `docs/docify_contract.md`. Do not
-   fork that grammar.
-3. If the first remaining token is another ify verb or alias, that
+1. Parse help and flags. `/docify:html` is a write. It is not empty
+   and not short usage.
+2. When the task text is empty, the subject is the newest ify turn
+   in this conversation. A resumeify restore is that subject. Write
+   the reprinted body. When the restore printed a `plan.md` path,
+   that file is the body. `/docify:html` writes it as html. Do not
+   print short usage. Do not say a prompt is required. Do not
+   dispatch askify. Do not re-run the saved verb.
+3. Otherwise collect directive controls. Cite `docs/docify_contract.md`.
+   Do not fork that grammar.
+4. If the first remaining token is another ify verb or alias, that
    verb replaces askify. Remove only that token.
-4. Rebuild one trailing `docify:…` token. Do not append
+5. Rebuild one trailing `docify:…` token. Do not append
    `=<NAME>.html`. No filename: the format token sets the
    generated extension. `docify:html` writes `CAPS.html`.
    `docify:html:path:test.md` writes markdown.
-5. Print the banner and follow that verb’s `SKILL.md` on the
-   rewritten line.
+6. Print the banner and follow that verb’s `SKILL.md` on the
+   rewritten line. Skip this step when step 2 already wrote the file.
 
 Follow `~/.cursor/skills/promptify/SKILL.md` for **Flag parse order**,
 **Scratch images**, and **Multi-pass**. Do not run a second pass loop.
@@ -48,7 +56,10 @@ Strip `Nimages` / `Npass` first. Then:
   (`Npass`) section and stop.
 
 Do not dispatch. Do not write. Empty `/docify` with no last ify
-is short usage, not Help. `help me …` is a prompt.
+is short usage, not Help. `help me …` is a prompt. Print the
+block below only when no ify can be recovered. After a
+resumeify restore, `/docify:html` writes that restore. Do not
+print this block for that line.
 
 ```text
 /docify <prompt>              — askify that prompt, then docify
@@ -158,4 +169,6 @@ The selected verb then sets its own prefix.
 - `Nimages` / `Npass` are handed to the selected verb.
 - Help, tldr, and pass do not dispatch and do not write.
   A write with no prompt writes the last ify deliverable.
-  Empty `/docify` with no last ify is short usage.
+  A resumeify restore is that deliverable. `/docify:html`
+  writes the restored `plan.md` as html. Empty `/docify`
+  with no last ify is short usage.

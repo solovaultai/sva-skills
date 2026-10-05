@@ -39,13 +39,15 @@ Help, tldr, and pass do not dispatch and do not write.
 `scripts/cli.ps1 docify`) and stops. The store changes. No file is
 written.
 
-`/docify:html` with no prompt writes the last ify in this
-conversation as html. Bare `/docify` writes that same deliverable
-in the default format. Cite **No prompt** in
-`docs/docify_contract.md`. Resumeify writes the reprinted body.
-Saveify writes the snapshot. Do not dispatch askify. Do not
-re-run the verb. No recoverable ify: **Error:** nothing to
-docify, then short usage. Do not write an empty file.
+`/docify:html` after a resumeify restore writes that restore.
+When the restore printed a `plan.md` path, that file is the
+body and the format is html. Do not print the short usage. Do
+not say a prompt is required. Do not dispatch askify. Do not
+re-run the saved verb. Bare `/docify` writes that same body in
+the default format. Cite **No prompt** in
+`docs/docify_contract.md`. Saveify writes the snapshot. No
+recoverable ify: **Error:** nothing to docify, then short
+usage. Do not write an empty file.
 
 ---
 
