@@ -73,6 +73,14 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them with the other
+flags. The plan includes each resolved image: its path and what
+it shows.
+
 ## Multi-pass (`Npass`)
 
 When the user text includes **`Npass`**, **`N-pass`**, or **`N pass`**

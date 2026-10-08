@@ -42,9 +42,17 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them with the other
+flags. The solution uses each resolved image. Read it before
+executing. Ack first, after the scratch ack when both are present.
+
 ## Help (`help` / `--help` / `/?` / `tldr`)
 
-Strip `Nimages` / `Npass` first (promptify Flag parse order). Then:
+Strip `Nimages` / `Npass` / `img` first (promptify Flag parse order). Then:
 
 - Remaining body exactly `help`, `--help`, or `/?` (case-insensitive):
   **read and print** `references/HELP.md` (this skill folder) and

@@ -91,6 +91,8 @@ Read the user text **left to right**. For the **image** family and the
 - If there is no numbered instance, the flag is **absent**. Ordinary
   English "image" / "pass" is not a marker.
 
+`img=` / `img:` is a third family. Every such token counts, left to right. It names specific files. It is not the newest-N marker. See **Named images**.
+
 `from=` / `from:` slots are not flags. After flag strip, follow `docs/from_contract.md`.
 
 ## Scratch images (`Nimages`)
@@ -152,6 +154,58 @@ images from <source> for extra detail on the issue under review.
 
 If the source or enough images are missing, still print this, then say
 what was missing.
+
+## Named images (`img`)
+
+Specific files, not the newest N. Independent of `Nimages`. Both may appear. Typed line only. Do not scan file bodies.
+
+Case-insensitive. `=` and `:` are the same. Every token counts, left to right. Strip them from the task text.
+
+| Token | Files |
+|-------|--------|
+| `img=<file>` or `img:<file>` | That one file |
+| `img=[a,b]` or `img:[a,b]` | Each comma-separated name. Trim spaces inside the brackets |
+| `img=[]` or `img:[]` | No files. The token is still recognized and stripped |
+
+A space ends the token. A name that contains a space is not one file.
+
+Resolve each name once, in order. Drop a later duplicate path.
+
+| Name | Resolves to |
+|------|-------------|
+| Absolute, or `~` / `~/` | That path |
+| Relative | Under the workspace root |
+| Bare basename | That file in the scratch source, else workspace `scratch/`. One match. Several matches: **Error:** ambiguous image `<name>`. None: missing |
+
+Extensions: `png`, `jpg`, `jpeg`, `webp`, `gif`, `bmp`. Another extension is **Error:** not an image `<name>`. Do not invent pixels. **Read** every resolved file.
+
+**Ack** (mandatory, first printed content). After the scratch ack when both markers are present:
+
+```markdown
+**Named images — caught and correctly interpreted.**
+Recognized `<tokens>` as specific image(s): <absolute paths>.
+```
+
+Name a missing or ambiguous file in that ack.
+
+### Where they go
+
+| Verb | Use |
+|------|-----|
+| promptify | Evidence in the optimized prompt and in the solution |
+| runnify | Evidence in the solution that run produces |
+| plannify | Part of the plan |
+| askify | Evidence in the answer |
+| docify | Included in the written document |
+| debugify | Evidence for identifying the problem, before hypotheses |
+| phasify | Part of this phase's implementation |
+| saveify | Copied into the snapshot. Cite `docs/saveify_contract.md` |
+| resumeify | Part of the restored context |
+| addify, fromify, ify | Hand the tokens to the verb that runs |
+
+When a trailing phase table has a Flags row, that row includes the `img` tokens. An `img` token with no `Nimages` and no `Npass` still gets that row.
+
+Cite this section. Do not fork a second `img` grammar.
 
 ## Multi-pass (`Npass`)
 
@@ -418,7 +472,7 @@ Users scroll to the bottom for progress — never bury the only phase list
 mid-doc.
 
 **Skip** only for a true single-step ask (no plan, no phases) **and** no
-`Nimages` / `Npass` marker. If either marker is present, always emit the
+`Nimages` / `Npass` / `img` marker. If any of those markers is present, always emit the
 table so the Flags row can appear.
 
 **Placement:** Absolute end of the full response. Nothing after the table
@@ -479,6 +533,7 @@ Rules:
 - Multi-phase work: last printed content is the Trailing phase status table
   (done vs left). When `Nimages` and/or `Npass` is present, that table's
   **first row is Flags** (caught-and-understood tokens + On pass k of N).
+- `img=<file>`, `img:<file>`, `img=[a,b]`, `img:[a,b]`: specific images, not the newest N. Cite **Named images**. Read them. Lead with that ack after the scratch ack.
 - `Nimages` / `N images` / `N-images`: read the N newest images from the
   configured scratch source (`scratch ls N`) or workspace `scratch/`
   (see **Scratch images**). Lead the response with the **caught and

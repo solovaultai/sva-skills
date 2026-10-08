@@ -26,6 +26,12 @@ Aliases: `/planify`, `/plify`, `/promptify-plan`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `PLAN:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## How to invoke
@@ -134,6 +140,18 @@ what they show into the Planning-Kickoff Prompt and the plan.
 
 ---
 
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Strip them with the other flags. The plan includes each resolved
+image: its path and what it shows. An `img` token is included on
+the Flags row. With no `Nimages` and no `Npass`, that row is still
+printed.
+
+---
+
 ## Pass (`Npass`)
 
 There is **no** `/pass` skill. After flag strip, remaining body
@@ -208,9 +226,10 @@ GitHub markdown. Users scroll to the bottom for completed vs left.
 | **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress`. Do not invent statuses. |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add it so it matches phasify deferrals |
 
-**Flags row** first when `Nimages` and/or `Npass` is present:
+**Flags row** first when `Nimages`, `Npass`, or `img` is present:
 `Caught and correctly interpreted <tokens>. On pass k of N.` Status
-`Understood`. Not a work phase.
+`Understood`. Not a work phase. An `img` token alone still gets the row.
+Cite promptify **Named images**.
 
 After Flags, one row per phase an executor should run. Status
 `Deferred` + optional reason is allowed on new plans for

@@ -52,6 +52,7 @@ nothing to hold. Do not write an empty file in its place.
 | `plan.md` | Plan body when one was printed. |
 | `kickoff.md` | Planning kickoff or optimized prompt when one was printed. |
 | `extra.md` | Results or debug notes when `kind` is `other`. |
+| `images.txt` | Named images for this context. Omit when there are none. |
 
 `table.txt` is the latest aligned table, statuses and reasons
 included, in the `docs/phase_layout.txt` layout. Do not restate
@@ -60,9 +61,18 @@ that layout.
 `task.txt` is the verbatim original ify task. When the plan
 came from `/addify`, it is the combined body. Same rule as
 phasify **Capture Task and Flags**: not the kickoff, not
-`## Plan`, not a summary. Strip `Nimages` / `Npass` tokens
-into `flags`. Leave the rest unchanged. A trailing newline
+`## Plan`, not a summary. Strip `Nimages` / `Npass` / `img`
+tokens into `flags`. Leave the rest unchanged. A trailing newline
 is fine. Do not rewrite.
+
+`images.txt` is one absolute path per line. Copy each
+resolved named image into `<snapshot>/images/`, basename
+kept. A second file with the same basename is
+`2-<basename>`, then `3-`. The line is the copy. Sources
+are `img=` / `img:` on this save and named images already
+in the in-flight context. Cite promptify **Named images**.
+Do not fork that grammar. `flags` stores each `img` token
+after the numbered image token and before the pass token.
 
 `kind` is `plan` when this chat has a phase table or a printed
 plan body. Otherwise `kind` is `other`.
@@ -88,7 +98,7 @@ other keys.
 | `stage` | One line. No newline. |
 | `next` | Suggested command, or empty. |
 | `window_title` | Full window name that was set, or empty. |
-| `flags` | Numbered flag tokens, image family then pass family. `[]` when none. |
+| `flags` | Numbered flag tokens, then each `img` token, then the pass token. `[]` when none. |
 | `pass_k` | Pass just finished or in progress. Integer. |
 | `pass_n` | Npass value. Integer. Default `1` when Npass is absent. |
 
@@ -349,6 +359,10 @@ Saved <date>. Verb `<verb>`. Stage: <stage>. Workspace: <cwd>.
 When `plan.md` exists, the next line is its absolute
 path. That file is a verified plan file for phasify
 locate. Do not invent a second locate rule.
+
+When `images.txt` exists, the next lines are those
+paths. They are part of the restored context. Read
+them. Do not omit them.
 
 When `cwd` is not this session's workspace, add:
 

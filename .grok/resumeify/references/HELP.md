@@ -25,6 +25,16 @@ phases. Does not write or delete.
 Store, list order, and reprint follow `docs/saveify_contract.md`.
 This page does not restate that store.
 
+`from=` / `from:` splices local files into the prompt (see
+`docs/from_contract.md`). Help, tldr, and pass do not read files.
+
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). This skill does not write or delete a
+snapshot.
+
+Window title prefix is `RESUME:` (see `docs/window_title.md`). A real
+restore sets it. Help, tldr, pass, and `Choose none` do not retitle.
+
 ```text
 /resumeify                — selection list, newest first; Choose none stops
 /resumeify list           — same selection, then restore the one you pick
@@ -122,9 +132,12 @@ does not run `/phasify`.
 If the saved workspace is not this session's workspace, resumeify
 says so and does not change directory.
 
-A plan reprint is the saved plan, then the phase table. If any work
-phase is not Done, the next command is `/phasify`. If every work
-phase is Done, the plan is complete.
+A plan reprint is the saved plan, then the phase table. When both
+`plan.md` and `table.txt` exist, the printed plan ends before
+`## Phased plan` and `table.txt` is the only phase table. When
+`images.txt` exists, those paths print after the plan path. Cite
+`docs/saveify_contract.md`. If any work phase is not Done, the next
+command is `/phasify`. If every work phase is Done, the plan is complete.
 
 A non-plan reprint is the saved task, then any saved kickoff or
 notes. It does not say `/phasify` and it does not say the plan is
@@ -151,6 +164,19 @@ images and does not run a pass loop.
 `/resumeify 2pass` and `/resumeify 1image` list. A name elsewhere
 on the line is still the target: `/resumeify 2pass my saved plan`
 restores `my saved plan`.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+When `images.txt` exists in the snapshot, print those paths
+after the plan path. They are part of the restored context.
+Read them. Tokens on this line add those files for this restore.
+Do not rewrite the snapshot. Print the named-images ack when
+this line has an `img` token.
 
 ---
 
@@ -186,7 +212,10 @@ Saved <date>. Verb `<verb>`. Stage: <stage>. Workspace: <cwd>.
 ```
 
 Then the saved plan and phase table, or the saved task when there
-was no plan. Resumeify stops there.
+was no plan. When both `plan.md` and `table.txt` exist, the printed
+plan ends before `## Phased plan` and `table.txt` is the only phase
+table. When `images.txt` exists, those paths print after the plan
+path. Resumeify stops there.
 
 ---
 

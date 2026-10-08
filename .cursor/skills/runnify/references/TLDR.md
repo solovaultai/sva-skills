@@ -5,6 +5,8 @@ execute only the optimized prompt and append Results. Aliases:
 `/runify`, `/promptify-run`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `RUN:` (`docs/window_title.md`).
 
 ```text
 /runnify <prompt>      — optimize, then EXECUTE
@@ -25,4 +27,5 @@ execute only the optimized prompt and append Results. Aliases:
 | `runify` | Alias of `/runnify` | Short name |
 | `promptify-run` | Alias of `/runnify` | Same pipeline under the older name |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` | Read them; use what they show |
+| `img` | Specific files, not newest-N. Cite promptify **Named images** | The solution reads each resolved image |
 | `Npass` | N pipeline passes of this execution run | If N > 1, pass 1 is a documented pre-plan; last pass executes + Results |

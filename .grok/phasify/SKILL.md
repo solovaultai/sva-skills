@@ -31,6 +31,14 @@ description: >
   work or mark `Done` when nothing is automatable (`runblock N`
   / `Nrunblock` / `2runblock` = next N blocked, not named PN;
   named is `runblock pN` / `pN runblock`).
+  Howto a blocked or partially blocked phase (`/phasify howto`,
+  `Nhowto`, `howto N`, `howtoN`) — step-by-step instructions to
+  get past the block, with a diagram and a reusable image when
+  one teaches a step; no execute, no Status change. None: say
+  nothing to do and reprint the phase plan (`howto N` /
+  `2howto` = next N blocked or partially blocked, not named PN;
+  named is `howto pN`). Partially blocked means `Progress` /
+  `In progress` with a recorded blocker.
   Remove a phase (`/phasify remove`, `Nremove`, `remove N`,
   `removeN`, `remove pN`, `remove <title>`) — drop
   work-phase row(s) from the plan after a yes/no confirm
@@ -68,7 +76,7 @@ description: >
   "phasify todo",
   "phasify explain",
   "phasify todone", "phasify block", "phasify unblock",
-  "phasify runblock", "phasify remove", "phasify delete",
+  "phasify runblock", "phasify howto", "phasify remove", "phasify delete",
   "phasify smart", "phasify show",
   "phasify refresh", "phasify help", "phasify --help", "phasify tldr",
   "run phase p0",
@@ -81,7 +89,7 @@ description: >
   replan). Flags work in all modes; strip before dispatch. `-2pass` is a pass
   flag, not stop-before-end.
 metadata:
-  short-description: "Execute named, next, next-N, run-to-end, stop-before-end, defer, undefer, rundefer, todo, explain, todone, block, unblock, runblock, remove, delete, smart, show, help, or tldr"
+  short-description: "Execute named, next, next-N, run-to-end, stop-before-end, defer, undefer, rundefer, todo, explain, todone, block, unblock, runblock, howto, remove, delete, smart, show, help, or tldr"
 ---
 
 # Phasify (= execute plannified phase(s))
@@ -97,7 +105,7 @@ Print the recap / between-phase table using **Table layout**
 (`phase_layout.txt`) — not a markdown table.
 
 User-facing meanings of **Deferred phase**, **Todo**, **Explain**, **Block**,
-**Runblock**, and
+**Runblock**, **Howto**, and
 **Addify to plannify** live in `references/HELP.md` (**Concepts**),
 near the top after “what it does.” Agents follow this SKILL for parse
 and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
@@ -108,7 +116,7 @@ and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
 
 Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end,
 Stop-before-end, Defer, Undefer, Rundefer, Todo, Explain, Todone, Block,
-Unblock, Runblock, Remove, Smart, Show, Help). Parse and strip **before** mode dispatch.
+Unblock, Runblock, Howto, Remove, Smart, Show, Help). Parse and strip **before** mode dispatch.
 
 **Intent (short):** Flags are optional mid-walk. Prefer setting
 images/pass on promptify/plannify **before** `/phasify`. Use on
@@ -163,6 +171,17 @@ parsing the phasify mode so `phasify 3 2images` means **next 3 phases** +
 2 scratch images, not phase 2; `/phasify 1image` is **Next** + 1 image;
 empty `/phasify` is **Next**; and `2pass` is never a phase count.
 
+### Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them before mode
+dispatch. They are not a phase id. This phase's implementation
+reads each resolved image and uses what it shows. When this
+chat restored a snapshot, also read that snapshot's
+`images.txt`. Ack first, after the scratch ack when both are
+present.
+
 ### Multi-pass (`Npass`)
 
 Inherited from promptify **Multi-pass**. When **`Npass`** /
@@ -175,14 +194,14 @@ When **N > 1**, pass 1 is a documented pre-plan only (`## Pre-plan
 2–N use that base; the last pass produces the mode's deliverable
 (execute, Rundefer undefer+execute, Runblock unblock+execute-or-Done,
 Todo briefing, Explain
-briefing, Unblock test,
+briefing, Howto steps, Unblock test,
 Block/Defer reason, Remove target list + confirm, Show table, …).
 
 **Npass on a single phase** is a multi-pass run of **that phase's
 work** (definition, clarification, verification, or execute) — not
 a re-plan of the whole table. Whole-table replan remains
 `/plannify fromhere`. Extra pass(es) are especially for Todo
-briefing quality, Explain briefing quality, Unblock test design, Block/Defer reason quality,
+briefing quality, Explain briefing quality, Howto step quality, Unblock test design, Block/Defer reason quality,
 or execute / Rundefer / Runblock of a complex / complete phase.
 
 Print the promptify Npass acknowledgment after the scratch ack
@@ -226,6 +245,7 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 | `block`, `Nblock`, `block pN` [reason] | **Block** | Manually set eligible phase(s) `Blocked` / `Def-Blocked`; do not execute |
 | `unblock`, `Nunblock`, `unblock N` | **Unblock** | Verify a Blocked / Def-Blocked phase; on pass `Unblocked` or `Deferred` |
 | `runblock`, `Nrunblock`, `runblock N`, `runblockN` | **Runblock** | User-asserted unblock then execute remaining work or mark `Done` |
+| `howto`, `Nhowto`, `howto N`, `howtoN` | **Howto** | Steps past the next blocked or partially blocked phase (no execute; no Status change) |
 | `remove`, `Nremove`, `remove N`, `removeN`, `remove pN`, `remove <title>` | **Remove** | Drop work-phase row(s) after yes/no confirm (not execute) |
 | `delete` (same shapes as `remove`) | **Remove** | Exact alias of `remove` |
 | `smart <prompt>` | **Smart** | Select a mode from the live plan; print preamble; dispatch. Not Next. |
@@ -262,7 +282,7 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
   **Stop-before-end**, not Next-N.
 - `-2pass` is a pass flag, not stop-before-end.
 - Bare `3` is still Next-3. New tokens must be words (`done`, `toend`,
-  `defer`, `undefer`, `rundefer`, `todo`, `todone`, `explain`, `block`, `unblock`, `runblock`, `remove`, `delete`)
+  `defer`, `undefer`, `rundefer`, `todo`, `todone`, `explain`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`)
   or a **leading minus** (`-2`), never collide with `2pass`.
 - Match **`runblock` / `Nrunblock` / `runblockN`** as **Runblock**
   **first** (the token contains `block` and `run`). Do not collapse
@@ -315,6 +335,15 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
   `0explain` / `explain0` is **Error:** (use `explain p0`).
   Bare `explain` includes Deferred / Def-Blocked (unlike bare
   todo). `explain` ≠ `todo` ≠ `todone` ≠ `toend` / `end`.
+- Match **`howto` / `Nhowto` / `howtoN`** as **Howto**, not
+  Explain, not Unblock, not Runblock, not Todo, not Next-N.
+  **`howto N` / `howto 2` / `howto2` / `2howto` / `Nhowto` /
+  `howtoN` means next N blocked or partially blocked**, not
+  named PN (like `explain N` / `runblock N`). Named howto is
+  only the `P`/`p` family (`howto pN` / `pN howto` /
+  `howtoPN` / `PNhowto`). `howto 0` / `0howto` / `howto0` is
+  **Error:** (use `howto p0`). `howto` ≠ `explain` ≠ `unblock`
+  ≠ `runblock`.
 - Match **`remove` / `Nremove` / `removeN`** and the exact alias
   **`delete` / `Ndelete` / `deleteN`** as **Remove** first. Do not
   collapse `delete` to `done` / `todone` / `toend`. `remove` ≠
@@ -356,7 +385,7 @@ Strip image/pass tokens first. Then:
   file and **stop**. There is no `/pass` skill.
 
 Do not execute, defer, undefer, rundefer, todo, todone, explain, block, unblock,
-runblock, remove, delete, or show. Do not invent extra modes. Help and `tldr` are not
+runblock, howto, remove, delete, or show. Do not invent extra modes. Help and `tldr` are not
 phase selectors. Empty `/phasify` is **Next**, not Help.
 
 **Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end /
@@ -368,9 +397,9 @@ unblock then execute-or-mark-Done (single step). **Defer**,
 does **not** execute. **Todone** also prints a Todo-depth briefing,
 then sets Status `Done` (no ack wait). **Remove** (`delete`
 alias) drops work-phase row(s) after a **yes/no confirm** (plan
-mutation; no implementation). **Todo**, **Explain**,
+mutation; no implementation). **Todo**, **Explain**, **Howto**,
 **Show**, **Help**, and **tldr** are read-only (no implementation). Handle
-Defer, Undefer, Todo, Explain, Todone, Block, Unblock, Remove, Show, and
+Defer, Undefer, Todo, Explain, Howto, Todone, Block, Unblock, Remove, Show, and
 Help without entering Execute. Handle Rundefer as
 undefer-then-Execute (do not treat it as status-only). Handle
 Runblock as unblock-then-Execute-or-Done (do not treat it as
@@ -1058,6 +1087,156 @@ Accepted tokens (all of these):
 `2runblock` = next 2 blocked, **not** P2. Named is **only** the
 `P`/`p` family.
 
+### Howto
+
+Read-only. **Step-by-step instructions to get past the blocker**
+on the next blocked or partially blocked phase. Does not execute.
+Does not change Status. Does not mark `Unblocked` or `Done`.
+`howto` ≠ `explain` ≠ `unblock` ≠ `runblock` ≠ `todo`.
+
+**Blocked:** Status `Blocked` or `Def-Blocked`.
+
+**Partially blocked:** Status `Progress` (aligned recap) or
+`In progress` (markdown table) **and** a blocker is on record.
+A blocker is on record when any of these is true:
+
+- the Reason cell names a stop
+- the latest run of that phase in this conversation stopped
+  because the remainder needs a human step the agent cannot
+  finish (reboot, credential, physical action, approval, an
+  install that needs the person)
+
+A `Progress` / `In progress` phase with no recorded blocker is
+**not** a target. `Left`, `Unblocked`, `Deferred` (no block),
+`Not started`, `Planned`, and `Done` are not partially blocked.
+`Def-Blocked` is blocked (eligible), not partial.
+
+Parse after stripping `Nimages` / `Npass`. If `Nimages` is
+present: acknowledge first, then Howto. **Read** those images
+when they may show the blocker; cite only what they show.
+Match `howto` / `Nhowto` / `howtoN` as this mode. Do not treat
+them as Explain, Unblock, Runblock, or Next-N.
+
+| Text | Effect |
+|------|--------|
+| `howto` / `howto 1` | Instructions for the **next 1** blocked or partially blocked phase (plan order). |
+| `howto N` / `Nhowto` / `howtoN` (N ≥ 1) | The **next N** eligible phases. |
+| `2howto` / `howto2` / `Howto2` | Same as `howto 2` — **next 2**, **not** named P2. |
+| `howto pN` / `howto PN` / `howtopN` / `howtoPN` / `pN howto` / `PNhowto` | Named: that phase **only if** it is blocked or partially blocked; else **Error:** |
+| `howto 0` / `0howto` / `howto0` | **Error:** (cannot "next 0"; use `howto p0`). Not named P0. |
+
+**Parse collision (required):** `howto N` / `Nhowto` / `howtoN` /
+`2howto` / `howto2` means **next N eligible**, not named PN
+(like `explain N` / `runblock N`). Named howto is only the
+`P`/`p` family. `howto 0` / `0howto` / `howto0` is **Error:**
+(use `howto p0`).
+
+**No plan:** stop and tell the user to `/plannify` first. Do not
+say nothing to do. Do not invent phases.
+
+**None eligible:** print the line below, then reprint the current
+aligned phase plan (`phase_layout.txt`, show-style: Task, Flags
+if any, every phase, Reason if any). Statuses stay as they are.
+That reprint is the rewrite of the phase plan. Do not call
+`/plannify fromhere`. Do not invent a target.
+
+```text
+**Nothing to do.**
+```
+
+**Fewer than N:** write a howto for every eligible phase found,
+say the shortfall, then print the table.
+
+Invalid id, or named howto of a phase that is not blocked and
+not partially blocked: **do not** invent steps and **do not**
+change Status. Print **Error:** (same red/bold style as invalid
+unblock) and the table.
+
+**What to write** (one section per target). Start from what
+already landed. The steps cover the stuck part only. Take the
+blocker from the Reason, the phase text, or the conversation.
+Do not invent a cause. If the record only says blocked and names
+no cause, the first steps are how to identify the cause from
+that record; say the cause is not on record.
+
+```text
+## Howto — PN — <title>
+
+Status: Blocked | Def-Blocked | Progress (partially blocked)
+Blocker: <one sentence from the record>
+
+### Steps
+1. ...
+
+**After you finish, the agent can:** <leftover agent work, if any>
+
+### Pictures
+<diagram, and a reusable image when one teaches a step>
+
+### Do not
+- Do not execute this phase or later phases
+- Do not change Status
+- After these steps, /phasify unblock verifies or /phasify runblock continues
+```
+
+Numbered steps. One action per step. Concrete for this block:
+the command, menu, key, or check, and what done looks like for
+that step. If the block is a reboot, the steps are how to reboot
+**this** machine safely (save work, restart, confirm the thing
+the phase needs is back), using facts from the workspace and the
+phase. **After you finish, the agent can:** leftover agent work.
+Do not do that work in this mode.
+
+**Pictures (required):**
+
+- Always include one graphic of the path through the block: a
+  mermaid flowchart in the reply. Do not add a repo file for it.
+  Add another diagram when a step branches or has a check. Treat
+  that diagram as the infographic.
+- When the host can generate an image, a generated diagram is
+  fine for the path. Do not generate a fake screenshot of a
+  copyrighted product UI.
+- Search the web for a teaching image when a step is a physical
+  or on-screen action a diagram cannot show (which key, which
+  port, which dialog). Use the image only when the page states
+  reuse is allowed (public domain, a Creative Commons license,
+  or the publisher explicitly allows reproduction) or it is an
+  official vendor document you may link. Under it, one line:
+  title, URL, and license. Do not copy the file into the repo.
+  Do not use an unlicensed shot, a paywalled manual, or a random
+  search thumbnail. If nothing reusable turns up, say so and
+  keep the diagram. Do not invent pixels.
+- Scratch images and `img` files on this run are evidence of the
+  blocker. Read them and cite what they show. They do not replace
+  the diagram.
+
+One table after the last target (show-style). No COMPLETED
+banners. `Npass` = this howto's instruction quality, not a
+whole-table replan. Window title: the target phase
+(`docs/window_title.md`). Nothing to do: leave the window name.
+
+Accepted tokens (all of these):
+
+```text
+/phasify howto
+/phasify howto 1
+/phasify howto 2
+/phasify 2howto
+/phasify howto2
+/phasify howto p1
+/phasify p1 howto
+/phasify howtoP1
+/phasify P1howto
+```
+
+`2howto` = next 2 eligible, **not** P2. Named is **only** the
+`P`/`p` family.
+
+Example shape (use the real blocker, not this text): the Reason
+says the phase cannot continue until the machine reboots. The
+steps are that reboot, a mermaid of save, restart, then confirm,
+and a reusable image of that reboot screen when one exists.
+
 ### Remove (`delete` alias)
 
 Non-executing. **Drop work-phase row(s)** from the current plan
@@ -1657,6 +1836,33 @@ print the **Pass (`Npass`)** section only.
   `runblock` **before** `block` / `unblock`. `runblock` ≠ `unblock`
   ≠ `block` ≠ `rundefer`. Do not collapse on `run` / `un` /
   `block`. **Unblock stays verify-only** (no execute).
+- `howto` / `Nhowto` / `howto N` / `howtoN` print step-by-step
+  instructions to get past the next blocked or partially blocked
+  phase. Do not execute. Do not change Status. Eligible:
+  `Blocked`, `Def-Blocked`, or partially blocked (`Progress` /
+  `In progress` with a recorded blocker: a Reason, or
+  this conversation stopped that phase on a human step). A
+  `Progress` phase with no recorded blocker is not a target.
+  Bare `howto` = next 1 eligible. `howto N` / `Nhowto` /
+  `howtoN` / `2howto` / `howto2` (N ≥ 1) = next N eligible,
+  **not** named PN. Named is only the `P`/`p` family (`howto pN`
+  / `howto PN` / `pN howto` / `PNhowto`); else **Error:** if that
+  phase is not blocked or partially blocked. `howto 0` /
+  `0howto` / `howto0`: **Error:** (use `howto p0`). No plan:
+  `/plannify` first. None eligible: **Nothing to do.** and
+  reprint the aligned phase plan (statuses unchanged; not
+  `/plannify fromhere`). Fewer than N: write all found, say the
+  shortfall, print the table. Blocker from the record only (do
+  not invent one). Numbered human steps. Always a mermaid of the
+  path. A web image only when a physical or on-screen step needs
+  one and the source allows reuse (cite title, URL, license; do
+  not copy it into the repo; if none is reusable, say so and keep
+  the diagram). Scratch images / `img` are blocker evidence. No
+  COMPLETED banners. After the person finishes, `unblock`
+  verifies or `runblock` continues. Npass = this howto, not a
+  whole-table replan. Nothing to do: leave the window name.
+  Parse `howto` as Howto, not Explain, not Unblock, not Runblock,
+  not Todo.
 - `show` / `refresh` are read-only. No implementation.
 - `todo` / `Ntodo` / `todo N` are read-only / advisory. No
   implementation. Do not change Status. Do not execute the phase or

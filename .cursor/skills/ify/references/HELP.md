@@ -30,6 +30,9 @@ user (or a later turn) runs that verb.
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 `docify` / `docpathify` write this verb's deliverable (see `docs/docify_contract.md`). Not a verb.
 
+Window title prefix is `IFY:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## When to use vs addify vs a direct verb
@@ -93,7 +96,7 @@ they said “ify this”.
 | **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
 | **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
 | **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
-| **phasify** | Next phase / named PN / **runblock** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
+| **phasify** | Next phase / named PN / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
 | **debugify** | Bug / failing / root cause — **kickoff only** (paste into Cursor Debug Mode; does not instrument or fix) | `/promptify-debug`, `dbgify`, `debify` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
@@ -143,6 +146,16 @@ subcommand text or `smart` prompt wording. After strip:
 Lead with the standard scratch / Npass acknowledgments when markers
 are present (scratch first, then Npass). ify rarely needs images;
 still honor the family contract.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+They are handed to the verb this router runs. Strip them before
+the mode word.
 
 ---
 
@@ -215,6 +228,8 @@ Frozen `smart` example shape:
 
 ## Related
 
+The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
+
 | Command | Role |
 |---------|------|
 | `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
@@ -224,6 +239,7 @@ Frozen `smart` example shape:
 | `/runnify <prompt>` | Optimize then execute |
 | `/phasify` | Execute the next plan phase |
 | `/phasify runblock` | Unblock+run leftover work or mark `Done` (`runblock pN` / `runblockPN` / `PNrunblock` named; `runblock N` / `Nrunblock` / `2runblock` = next N blocked, not PN) |
+| `/phasify howto` | Steps past the next blocked or partially blocked phase (`howto pN` named; `howto N` / `2howto` = next N, not PN). None: nothing to do, reprint the plan. |
 | `/phasify remove` | Drop next not-Done phase after yes/no (`remove pN` / title named; `remove N` / `2remove` = next N, not PN). `delete` is an exact alias. |
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/debugify <bug>` | Debug Mode kickoff prompt (paste into Cursor Debug Mode) |

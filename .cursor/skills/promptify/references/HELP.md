@@ -27,6 +27,12 @@ or datasets.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `PROMPT:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## How to invoke
@@ -107,6 +113,29 @@ image(s) from <source> for extra detail on the issue under review.
 
 If the source or enough images are missing, still print this, then
 say what was missing.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Independent of `Nimages`.
+
+`img=<file>`, `img:<file>`, `img=[a,b]`, `img:[a,b]`, and empty
+`img=[]` / `img:[]`. `=` and `:` match. Every token counts. Strip
+them from the task. Resolve absolute, `~/`, workspace-relative,
+or a bare name in the scratch source then workspace `scratch/`.
+Read the files. Ack:
+
+```markdown
+**Named images — caught and correctly interpreted.**
+Recognized `<tokens>` as specific image(s): <absolute paths>.
+```
+
+Promptify and runnify use them in the solution. Plannify puts
+them in the plan. Docify includes them in the document. Debugify
+uses them to identify the problem. Phasify uses them in the phase
+implementation. Saveify copies them into the snapshot. Resumeify
+restores those paths.
 
 ---
 
@@ -206,11 +235,12 @@ GitHub markdown:
 | **Description** | One-line exit criteria |
 | **Status** | `Done` · `In progress` · `Left` · `Blocked` · `Unblocked` · `Deferred` · `Def-Blocked` (fresh plans may use `Not started`). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress` (never `In progress` in the 12-wide table). Do not invent statuses. |
 
-**Flags row** (first row when either marker is present): Phase =
-`Flags`. Description = `Caught and correctly interpreted` + exact
-token(s) + `On pass k of N` (N defaults to 1; after the last pass
-`On pass N of N`). Status = `Understood`. Not a work phase. Omit
-only when neither marker appeared.
+**Flags row** (first row when `Nimages`, `Npass`, or `img` is
+present): Phase = `Flags`. Description = `Caught and correctly
+interpreted` + exact token(s) + `On pass k of N` (N defaults to 1;
+after the last pass `On pass N of N`). Status = `Understood`. Not a
+work phase. Omit only when `Nimages`, `Npass`, and `img` are all
+absent. Cite **Named images**.
 
 Mark `Done` only if the work landed. Use `Left` for remaining phases
 after a partial run. Nothing after the table except an optional
@@ -236,8 +266,8 @@ one-line next-step.
 - Optimized prompt must be better than the original for **this**
   environment and copy-pasteable.
 - Analysis mode must not run builds, deploys, or mutating work.
-- Multi-phase (or any Nimages/Npass): last content is the phase table;
-  Flags is the first row when markers are present.
+- Multi-phase (or any Nimages/Npass/`img`): last content is the phase table;
+  Flags is the first row when those markers are present.
 - `Nimages`: read N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`; lead with the ack (name the source).
 - `Npass`: N passes; pass 1 is pre-plan only when N > 1.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;

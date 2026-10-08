@@ -25,6 +25,12 @@ by itself. Default verb is **plannify**.
 File slots, path resolution, splice, and errors:
 `docs/from_contract.md`. This page does not restate that parser.
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `FROM:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ```text
 /fromify <files>         — plannify of those files (same as from=)
 /fromify <verb> <text>   — that verb, with file slots spliced in
@@ -137,6 +143,16 @@ pass loop.
 `/fromify 2pass` and `/fromify 1image` apply to that verb (plannify
 when no verb token is present). A verb elsewhere on the line receives
 the same flags: `fromify runnify 2pass test.txt`.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+They stay on the rewritten line for the selected verb. They are
+not file-slot text.
 
 ---
 

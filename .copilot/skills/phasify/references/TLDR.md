@@ -5,6 +5,8 @@ planning pass and not a full-plan `/runnify`. Implement only the selected
 phase(s). Aliases: `/phaseify`, `/phify`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window name is `PHASE:P<n>/<total>:<PREFIX>: <summary>` (`docs/window_title.md`).
 
 ```text
 /phasify                 — Next (one incomplete phase). Not help.
@@ -24,6 +26,7 @@ phase(s). Aliases: `/phaseify`, `/phify`.
 /phasify block [reason]  — Block next 1 eligible phase (also Nblock / block pN / block N)
 /phasify unblock         — Verify next Blocked / Def-Blocked phase (also Nunblock / unblock N)
 /phasify runblock        — Unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN)
+/phasify howto           — Steps past the next blocked or partially blocked phase (also Nhowto / howto N / howtoN)
 /phasify remove          — Drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>)
 /phasify delete          — Exact alias of remove
 /phasify smart <prompt>  — select a mode from the live plan, then run it (not Next; not implicit)
@@ -49,6 +52,7 @@ phase(s). Aliases: `/phaseify`, `/phify`.
 | `block` | Set next eligible phase `Blocked` / `Def-Blocked` [reason] | Hard stop; execute-next cannot proceed through it |
 | `unblock` | Verify next Blocked / Def-Blocked phase | On pass: `Unblocked` or `Deferred`; no phase work |
 | `runblock` | Unblock then execute remaining work or mark `Done` | Clear a blocker and finish or close in one step |
+| `howto` | Steps past the next blocked or partially blocked phase (no Status change) | Human instructions, with a diagram; none → nothing to do + reprint the plan |
 | `remove` / `delete` | Drop next not-Done work-phase row(s) after yes/no (`remove N` = next N; `remove pN` / title = named) | Delete from the plan (not defer); confirm first; remaining ids compact |
 | `smart <prompt>` | Select a mode from the live plan, then run it | Router — not Next, not implicit |
 | `show` / `refresh` | Print the current table | Read-only snapshot of statuses |
@@ -56,4 +60,5 @@ phase(s). Aliases: `/phaseify`, `/phify`.
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
 | `Nimages` | N newest scratch / `scratch/` images; optional on any mode | Visual clarification for a specific phase (prefer setting on plannify first) |
+| `img` | Specific files, not a phase id. Cite promptify **Named images** | This phase reads them. A restored `images.txt` is read too |
 | `Npass` | N pipeline passes of this mode’s work, not a whole-table replan | Multi-pass on that phase’s work; `-2pass` is this flag, not stop-before-end |

@@ -26,6 +26,13 @@ Store path, snapshot files, `meta.json`, slug, auto-name, list
 order, and confirm text: `docs/saveify_contract.md`. This page does
 not restate that layout.
 
+`from=` / `from:` splices local files into the prompt (see
+`docs/from_contract.md`). Help, tldr, and pass do not read files.
+
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write that
+file. Empty `/saveify` still writes the snapshot.
+
 `savify` is an alias of `/saveify`, not a folder.
 Canonical slash is `/saveify`.
 
@@ -130,8 +137,10 @@ then Defers, then cwd. The same row is used for delete and for
 empty `/resumeify`.
 
 A number redisplays that snapshot (banner, plan and phase table,
-or task / kickoff / notes). It does not say the next command is
-`/phasify`. It does not run a phase. A number that no longer
+or task / kickoff / notes). When both `plan.md` and `table.txt`
+exist, that print ends before `## Phased plan` and `table.txt` is
+the only phase table. Cite `docs/saveify_contract.md`. It does not
+say the next command is `/phasify`. It does not run a phase. A number that no longer
 points at the same snapshot: **Error:** list changed.
 
 Empty `/saveify` is still an auto-name save, not this list.
@@ -193,7 +202,9 @@ nothing is deleted. **Error:** list changed. A replace whose
 
 Saved: the recoverable ify artifacts this chat already printed
 (task, phase table, plan, kickoff, or notes the contract names),
-plus the metadata the contract lists.
+plus the metadata the contract lists. `images.txt` and copies under
+`images/` are part of the snapshot when named images were captured.
+Cite `docs/saveify_contract.md`.
 
 Not saved: the raw transcript, unprinted reasoning, hidden model
 state, a copy on another machine, an sshub sync. Nothing is saved
@@ -213,6 +224,18 @@ order** — do not fork. Strip **before** the mode or the name.
 A stripped flag is not part of the snapshot name. Saveify does not
 take N passes and does not open scratch. `/saveify 2pass` is an
 auto-name save. `/saveify 2pass testme` saves the name `testme`.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Strip them before the name. Copy the resolved files into the
+snapshot per `docs/saveify_contract.md` (`images/` and
+`images.txt`). Also copy named images already in the in-flight
+context. Print the named-images ack.
 
 ---
 
@@ -259,7 +282,9 @@ name.
 - An existing name asks yes/no before replace. Auto-name does not
   overwrite.
 - `/saveify list` uses **List select**, including `Choose none`, and
-  displays the saved context you pick. Display only. It does not hand off to `/phasify`.
+  displays the saved context you pick. When both `plan.md` and
+  `table.txt` exist, the printed plan ends before `## Phased plan`
+  and `table.txt` is the only phase table. Display only. It does not hand off to `/phasify`.
 - Every delete asks yes/no. Bare delete lists, you pick, then
   yes/no. Nothing is deleted on the proposing line. The candidate
   rows use that same **List** line.

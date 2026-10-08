@@ -225,6 +225,13 @@ heading through the line before the next heading of
 equal or higher level. Otherwise write the whole
 deliverable. Do not invent a `section=` key.
 
+Named images on the typed line, or restored with the
+context, are part of the file. Markdown and docx
+include a markdown image whose target is the absolute
+path. HTML includes `<img src="file://…">` with that
+path. Text lists the absolute paths. Cite promptify
+**Named images**. Do not fork that grammar.
+
 Immediately before the trailing phase table:
 
 ```text

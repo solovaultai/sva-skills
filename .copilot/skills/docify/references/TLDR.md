@@ -3,6 +3,8 @@
 A thin front end. Documents an ify prompt. Default is askify. The
 first non-control token selects another ify verb. Does not write a
 second file. Controls follow `docs/docify_contract.md`.
+`from=` slots stay on the rewritten line (`docs/from_contract.md`).
+Window prefix `DOC:` (`docs/window_title.md`).
 
 ```text
 /docify <prompt>              — askify that prompt, then docify
@@ -35,10 +37,13 @@ writes `SHOW_ME_ALL_OF_THE_OPTIONS.html` and opens it.
 | `tldr` | Print this short page and stop | Fast syntax |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill. Cite `/promptify pass help` |
 | `Nimages` / `Npass` | Flags handed to the selected verb | This skill does not run its own pass loop |
+| `img` | Specific files handed to the selected verb | The written document includes each resolved image |
 | `set` with no prompt | `./scripts/cli.sh docify` (or `cli.ps1`) and stop | Store only. No file |
 | `/docify:html` with no prompt | Write the last ify as html | Does not dispatch askify |
 
 Help, tldr, and pass do not dispatch and do not write.
 `/docify:set:txt` with no prompt changes the store only.
 A write with no prompt writes the last ify deliverable.
+A resumeify restore is that turn. `/docify:html` writes the restored
+`plan.md` as html. Do not print short usage. Do not say a prompt is required.
 Empty `/docify` with no last ify is short usage.

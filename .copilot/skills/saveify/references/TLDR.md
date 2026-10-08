@@ -3,7 +3,10 @@
 A thin snapshot verb. Writes the current ify context, or deletes a
 snapshot after yes/no. Does not plan, execute, or restore.
 `/resumeify` restores. Layout is `docs/saveify_contract.md`. No
-`smart` mode. Canonical slash is `/saveify`. `savify` is an alias,
+`smart` mode. `from=` splices local files (`docs/from_contract.md`).
+`docify` writes the deliverable (`docs/docify_contract.md`). Window
+prefix `SAVE:` (`docs/window_title.md`).
+Canonical slash is `/saveify`. `savify` is an alias,
 not a folder.
 
 ```text
@@ -32,7 +35,10 @@ Empty `/saveify` is a real auto-name save, not short usage.
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
 | `Nimages` / `Npass` | Stripped before the name | Saveify does not run its own pass loop |
+| `img` | Specific files copied into `images/` and `images.txt` | Cite promptify **Named images** and `docs/saveify_contract.md` |
 
 `/saveify testme` saves that name. `/saveify 2` stores the name `2`.
 `/saveify delete 2` is position 2. No task and no phase table:
-**Error:** nothing to save.
+**Error:** nothing to save. When both `plan.md` and `table.txt` exist,
+the printed plan ends before `## Phased plan` and `table.txt` is the
+only phase table.

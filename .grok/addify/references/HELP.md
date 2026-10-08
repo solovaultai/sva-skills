@@ -31,6 +31,13 @@ Empty `/addify` is **short usage**, not Next (unlike `/phasify`).
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Addify has no window prefix of its own. It re-applies the ancestor
+verb's label (see `docs/window_title.md`). Help, tldr, and pass do not
+retitle.
+
 ---
 
 ## How to invoke
@@ -145,6 +152,16 @@ Flags on the addify line apply to the restarted skill. **Addify-line
 wins** the same family. If only one line sets a family, that value
 applies. Lead with the scratch / Npass acknowledgments when markers
 are present.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+On this line they are flags for the restarted verb. Strip them
+from the added text and hand them through. Do not drop them.
 
 ---
 

@@ -78,6 +78,15 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them with the other
+flags. Read each image before hypotheses. It is evidence for
+what the problem is. Carry the paths into the Debug-Kickoff
+Prompt under Existing Evidence.
+
 ## Extend step 1 — Bug intent fields
 
 In addition to Promptify's intent table, always extract (or mark **unknown**):

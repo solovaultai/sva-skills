@@ -6,6 +6,8 @@ Debug-Kickoff Prompt. This skill does not instrument, fix, or mutate
 code.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `DBG:` (`docs/window_title.md`).
 
 ```text
 /debugify <bug report>  — code analysis + Debug Mode kickoff prompt
@@ -27,4 +29,5 @@ code.
 | `debify` | Alias of `/debugify` | Short name |
 | `promptify-debug` | Alias of `/debugify` | Same kickoff coach under the older name |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` as existing evidence | Carry what they show into the kickoff |
+| `img` | Specific files, not newest-N. Cite promptify **Named images** | Evidence in the Debug-Kickoff Prompt under Existing Evidence |
 | `Npass` | Extra pass(es) deepen the kickoff / code analysis | If N > 1, pre-plan first; last pass emits the Debug-Kickoff Prompt |

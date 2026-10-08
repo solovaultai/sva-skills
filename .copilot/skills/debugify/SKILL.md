@@ -94,6 +94,14 @@ Recognized `<token>` as an attachment marker. Looking at the N most recent
 image(s) from <source> for extra detail on the issue under review.
 ```
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them with the other
+flags. Read each image before hypotheses. It is evidence for
+what the problem is.
+
 ## Phase 1 — Hypotheses
 
 Publish 2–5 hypotheses before instrumenting. Each must be falsifiable:

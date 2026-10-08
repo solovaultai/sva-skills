@@ -1,7 +1,7 @@
 # sva-skills
 
 Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
-(and Copilot Enterprise), etc.
+(and Copilot Enterprise), Claude Code, etc.
 
 ## Skills
 
@@ -17,7 +17,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **runnify** | `/runnify`, `/runify`, `/promptify-run`, `/runnify help`, `/runnify tldr` | Promptify in execution mode: optimize the prompt, then **execute** it and return Results. `/runnify help` (also `--help`, `/?`) prints the full reference. |
 | **askify** | `/askify`, `/promptify-ask`, `/askify help`, `/askify tldr` | Promptify ask mode: answer read-only (cited). Does not print the ask-kickoff plan unless `/askify plan`. `/askify help` (also `--help`, `/?`) prints the full reference. |
 | **plannify** | `/plannify`, `/planify`, `/plify`, `/promptify-plan`, `/plannify fromhere`, `/plannify add`, `/plannify help`, `/plannify tldr` | Promptify planning mode: coach into a planning-kickoff prompt, then produce a structured plan (read-only; no implementation). `/plannify fromhere` (alias `planify fromhere`) replans from current statuses — **AskQuestion**: Keep new plan vs Continue original. `/plannify add <feature>` surgically adds a feature to the just-run plan (last ify must be plannify or phasify; no-op if nothing add/remove/changes). Trailing tables may use Status `Deferred` and an optional reason note. `/plannify help` (also `--help`, `/?`) prints the full reference. |
-| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Execute phase(s) of a plannified plan: empty `/phasify` = next incomplete (same as `next`); named P0 (`0`/`p0`); next N phases **synchronously**; **Run-to-end** (`done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end`); **Stop-before-end** (`-` / `-0` / `-N`, last included = `C - N`); **Defer** (`defer`, `Ndefer`, `defer N` [reason]); **Undefer** (`undefer`, `Nundefer`, `undefer N` — status only, no execute); **Rundefer** (`rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` — undefer then execute; `rundefer N` / `2rundefer` / `rundefer2` = next N deferred, not named PN; named is `rundefer pN`); **Todo** (`todo`, `Ntodo`, `todo N` — detailed actionable list; no execute, no Status change); **Explain** (`explain`, `Nexplain`, `explain N`, `explainN` — full explanation + status glossary + TL/DR; no execute, no Status change; `explain N` / `Nexplain` / `explainN` / `2explain` = next N not-Done, including Deferred; named is only `explain pN` / `pNexplain`); **Todone** (`todone`, `Ntodone`, `todone pN`, `todone N` — Todo-depth briefing, then Status `Done`; no execute, no ack wait; `todone N` = next N eligible, not named PN); **Block** (`block`, `Nblock`, `block pN` [reason] — Status `Blocked` or `Def-Blocked`; `block N` = next N eligible, not named PN); **Unblock** (`unblock`, `Nunblock`, `unblock N` — verify a Blocked / Def-Blocked phase; Status `Unblocked` or `Deferred` on pass); **Runblock** (`runblock`, `Nrunblock`, `runblock N`, `runblockN` — user-asserted unblock then execute remaining work or mark `Done`; `runblock N` / `2runblock` / `runblock2` = next N blocked, not named PN; named is `runblock pN`); **Remove** (`remove`, `Nremove`, `remove N`, `remove pN`, `remove <title>` — drop work-phase row(s) after yes/no confirm; `remove N` / `2remove` = next N not-Done, not named PN; named is `remove pN` or unique title; remaining ids compact); **`delete`** is an exact alias of `remove`; **Show** (`show` / `refresh`). `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Mid-run: banner only; last-of-run: banner + full table. On completion: aligned `phase_layout.txt` table (Task row = verbatim original ify request; Flags row only if `Nimages` and/or `Npass`; then phases; Reason if any deferral has one). Supports `Nimages` / `Npass`. `-2pass` is a pass flag, not stop-before-end. |
+| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify howto`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Execute phase(s) of a plannified plan: empty `/phasify` = next incomplete (same as `next`); named P0 (`0`/`p0`); next N phases **synchronously**; **Run-to-end** (`done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end`); **Stop-before-end** (`-` / `-0` / `-N`, last included = `C - N`); **Defer** (`defer`, `Ndefer`, `defer N` [reason]); **Undefer** (`undefer`, `Nundefer`, `undefer N` — status only, no execute); **Rundefer** (`rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` — undefer then execute; `rundefer N` / `2rundefer` / `rundefer2` = next N deferred, not named PN; named is `rundefer pN`); **Todo** (`todo`, `Ntodo`, `todo N` — detailed actionable list; no execute, no Status change); **Explain** (`explain`, `Nexplain`, `explain N`, `explainN` — full explanation + status glossary + TL/DR; no execute, no Status change; `explain N` / `Nexplain` / `explainN` / `2explain` = next N not-Done, including Deferred; named is only `explain pN` / `pNexplain`); **Todone** (`todone`, `Ntodone`, `todone pN`, `todone N` — Todo-depth briefing, then Status `Done`; no execute, no ack wait; `todone N` = next N eligible, not named PN); **Block** (`block`, `Nblock`, `block pN` [reason] — Status `Blocked` or `Def-Blocked`; `block N` = next N eligible, not named PN); **Unblock** (`unblock`, `Nunblock`, `unblock N` — verify a Blocked / Def-Blocked phase; Status `Unblocked` or `Deferred` on pass); **Runblock** (`runblock`, `Nrunblock`, `runblock N`, `runblockN` — user-asserted unblock then execute remaining work or mark `Done`; `runblock N` / `2runblock` / `runblock2` = next N blocked, not named PN; named is `runblock pN`); **Howto** (`howto`, `Nhowto`, `howto N`, `howtoN` — steps past the next blocked or partially blocked phase; no execute, no Status change; `howto N` / `2howto` = next N, not named PN; named is `howto pN`; none says nothing to do and reprints the plan); **Remove** (`remove`, `Nremove`, `remove N`, `remove pN`, `remove <title>` — drop work-phase row(s) after yes/no confirm; `remove N` / `2remove` = next N not-Done, not named PN; named is `remove pN` or unique title; remaining ids compact); **`delete`** is an exact alias of `remove`; **Show** (`show` / `refresh`). `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Mid-run: banner only; last-of-run: banner + full table. On completion: aligned `phase_layout.txt` table (Task row = verbatim original ify request; Flags row only if `Nimages` and/or `Npass`; then phases; Reason if any deferral has one). Supports `Nimages` / `Npass`. `-2pass` is a pass flag, not stop-before-end. |
 | **debugify** | `/debugify`, `/dbgify`, `/debify`, `/debug`, `/debugify help`, `/debugify tldr` | **Grok Debug Mode (default / full loop).** Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. Not a speculative-fix loop. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
@@ -71,6 +71,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /phasify block [reason]   — block the next 1 eligible phase (also Nblock / block pN; block N = next N, not named PN)
 /phasify unblock          — verify the next Blocked / Def-Blocked phase (also Nunblock / unblock N / unblock pN)
 /phasify runblock         — unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN; runblock 2 / 2runblock = next 2, not P2)
+/phasify howto            — steps past the next blocked or partially blocked phase (also Nhowto / howto N / howtoN; howto 2 / 2howto = next 2, not P2)
 /phasify remove           — drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>; remove 2 / 2remove = next 2, not P2)
 /phasify delete           — exact alias of remove
 /phasify smart <prompt>   — select a mode from the live plan and run it (not Next; not implicit)
@@ -126,7 +127,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **runnify** | `/runnify`, `/runify`, `/promptify-run`, `/runnify help`, `/runnify tldr` | Promptify execution mode: optimize, then execute and return Results. `/runnify help` (also `--help`, `/?`) prints the full reference. |
 | **askify** | `/askify`, `/promptify-ask`, `/askify help`, `/askify tldr` | Ask-mode: answer read-only. Does not print the ask-kickoff plan unless `/askify plan`. `/askify help` (also `--help`, `/?`) prints the full reference. |
 | **plannify** | `/plannify`, `/planify`, `/plify`, `/promptify-plan`, `/plannify fromhere`, `/plannify add`, `/plannify help`, `/plannify tldr` | Planning-mode coach: optimize into a planning-kickoff prompt, then produce a structured plan (read-only). `/plannify fromhere` (alias `planify fromhere`) replans from current statuses — **AskQuestion**: Keep new plan vs Continue original. `/plannify add <feature>` surgically adds a feature to the just-run plan (last ify must be plannify or phasify; no-op if nothing add/remove/changes). Trailing tables may use Status `Deferred` and an optional reason note. `/plannify help` (also `--help`, `/?`) prints the full reference. |
-| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Execute phase(s) of a plannified plan: empty `/phasify` = next incomplete (same as `next`); named P0 (`0`/`p0`); next N phases **synchronously**; **Run-to-end** (`done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end`); **Stop-before-end** (`-` / `-0` / `-N`, last included = `C - N`); **Defer** (`defer`, `Ndefer`, `defer N` [reason]); **Undefer** (`undefer`, `Nundefer`, `undefer N` — status only, no execute); **Rundefer** (`rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` — undefer then execute; `rundefer N` / `2rundefer` / `rundefer2` = next N deferred, not named PN; named is `rundefer pN`); **Todo** (`todo`, `Ntodo`, `todo N` — detailed actionable list; no execute, no Status change); **Explain** (`explain`, `Nexplain`, `explain N`, `explainN` — full explanation + status glossary + TL/DR; no execute, no Status change; `explain N` / `Nexplain` / `explainN` / `2explain` = next N not-Done, including Deferred; named is only `explain pN` / `pNexplain`); **Todone** (`todone`, `Ntodone`, `todone pN`, `todone N` — Todo-depth briefing, then Status `Done`; no execute, no ack wait; `todone N` = next N eligible, not named PN); **Block** (`block`, `Nblock`, `block pN` [reason] — Status `Blocked` or `Def-Blocked`; `block N` = next N eligible, not named PN); **Unblock** (`unblock`, `Nunblock`, `unblock N` — verify a Blocked / Def-Blocked phase; Status `Unblocked` or `Deferred` on pass); **Runblock** (`runblock`, `Nrunblock`, `runblock N`, `runblockN` — user-asserted unblock then execute remaining work or mark `Done`; `runblock N` / `2runblock` / `runblock2` = next N blocked, not named PN; named is `runblock pN`); **Remove** (`remove`, `Nremove`, `remove N`, `remove pN`, `remove <title>` — drop work-phase row(s) after yes/no confirm; `remove N` / `2remove` = next N not-Done, not named PN; named is `remove pN` or unique title; remaining ids compact); **`delete`** is an exact alias of `remove`; **Show** (`show` / `refresh`). `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Mid-run: banner only; last-of-run: banner + full table. On completion: aligned `phase_layout.txt` table (Task row = verbatim original ify request; Flags row only if `Nimages` and/or `Npass`; then phases; Reason if any deferral has one). Supports `Nimages` / `Npass`. `-2pass` is a pass flag, not stop-before-end. |
+| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify howto`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Execute phase(s) of a plannified plan: empty `/phasify` = next incomplete (same as `next`); named P0 (`0`/`p0`); next N phases **synchronously**; **Run-to-end** (`done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end`); **Stop-before-end** (`-` / `-0` / `-N`, last included = `C - N`); **Defer** (`defer`, `Ndefer`, `defer N` [reason]); **Undefer** (`undefer`, `Nundefer`, `undefer N` — status only, no execute); **Rundefer** (`rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` — undefer then execute; `rundefer N` / `2rundefer` / `rundefer2` = next N deferred, not named PN; named is `rundefer pN`); **Todo** (`todo`, `Ntodo`, `todo N` — detailed actionable list; no execute, no Status change); **Explain** (`explain`, `Nexplain`, `explain N`, `explainN` — full explanation + status glossary + TL/DR; no execute, no Status change; `explain N` / `Nexplain` / `explainN` / `2explain` = next N not-Done, including Deferred; named is only `explain pN` / `pNexplain`); **Todone** (`todone`, `Ntodone`, `todone pN`, `todone N` — Todo-depth briefing, then Status `Done`; no execute, no ack wait; `todone N` = next N eligible, not named PN); **Block** (`block`, `Nblock`, `block pN` [reason] — Status `Blocked` or `Def-Blocked`; `block N` = next N eligible, not named PN); **Unblock** (`unblock`, `Nunblock`, `unblock N` — verify a Blocked / Def-Blocked phase; Status `Unblocked` or `Deferred` on pass); **Runblock** (`runblock`, `Nrunblock`, `runblock N`, `runblockN` — user-asserted unblock then execute remaining work or mark `Done`; `runblock N` / `2runblock` / `runblock2` = next N blocked, not named PN; named is `runblock pN`); **Howto** (`howto`, `Nhowto`, `howto N`, `howtoN` — steps past the next blocked or partially blocked phase; no execute, no Status change; `howto N` / `2howto` = next N, not named PN; named is `howto pN`; none says nothing to do and reprints the plan); **Remove** (`remove`, `Nremove`, `remove N`, `remove pN`, `remove <title>` — drop work-phase row(s) after yes/no confirm; `remove N` / `2remove` = next N not-Done, not named PN; named is `remove pN` or unique title; remaining ids compact); **`delete`** is an exact alias of `remove`; **Show** (`show` / `refresh`). `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Mid-run: banner only; last-of-run: banner + full table. On completion: aligned `phase_layout.txt` table (Task row = verbatim original ify request; Flags row only if `Nimages` and/or `Npass`; then phases; Reason if any deferral has one). Supports `Nimages` / `Npass`. `-2pass` is a pass flag, not stop-before-end. |
 | **debugify** | `/debugify`, `/dbgify`, `/debify`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Cursor Debug Mode kickoff only.** Code analysis + falsifiable hypotheses + copy-pasteable prompt for Cursor’s Debug mode. Does **not** instrument or fix — paste into Cursor Debug Mode to run the loop. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` prints the family catalog. `/ify help <verb>` is extreme help. `/ify tldr` prints ify’s `references/TLDR.md`; `/ify tldr <verb>` prints that verb’s. `/ify smart <prompt>` (alias `which`, or bare `/ify <prompt>`) recommends a verb + rewritten prompt and does **not** dispatch. `/ify help` (also `--help`, `/?`) prints the full reference. |
@@ -173,6 +174,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /phasify block [reason]   — block the next 1 eligible phase (also Nblock / block pN; block N = next N, not named PN)
 /phasify unblock          — verify the next Blocked / Def-Blocked phase (also Nunblock / unblock N / unblock pN)
 /phasify runblock         — unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN; runblock 2 / 2runblock = next 2, not P2)
+/phasify howto            — steps past the next blocked or partially blocked phase (also Nhowto / howto N / howtoN; howto 2 / 2howto = next 2, not P2)
 /phasify remove           — drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>; remove 2 / 2remove = next 2, not P2)
 /phasify delete           — exact alias of remove
 /phasify smart <prompt>   — select a mode from the live plan and run it (not Next; not implicit)
@@ -226,7 +228,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **runnify** | `/runnify`, `/runify`, `/promptify-run`, `/runnify help`, `/runnify tldr` | Promptify execution mode: optimize, then execute and return Results. Slash-preferable. `/runnify help` (also `--help`, `/?`) prints the full reference. |
 | **askify** | `/askify`, `/promptify-ask`, `/askify help`, `/askify tldr` | Ask-mode: answer read-only. Does not print the ask-kickoff plan unless `/askify plan`. `/askify help` (also `--help`, `/?`) prints the full reference. |
 | **plannify** | `/plannify`, `/planify`, `/plify`, `/promptify-plan`, `/plannify fromhere`, `/plannify add`, `/plannify help`, `/plannify tldr` | Planning-mode coach: optimize into a planning-kickoff prompt, then produce a structured plan (read-only). `/plannify fromhere` (alias `planify fromhere`) replans from current statuses — Copilot chat confirm: Keep new plan vs Continue original. `/plannify add <feature>` surgically adds a feature to the just-run plan (last ify must be plannify or phasify). `/plannify help` (also `--help`, `/?`) prints the full reference. |
-| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Same phase modes as Cursor/Grok. Empty `/phasify` = next incomplete. Slash-preferable. `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Supports `Nimages` / `Npass`. |
+| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify howto`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Same phase modes as Cursor/Grok. Empty `/phasify` = next incomplete. Slash-preferable. `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Supports `Nimages` / `Npass`. |
 | **debugify** | `/debugify`, `/dbgify`, `/debify`, `/debug`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Copilot Debug Mode (full loop)** — same shape as Grok, not Cursor kickoff. Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. No `/debug-kickoff` in this tree. `/debugify help` (also `--help`, `/?`) prints the full reference. |
 | **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Slash-preferable. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
 | **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Copilot tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
@@ -273,6 +275,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /phasify block [reason]   — block the next 1 eligible phase (also Nblock / block pN; block N = next N, not named PN)
 /phasify unblock          — verify the next Blocked / Def-Blocked phase (also Nunblock / unblock N / unblock pN)
 /phasify runblock         — unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN; runblock 2 / 2runblock = next 2, not P2)
+/phasify howto            — steps past the next blocked or partially blocked phase (also Nhowto / howto N / howtoN; howto 2 / 2howto = next 2, not P2)
 /phasify remove           — drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>; remove 2 / 2remove = next 2, not P2)
 /phasify delete           — exact alias of remove
 /phasify smart <prompt>   — select a mode from the live plan and run it (not Next; not implicit)
@@ -315,46 +318,163 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).
 Chat: `/<name>`.
 
+### Claude Code (`.claude/skills/`)
+
+Installed to `~/.claude/skills/<name>/` (Windows:
+`%USERPROFILE%\.claude\skills\<name>\`). Same twelve-verb Promptify
+family as Copilot: promptify, runnify, askify, plannify, phasify,
+debugify, addify, ify, fromify, docify, saveify, resumeify.
+`debugify` is the full in-agent loop. The command is `/debugify`
+(also `/dbgify`, `/debify`). Not `/debug`: Claude Code has a bundled
+`/debug`.
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **promptify** | `/promptify`, `/prify`, `/promptify help`, `/promptify tldr` | Prompt QA against the real workspace: intent, validation, enrichment, scores, optimized execution-ready prompt (no run). `/promptify help` (also `--help`, `/?`) prints the full reference. |
+| **runnify** | `/runnify`, `/runify`, `/promptify-run`, `/runnify help`, `/runnify tldr` | Promptify execution mode: optimize, then execute and return Results. `/runnify help` (also `--help`, `/?`) prints the full reference. |
+| **askify** | `/askify`, `/promptify-ask`, `/askify help`, `/askify tldr` | Ask-mode: answer read-only. Does not print the ask-kickoff plan unless `/askify plan`. `/askify help` (also `--help`, `/?`) prints the full reference. |
+| **plannify** | `/plannify`, `/planify`, `/plify`, `/promptify-plan`, `/plannify fromhere`, `/plannify add`, `/plannify help`, `/plannify tldr` | Planning-mode coach: optimize into a planning-kickoff prompt, then produce a structured plan (read-only). `/plannify fromhere` (alias `planify fromhere`) replans from current statuses — **AskUserQuestion**: Keep new plan vs Continue original. `/plannify add <feature>` surgically adds a feature to the just-run plan (last ify must be plannify or phasify). `/plannify help` (also `--help`, `/?`) prints the full reference. |
+| **phasify** | `/phasify`, `/phaseify`, `/phify`, `/phasify 0`, `/phasify next`, `/phasify 3`, `/phasify done`, `/phasify toend`, `/phasify -N`, `/phasify defer`, `/phasify undefer`, `/phasify rundefer`, `/phasify todo`, `/phasify explain`, `/phasify todone`, `/phasify block`, `/phasify unblock`, `/phasify runblock`, `/phasify howto`, `/phasify remove`, `/phasify delete`, `/phasify smart`, `/phasify show`, `/phasify help`, `/phasify tldr` | Same phase modes as Copilot. Empty `/phasify` = next incomplete. `/phasify help` (also `--help`, `/?`) prints the full reference and does **not** execute. Supports `Nimages` / `Npass`. |
+| **debugify** | `/debugify`, `/dbgify`, `/debify`, `/promptify-debug`, `/debugify help`, `/debugify tldr` | **Claude Code Debug Mode (full loop)** — same shape as Copilot/Grok, not Cursor kickoff. Hypothesize → temporary instrumentation → repro → evidence-backed fix → verify → remove probes. Command is `/debugify`. Claude Code’s bundled `/debug` is a different command. No `/debug-kickoff` in this tree. `/debugify help` (also `--help`, `/?`) prints the full reference. |
+| **addify** | `/addify`, `/addify help`, `/addify tldr` | Thin conversation router: recover the last ify in this chat, verbatim-append the addify body, and restart or continue that skill. Empty `/addify` is short usage, not Next. `/addify help` (also `--help`, `/?`) prints the full reference. |
+| **ify** | `/ify`, `/ify help`, `/ify help <verb>`, `/ify tldr`, `/ify tldr <verb>`, `/ify smart`, `/ify which` | Catalog, help, and router for the Promptify family **in this Claude Code tree**. Does **not** plan, execute, debug, or answer domain questions. Empty `/ify` is short usage. `/ify help` (also `--help`, `/?`) prints the full reference. |
+| **fromify** | `/fromify`, `/fromify help`, `/fromify tldr` | Splice local files into an ify prompt (`from=` / `from:` on any family verb; see `docs/from_contract.md`). `/fromify <files>` defaults to plannify. A verb token on the line selects that verb. `/fromify help` (also `--help`, `/?`) prints the full reference. |
+| **docify** | `/docify`, `/docify help`, `/docify tldr` | Document this prompt. Default is askify; a leading ify verb selects that verb. See `.claude/skills/docify/SKILL.md`. `/docify help` (also `--help`, `/?`) prints the full reference. |
+| **saveify** | `/saveify`, `/savify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is an alias of `/saveify`, not a folder. See `.claude/skills/saveify/SKILL.md`. |
+| **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.claude/skills/resumeify/SKILL.md`. |
+
+**Promptify family (Claude Code):**
+
+```text
+/promptify <prompt>       — analyze/optimize only
+/promptify help           — full promptify reference (also --help, /?)
+/promptify tldr           — short form (stop)
+/promptify pass help      — Pass (Npass) subsection only (also /promptify pass)
+/runnify <prompt>         — optimize then EXECUTE
+/runnify help             — full runnify reference (also --help, /?)
+/runnify tldr             — short form (stop)
+/runnify pass help        — Pass (Npass) subsection (also /runnify pass)
+/askify <prompt>          — ANSWER only (read-only; no plan unless /askify plan)
+/askify plan <prompt>     — print the ask-kickoff plan, then answer
+/askify help              — full askify reference (also --help, /?)
+/askify tldr              — short form (stop)
+/askify pass help         — Pass (Npass) subsection (also /askify pass)
+/plannify <prompt>        — optimize then PLAN (read-only)
+/plannify fromhere        — replan from current statuses (AskUserQuestion: Keep new vs Continue original)
+/plannify add <feature>   — add a feature to the just-run plan (last ify must be plannify or phasify)
+/plannify help            — full plannify reference (also --help, /?)
+/plannify tldr            — short form (stop)
+/plannify pass help       — Pass (Npass) subsection (also /plannify pass)
+/phasify                  — execute the next incomplete phase (same as next)
+/phasify 0                — execute phase P0 of the current plan
+/phasify next             — execute the next incomplete phase
+/phasify 3                — execute the next 3 phases, one after another
+/phasify done             — run every remaining incomplete phase to the end (also finish/end/all/close/toend)
+/phasify toend            — same as done (also to-end / to end)
+/phasify -                — stop-before-end: run all but the last work phase (`-`/`-0` = `-1`; `-N` → last included = C-N)
+/phasify defer [reason]   — defer the next open phase (also Ndefer / defer N / defer pN)
+/phasify undefer          — undefer the next Deferred phase (also Nundefer / undefer N / undefer pN)
+/phasify rundefer         — undefer+execute next Deferred phase (also Nrundefer / rundefer N / rundeferN; rundefer 2 / 2rundefer = next 2, not P2)
+/phasify todo             — detailed list for the next not-done / not-deferred phase (also Ntodo / todo N / todo pN)
+/phasify explain          — explain next not-Done phase (includes Deferred; also Nexplain / explain N / explainN; named is pN / PN only)
+/phasify todone           — Todo+close next eligible phase (also Ntodone / todone pN; todone N = next N, not named PN)
+/phasify block [reason]   — block the next 1 eligible phase (also Nblock / block pN; block N = next N, not named PN)
+/phasify unblock          — verify the next Blocked / Def-Blocked phase (also Nunblock / unblock N / unblock pN)
+/phasify runblock         — unblock+run-or-mark next Blocked phase (also Nrunblock / runblock N / runblockN; runblock 2 / 2runblock = next 2, not P2)
+/phasify howto            — steps past the next blocked or partially blocked phase (also Nhowto / howto N / howtoN; howto 2 / 2howto = next 2, not P2)
+/phasify remove           — drop next not-Done phase after yes/no (also Nremove / remove N / remove pN / remove <title>; remove 2 / 2remove = next 2, not P2)
+/phasify delete           — exact alias of remove
+/phasify smart <prompt>   — select a mode from the live plan and run it (not Next; not implicit)
+/phasify show             — print the current table (also refresh; Reason if any deferral has one)
+/phasify help             — full phasify reference (also --help, /?; empty /phasify stays Next)
+/phasify tldr             — short form (stop; never a phase id)
+/phasify pass help        — Pass (Npass) subsection (also /phasify pass)
+/phasify … Nimages Npass  — any mode; flags stripped first (`-2pass` ≠ stop-before-end)
+/debugify <bug report>    — full Debug Mode loop (command is /debugify; bundled /debug is separate)
+/debugify help            — full debugify reference (also --help, /?)
+/debugify tldr            — short form (stop)
+/debugify pass help       — Pass (Npass) subsection (also /debugify pass)
+/addify <text>            — append <text> to the last ify and restart/continue that skill
+/addify help              — full addify reference (also --help, /?)
+/addify tldr              — short form (stop)
+/addify pass help         — Pass (Npass) subsection (also /addify pass)
+/ify                      — family catalog one-liner + syntax (not Help, not Next)
+/ify help                 — family catalog (also --help, /?)
+/ify help <verb>          — extreme help for that ify verb
+/ify tldr                 — short tldr of ify (stop)
+/ify tldr <verb>          — short tldr of that verb (stop)
+/ify smart <prompt>       — recommend verb + rewritten prompt (do not run)
+/ify which <prompt>       — alias of smart
+/ify <prompt>             — implicit smart
+/ify pass help            — Pass (Npass) subsection (also /ify pass)
+/fromify <files>          — plannify those files (default verb)
+/fromify <verb> <files>   — that ify verb; file text is the body
+/fromify help             — full fromify reference (also --help, /?)
+/fromify tldr             — short form (stop)
+<verb> from=<path>        — splice local files into that verb (also from:; see docs/from_contract.md)
+/docify <prompt>          — askify that prompt, then docify
+/docify <verb> <prompt>   — that ify verb instead of askify
+/docify help              — full docify reference (also --help, /?)
+/docify tldr              — short form (stop)
+<verb> docify              — write that verb's deliverable (also docpathify; see docs/docify_contract.md)
+/saveify [<name>]         — save current ify context (auto-name if unnamed); `/saveify list` displays one; delete by name or # after yes/no (empty is a real save)
+/resumeify [<name|#>]     — list newest-first with dates; `/resumeify list` selects one for /phasify; restore by name or # (empty is a selection list; `Choose none` stops; a saved context restores)
+```
+
+### Web (`.grok-web/`, `.claude-web/`)
+
+`.grok-web/` and `.claude-web/` are manual upload packs for grok.com
+and claude.ai. Each pack is ify, askify, promptify, plannify, debugify
+(kickoff only), and addify. They are not installer targets. grok.com
+skills are not `~/.grok/skills`. claude.ai uploads are not copied to
+`~/.claude/skills`.
+
 ### Platform differences worth knowing
 
-| Topic | Grok | Cursor | Copilot |
-|-------|------|--------|---------|
-| **debugify** | Full loop in-agent (`/debugify`) | Kickoff brief for product Debug Mode | Full loop in-agent (`/debugify`, `/debug`) — same as Grok |
-| Debug prep only | `/debug-kickoff` | Same role as Cursor `/debugify` | No `/debug-kickoff`; stop after Investigate + Hypothesize if they only want a brief |
-| Grok-only utilities | `check-work`, `code-review`, `create-skill`, `help`, `image`, `imagine` | — | — |
-| Scratch images | `/image`, `/image 2`, `2image` (standalone); last-N via `scratch ls` | `2image` / `Nimages` on ify skills; last-N via `scratch ls` | `Nimages` on ify skills; last-N via `scratch ls` (no standalone `/image`) |
-| Personal dest | `~/.grok/skills` | `~/.cursor/skills` | `~/.copilot/skills` (Windows `%USERPROFILE%\.copilot\skills`) |
-| Cloud / github.com | — | — | Consumer `<repo>/.github/skills` (`project` / `docs/COPILOT_LOAD.md`) |
+| Topic | Grok | Cursor | Copilot | Claude Code |
+|-------|------|--------|---------|-------------|
+| **debugify** | Full loop in-agent (`/debugify`) | Kickoff brief for product Debug Mode | Full loop in-agent (`/debugify`, `/debug`) — same as Grok | Full loop in-agent (`/debugify`). Bundled `/debug` stays Claude Code’s own command |
+| Debug prep only | `/debug-kickoff` | Same role as Cursor `/debugify` | No `/debug-kickoff`; stop after Investigate + Hypothesize if they only want a brief | No `/debug-kickoff`; stop after Investigate + Hypothesize if they only want a brief |
+| Grok-only utilities | `check-work`, `code-review`, `create-skill`, `help`, `image`, `imagine` | — | — | — |
+| Scratch images | `/image`, `/image 2`, `2image` (standalone); last-N via `scratch ls` | `2image` / `Nimages` on ify skills; last-N via `scratch ls` | `Nimages` on ify skills; last-N via `scratch ls` (no standalone `/image`) | `Nimages` on ify skills; last-N via `scratch ls` (no standalone `/image`) |
+| Personal dest | `~/.grok/skills` | `~/.cursor/skills` | `~/.copilot/skills` (Windows `%USERPROFILE%\.copilot\skills`) | `~/.claude/skills` |
+| Cloud / github.com | — | — | Consumer `<repo>/.github/skills` (`project` / `docs/COPILOT_LOAD.md`) | — |
 
-Name collision: all three trees ship a skill named `debugify` with
-**different behavior on Cursor**. Grok and Copilot run the full loop
-in-agent. Cursor `/debugify` is kickoff-only — paste into Cursor Debug
-Mode. Prefer `/debug-kickoff` on Grok when you only want a brief.
+Name collision: these trees ship a skill named `debugify` with
+**different behavior on Cursor**. Grok, Copilot, and Claude Code run
+the full loop in-agent. Claude Code’s command is `/debugify`. Cursor
+`/debugify` is kickoff-only — paste into Cursor Debug Mode. Prefer
+`/debug-kickoff` on Grok when you only want a brief.
 
 ## Install
 
 New or updated skills in this repo (including **ify**) appear under
-`~/.cursor/skills/`, `~/.grok/skills/`, and `~/.copilot/skills/` only
-after install. `scripts/cli.sh` auto-discovers skill folders — no
-script edit needed. Run `./scripts/cli.sh install` (or `install all`)
-for grok + cursor + copilot. `install copilot` is the Copilot dest
-only. On a local copilot install, if GitHub Copilot (VS Code / CLI)
-is missing but installable, the installer asks whether to install
-it (`--host` / `--no-host`). `pullinst` pulls `origin main` first,
-then runs the same install (skip install if pull fails). Copilot
-cloud dest: `project` copies into a consumer repo’s `.github/skills`
-(`docs/COPILOT_LOAD.md`).
+`~/.cursor/skills/`, `~/.grok/skills/`, `~/.copilot/skills/`, and
+`~/.claude/skills/` only after install. `scripts/cli.sh`
+auto-discovers skill folders — no script edit needed. Run
+`./scripts/cli.sh install` (or `install all`) for grok + cursor +
+copilot + claude. `install copilot` is the Copilot dest only.
+`install claude` is the Claude Code dest only: it copies skills and
+does not install a `claude` binary or prompt for `--host`. On a local
+copilot install, if GitHub Copilot (VS Code / CLI) is missing but
+installable, the installer asks whether to install it (`--host` /
+`--no-host`). `pullinst` pulls `origin main` first, then runs the
+same install (skip install if pull fails). Copilot cloud dest:
+`project` copies into a consumer repo’s `.github/skills`
+(`docs/COPILOT_LOAD.md`). `.grok-web/` and `.claude-web/` are not
+installer targets.
 
 From this repo:
 
 ```bash
-./scripts/cli.sh install          # install/update grok + cursor + copilot when repo is newer
+./scripts/cli.sh install          # install/update grok + cursor + copilot + claude when repo is newer
 ./scripts/cli.sh install grok     # ~/.grok/skills/
 ./scripts/cli.sh install cursor   # ~/.cursor/skills/
 ./scripts/cli.sh install copilot  # ~/.copilot/skills/ (asks to install GitHub Copilot if missing)
+./scripts/cli.sh install claude   # ~/.claude/skills/ (skills only; no claude binary, no --host prompt)
 ./scripts/cli.sh install copilot --host     # also install VS Code Copilot + CLI when possible
 ./scripts/cli.sh install copilot --no-host  # skills only
-./scripts/cli.sh install all      # same as ./scripts/cli.sh install (grok + cursor + copilot)
+./scripts/cli.sh install all      # same as ./scripts/cli.sh install (grok + cursor + copilot + claude)
 ./scripts/cli.sh project /path/to/repo   # .copilot/skills → <repo>/.github/skills
 ./scripts/cli.sh pullinst         # git pull origin main, then install
 ./scripts/cli.sh pullinst grok    # pull, then ~/.grok/skills/ only
@@ -373,6 +493,7 @@ Use `scripts\cli.cmd` from `cmd.exe`, or if `.ps1` scripts are blocked:
 .\scripts\cli.ps1 install
 .\scripts\cli.ps1 install grok
 .\scripts\cli.ps1 install copilot
+.\scripts\cli.ps1 install claude   # ~/.claude/skills/ (skills only; no claude binary, no --host prompt)
 .\scripts\cli.ps1 project C:\path\to\repo
 .\scripts\cli.ps1 pullinst
 .\scripts\cli.ps1 pullinst grok
@@ -415,6 +536,7 @@ Remote skills land in the **remote user's** home:
 | `.grok/<skill>/` | `~/.grok/skills/<skill>/` (local or remote `$HOME`) |
 | `.cursor/skills/<skill>/` | `~/.cursor/skills/<skill>/` |
 | `.copilot/skills/<skill>/` | `~/.copilot/skills/<skill>/` (`install` / `install all` / `install copilot` / `--remote`) |
+| `.claude/skills/<skill>/` | `~/.claude/skills/<skill>/` (`install` / `install all` / `install claude` / `--remote`) |
 
 A skill is copied when the destination is missing (first install) or when any file in the repo skill is newer than the newest file already installed. Unchanged or newer-on-disk skills are skipped unless you pass `--force`.
 

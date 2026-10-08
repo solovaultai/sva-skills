@@ -21,6 +21,13 @@ dispatches an ify verb. Default verb is **askify**. Does not answer,
 plan, or write a second file. The selected verb writes under
 `docs/docify_contract.md`.
 
+`from=` slots stay on the rewritten line for the selected verb (see
+`docs/from_contract.md`). Help, tldr, and pass do not read files.
+
+Window title prefix is `DOC:` (see `docs/window_title.md`). The
+selected verb then sets its own prefix. Help, tldr, and pass do not
+retitle.
+
 ```text
 /docify <prompt>              — askify that prompt, then docify
 /docify <controls> <prompt>   — same, with those directive controls
@@ -103,6 +110,16 @@ its own pass loop and does not resolve images. Cite promptify
 `2pass` to it. `/docify 2pass plannify create a plan` keeps askify:
 `2pass` is first and is a flag, not a verb. A later verb word stays
 in the prompt.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Hand them to the selected verb. The written document includes
+each resolved image.
 
 ---
 

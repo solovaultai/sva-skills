@@ -113,6 +113,13 @@ After strip: `/ify 1image` is **empty usage** + 1 image;
 
 ---
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` are
+handed to the verb this router runs. Every token counts. Strip
+them before the mode word.
+
 ## Invocation (parse after stripping flags)
 
 Case-insensitive. Optional leading `/` on a verb token is ignored

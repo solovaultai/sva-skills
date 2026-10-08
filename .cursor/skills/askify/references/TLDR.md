@@ -5,6 +5,8 @@ then run it read-only and return a cited answer. Never implements and
 never emits a plan.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `ASK:` (`docs/window_title.md`).
 
 ```text
 /askify <prompt>       — answer only (read-only; do not print the plan)
@@ -24,4 +26,5 @@ never emits a plan.
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
 | `promptify-ask` | Alias of `/askify` | Same ask pipeline under the older name |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` | Carry what they show into the Ask-Kickoff Prompt and the answer |
+| `img` | Specific files, not newest-N. Cite promptify **Named images** | The answer uses each resolved image as evidence |
 | `Npass` | N passes before answering | If N > 1, pass 1 is pre-plan only; last pass produces the kickoff and Answer |

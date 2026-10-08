@@ -24,6 +24,12 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `RUN:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## How to invoke
@@ -61,6 +67,18 @@ image(s) from <source> for extra detail on the issue under review.
 ```
 
 **`Npass`:** see **Pass (`Npass`)** below.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Strip them with the other flags. The solution uses each resolved
+image. Read it before executing. Ack first, after the scratch ack
+when both are present. An `img` token is included on the Flags row.
+With no `Nimages` and no `Npass`, that row is still printed.
 
 ---
 
@@ -104,8 +122,9 @@ after the scratch ack when both appear.
 If the work is (or continues) a **multi-phase plan**, or `Nimages` /
 `Npass` is present, the **last printed item** after Results is the
 promptify Trailing phase status table (completed vs left). Flags is
-the first row when either marker is present. Nothing after the table
-except an optional one-line next-step.
+the first row when `Nimages`, `Npass`, or `img` is present. An `img`
+token alone still gets the row. Cite promptify **Named images**.
+Nothing after the table except an optional one-line next-step.
 
 ---
 

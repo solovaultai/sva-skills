@@ -4,6 +4,8 @@ Promptify-family **front door**: catalog, help, and router. Does
 **not** plan, execute, debug, or answer domain questions.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `IFY:` (`docs/window_title.md`).
 
 ```text
 /ify                 — catalog + help + router (does not plan or execute)
@@ -31,4 +33,5 @@ Already know the verb? Run it directly. Append to last ify? /addify
 | `<prompt>` | Implicit `smart` | Bare prompt still recommends |
 | `pass` / `pass help` / `help pass` | Print the Pass (`Npass`) section; stop | Flag reference without the full catalog |
 | `Nimages` | Newest N scratch images (first numbered instance) | Family flag; strip before dispatch |
+| `img` | Specific files handed to the verb this router runs | Cite promptify **Named images**. Strip before the mode word |
 | `Npass` | N pipeline passes of this ify mode’s work | Family flag; strip before dispatch |

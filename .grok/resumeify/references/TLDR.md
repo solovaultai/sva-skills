@@ -3,6 +3,9 @@
 A thin restore front end. Lists saved ify contexts and reprints one.
 Does not plan or execute phases. Does not write or delete. Store and
 reprint follow `docs/saveify_contract.md`.
+`from=` splices local files (`docs/from_contract.md`). `docify` writes
+the deliverable (`docs/docify_contract.md`). Window prefix `RESUME:`
+(`docs/window_title.md`).
 
 ```text
 /resumeify                — selection list, newest first; Choose none stops
@@ -24,9 +27,12 @@ reprint follow `docs/saveify_contract.md`.
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
 | `Nimages` | Flag on the typed line; stripped | Not a snapshot name. No scratch read |
+| `img` | Specific files for this restore, plus snapshot `images.txt` | Paths print after the plan path. Cite promptify **Named images** |
 | `Npass` | Flag on the typed line; stripped | Resumeify does not run its own second pass loop |
 
 `/resumeify` shows the selection. `Choose none` stops. `/resumeify 1` restores the newest.
 `/resumeify my saved plan` restores that name. A different workspace
 is announced and the directory stays. Unfinished plan: next command
-is `/phasify`. All work phases Done: the plan is complete.
+is `/phasify`. All work phases Done: the plan is complete. When both
+`plan.md` and `table.txt` exist, the printed plan ends before
+`## Phased plan` and `table.txt` is the only phase table.

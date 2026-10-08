@@ -5,6 +5,8 @@ prompt, then run that prompt read-only and emit a structured plan. Never
 implements, edits, or mutates the workspace.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `PLAN:` (`docs/window_title.md`).
 
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
@@ -30,4 +32,5 @@ implements, edits, or mutates the workspace.
 | `plify` | Alias of `/plannify` | Short name |
 | `promptify-plan` | Alias of `/plannify` | Same planning pipeline under the older name |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` | Carry what they show into the Planning-Kickoff Prompt and the plan |
+| `img` | Specific files, not newest-N. Cite promptify **Named images** | The plan includes each resolved image |
 | `Npass` | N passes before producing the plan | If N > 1, pass 1 is pre-plan only; last pass produces the kickoff and Plan |

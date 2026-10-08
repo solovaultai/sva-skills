@@ -29,7 +29,8 @@ user (or a later turn) runs that verb.
 
 A real ify task sets the tmux window name so a row of Grok
 windows can be told apart. The contract is `docs/window_title.md`.
-Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`.
+Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`,
+`DOC:`, `SAVE:`, `RESUME:`.
 Addify reuses the ancestor's prefix. Phasify is
 `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and
 empty usage do not retitle.
@@ -100,7 +101,7 @@ they said “ify this”.
 | **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
 | **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
 | **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
-| **phasify** | Next phase / named PN / **runblock** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
+| **phasify** | Next phase / named PN / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
 | **debugify** | Bug / failing / root cause — **full** Debug Mode loop (not Cursor’s kickoff-only debugify) | `/debug`, `dbgify`, `debify` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
@@ -168,6 +169,16 @@ subcommand text or `smart` prompt wording. After strip:
 Lead with the standard scratch / Npass acknowledgments when markers
 are present (scratch first, then Npass). ify rarely needs images;
 still honor the family contract.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+They are handed to the verb this router runs. Strip them before
+the mode word.
 
 ---
 
@@ -241,6 +252,8 @@ Frozen `smart` example shape:
 
 ## Related (Promptify family)
 
+The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
+
 | Command | Role |
 |---------|------|
 | `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
@@ -250,6 +263,7 @@ Frozen `smart` example shape:
 | `/runnify <prompt>` | Optimize then execute |
 | `/phasify` | Execute the next plan phase |
 | `/phasify runblock` | Unblock+run leftover work or mark `Done` (`runblock pN` / `runblockPN` / `PNrunblock` named; `runblock N` / `Nrunblock` / `2runblock` = next N blocked, not PN) |
+| `/phasify howto` | Steps past the next blocked or partially blocked phase (`howto pN` named; `howto N` / `2howto` = next N, not PN). None: nothing to do, reprint the plan. |
 | `/phasify remove` | Drop next not-Done phase after yes/no (`remove pN` / title named; `remove N` / `2remove` = next N, not PN). `delete` is an exact alias. |
 | `/promptify <prompt>` | Analyze / optimize only |
 | `/debugify <bug>` | Full Debug Mode loop |

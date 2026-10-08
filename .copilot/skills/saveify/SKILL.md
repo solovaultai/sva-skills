@@ -100,9 +100,19 @@ On the **typed line only**, follow promptify **Flag parse order**
 mode or the name. They are not body text and not part of the
 display name. Do not fork that parse.
 
-Saveify does not loop, does not open scratch, and does not print
+Saveify does not loop, does not open scratch for `Nimages`, and does not print
 the scratch or Npass acknowledgements. One save. A line that is
 only flags is an auto-name save.
+
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Strip them before the name.
+Copy the resolved files into the snapshot per
+`docs/saveify_contract.md` (`images/` and `images.txt`). Also
+copy named images already in the in-flight context. Print the
+named-images ack.
 
 Snapshot `flags`, `pass_k`, and `pass_n` come from the in-flight
 ify context per `docs/saveify_contract.md`, not from a new loop.

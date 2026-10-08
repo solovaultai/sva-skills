@@ -44,6 +44,7 @@ Then bind phrases to **live** ids:
 |--------|---------|
 | “next deferred” | first Status `Deferred` or `Def-Blocked` |
 | “next blocked” | first Status `Blocked` or `Def-Blocked` |
+| “how to get past” / “howto” / “steps past the block” | **howto** (bare, or `howto pN` when a live id was named). Selector also includes partially blocked |
 | “next” | next incomplete (not `Done` / `Deferred` / `Def-Blocked`) |
 | “remove next” / “delete next” | **remove** (next not-Done; still confirms) |
 | “remove PN” / a unique phase title | **remove pN** / `remove <title>` |
@@ -63,6 +64,7 @@ Prefer the **single** existing mode that achieves the whole ask
 | Undefer **and** run | **rundefer** |
 | Undefer only | **undefer** |
 | Unblock / verify only | **unblock** |
+| Steps to get past a block, without running the phase | **howto** `howto` or `howto pN` |
 | Run until N before last / all but last N | **Stop-before-end** `-N` |
 | Run remaining / to the end | **Run-to-end** `done` |
 | Next N phases | **Next-N** |
@@ -143,6 +145,29 @@ Preamble:
 Unblock-and-run is runblock (assume that mode exists). Do not invent a second path.
 ```
 
+### EX-4 — steps past the next block
+
+Prompt: `smart "how do I get past the next blocked phase"`
+
+Live: next blocked = **P4**
+
+Select and run:
+
+```text
+/phasify howto p4
+```
+
+Preamble:
+
+```text
+**Smart — selected.**
+`/phasify howto p4`
+Steps past a block is howto (read-only). Do not select unblock or runblock.
+```
+
+If the prompt also asks to run the phase, the earlier row wins:
+that is **runblock**, not howto.
+
 ---
 
 ## Npass
@@ -163,5 +188,5 @@ Flags apply to the **selected** action after dispatch.
 - After preamble, dispatch. No ack.
 - Not implicit. Bare `/phasify` stays Next.
 - `which` is ify-only. Not a phasify token.
-- Do not implement runblock here; only **select** `runblock pN`
-  when that is the right action (EX-3).
+- Do not implement runblock or howto here; only **select**
+  `runblock pN` (EX-3) or `howto pN` (EX-4).

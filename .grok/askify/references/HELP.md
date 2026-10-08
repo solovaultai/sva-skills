@@ -22,6 +22,12 @@ implements and never emits a plan. Alias: `/promptify-ask`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `ASK:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## How to invoke
@@ -50,6 +56,17 @@ interpreted ack. Carry what they show into the Ask-Kickoff Prompt and
 the answer.
 
 **`Npass`:** see **Pass (`Npass`)** below.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Strip them with the other flags. The answer uses each resolved
+image as evidence. An `img` token is included on the Flags row.
+With no `Nimages` and no `Npass`, that row is still printed.
 
 ---
 
@@ -106,8 +123,10 @@ Copy-pasteable. Must say **answer, do not implement or plan**.
 
 Askify does **not** invent a plan. When the question is about an
 existing multi-phase plan, **or** `Nimages` / `Npass` is present,
-end with `## Phased plan`. Flags is the first row when either marker
-is present. Skip only for a true single-step question and no markers.
+end with `## Phased plan`. Flags is the first row when `Nimages`,
+`Npass`, or `img` is present. An `img` token alone still gets the
+row. Cite promptify **Named images**. Skip only for a true
+single-step question and no markers.
 
 ---
 

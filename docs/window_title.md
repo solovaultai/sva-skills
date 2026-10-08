@@ -60,8 +60,9 @@ keep that summary text.
 `<n>` is the work phase this run is on (`P0` prints as `P0`).
 `<total>` is the work-phase count. Task and Flags do not count.
 Next-N, run-to-end, stop-before-end, rundefer, and runblock update
-the name at the **start** of each phase. Show, todo, and explain use
-the phase that mode is about. Help, tldr, and pass do not retitle.
+the name at the **start** of each phase. Show, todo, explain, and howto use
+the phase that mode is about. Howto with nothing to do leaves the name.
+Help, tldr, and pass do not retitle.
 
 ```text
 PLAN: ify window titles
@@ -119,8 +120,9 @@ Set the tmux window name per that contract on a real task.
 Help, tldr, pass, and empty usage do not retitle.
 ```
 
-Put the same cite in `.grok/<verb>/`, `.cursor/skills/<verb>/`, and
-`.copilot/skills/<verb>/`. Off tmux the command does nothing.
+Put the same cite in `.grok/<verb>/`, `.cursor/skills/<verb>/`,
+`.copilot/skills/<verb>/`, and `.claude/skills/<verb>/`. Off tmux the
+command does nothing.
 
 ---
 

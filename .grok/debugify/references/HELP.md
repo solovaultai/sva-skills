@@ -24,6 +24,12 @@ For a read-only kickoff brief only, use `/debug-kickoff`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
+A typed-line `docify` / `docpathify` writes this verb's deliverable
+(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+
+Window title prefix is `DBG:` (see `docs/window_title.md`).
+Help, tldr, and pass do not retitle.
+
 ---
 
 ## How to invoke
@@ -54,6 +60,16 @@ promptify — do not fork.
 Phase 0. Lead with the caught-and-interpreted ack.
 
 **`Npass`:** see **Pass (`Npass`)** below.
+
+---
+
+## Named images (`img`)
+
+Specific files, not the newest N. Cite promptify **Named images**.
+Do not fork that grammar. `img=<file>`, `img:<file>`, `img=[a,b]`,
+`img:[a,b]`, and empty `img=[]` / `img:[]`. Every token counts.
+Strip them with the other flags. Read each image before hypotheses.
+It is evidence for what the problem is.
 
 ---
 

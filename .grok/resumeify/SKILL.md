@@ -86,9 +86,18 @@ On the **typed line only**, follow promptify **Flag parse order**
 (first numbered `Nimages` / `Npass` only). Strip them. They are not
 the snapshot name. Do not scan snapshot files for flags.
 
-Do not read scratch images. Do not run a pass loop. Resumeify does
-not re-apply stripped flags. Cite promptify **Flag parse order** —
-do not fork.
+Do not read `Nimages` scratch sets. Do not run a pass loop.
+Cite promptify **Flag parse order** — do not fork.
+
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+When `images.txt` exists in the snapshot, print those paths
+after the plan path. They are part of the restored context.
+Read them. `img=<file>`, `img:<file>`, `img=[a,b]`, and
+`img:[a,b]` on this line add those files for this restore.
+Do not rewrite the snapshot. Print the named-images ack when
+this line has an `img` token.
 
 ---
 

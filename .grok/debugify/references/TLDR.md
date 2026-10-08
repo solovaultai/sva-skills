@@ -5,6 +5,8 @@ speculative-fix loop: hypothesize → instrument → repro → analyze → fix
 → verify → clean. Aliases: `/dbgify`, `/debify`, `/debug`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+Window prefix `DBG:` (`docs/window_title.md`).
 
 ```text
 /debugify <bug report>      — full loop (default)
@@ -28,4 +30,5 @@ speculative-fix loop: hypothesize → instrument → repro → analyze → fix
 | `debug` | Alias of `/debugify` | Same full loop under the shorter name |
 | `debug-kickoff` | Read-only brief (no edits) | Kickoff only — do not run this full loop |
 | `Nimages` | N newest images from the scratch source or workspace `scratch/` as existing evidence during Phase 0 | Visual evidence for Investigate |
+| `img` | Specific files, not newest-N. Cite promptify **Named images** | Read before hypotheses; evidence for what the problem is |
 | `Npass` | Extra pass(es) deepen investigation / hypothesis quality | If N > 1, pre-plan first; last pass runs this invocation’s loop work |

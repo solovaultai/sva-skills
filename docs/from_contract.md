@@ -172,7 +172,7 @@ A file is non-text when its extension is a scratch image
 extension (`png`, `jpg`, `jpeg`, `webp`, `gif`, `bmp`,
 any case) or its bytes contain a NUL. Do not splice those
 bytes. An image in a from-slot is not an `Nimages`
-attachment.
+attachment and not an `img` file.
 
 ---
 
@@ -181,10 +181,11 @@ attachment.
 `/fromify` is in the Ify set. It selects a verb, splices
 under this contract, then reads and follows that verb's
 `SKILL.md` on the spliced body. It does not reimplement
-that verb. `Npass` and `Nimages` stripped in step 1 are
-handed through, including the scratch source promptify
-already uses. fromify does not resolve images and does
-not run the extra passes itself.
+that verb. `Npass`, `Nimages`, and `img` tokens stripped
+in step 1 are handed through. `Nimages` keeps the scratch
+source promptify already uses. `img` names specific files.
+fromify does not resolve images and does not run the extra
+passes itself.
 
 **Verb pick** (step 2). Scan tokens left to right. A
 token selects a verb when one optional leading `/` leaves

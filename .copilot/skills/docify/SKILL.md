@@ -72,6 +72,13 @@ print this block for that line.
 /docify pass help             — Pass (Npass) subsection (also `pass`)
 ```
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` name
+specific files. Every token counts. Hand them to the selected
+verb. The written document includes each resolved image.
+
 ## Controls
 
 Cite `docs/docify_contract.md`. Consume a leading `docify` /

@@ -84,6 +84,13 @@ present).
 
 ---
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` stay on
+the rewritten line for the selected verb. Every token counts.
+They are not file-slot text.
+
 ## Verb pick
 
 After flag strip, when the line is not help / tldr / pass / empty:

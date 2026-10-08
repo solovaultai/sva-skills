@@ -2,7 +2,8 @@
 <#
 .SYNOPSIS
   sva-skills installer — sync repo skills into ~/.grok, ~/.cursor,
-  and ~/.copilot (local and/or across sshub connections from connections.env)
+  ~/.copilot, and ~/.claude/skills (local and/or across sshub connections
+  from connections.env)
 
 .DESCRIPTION
   Windows 10/11 port of scripts/cli.sh. Requires Windows PowerShell 5.1
@@ -12,11 +13,19 @@
 .EXAMPLE
   .\scripts\cli.ps1 install
   .\scripts\cli.ps1 install grok
+  .\scripts\cli.ps1 install grok --skills plannify,debugify
+  .\scripts\cli.ps1 install --force grok
+  .\scripts\cli.ps1 install --force --skills plannify grok
+  .\scripts\cli.ps1 install --force --skills plannify,debugify grok
+  .\scripts\cli.ps1 install grok cursor --skills plannify
+  .\scripts\cli.ps1 install --force copilot --host
   .\scripts\cli.ps1 install copilot
+  .\scripts\cli.ps1 install claude       # .claude\skills\<name>\ → ~\.claude\skills\<name>\
   .\scripts\cli.ps1 project C:\path\to\consumer-repo
   .\scripts\cli.ps1 pullinst
   .\scripts\cli.ps1 pullinst grok
   .\scripts\cli.ps1 pullinst copilot
+  .\scripts\cli.ps1 pullinst claude
   .\scripts\cli.ps1 install --remote casai
   .\scripts\cli.ps1 status --remote
   .\scripts\cli.ps1 list
@@ -42,14 +51,17 @@ $Root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
 $GrokSrc = Join-Path $Root '.grok'
 $CursorSrc = Join-Path (Join-Path $Root '.cursor') 'skills'
 $CopilotSrc = Join-Path (Join-Path $Root '.copilot') 'skills'
+$ClaudeSrc = Join-Path (Join-Path $Root '.claude') 'skills'
 $GrokDest = Join-Path (Join-Path $HOME '.grok') 'skills'
 $CursorDest = Join-Path (Join-Path $HOME '.cursor') 'skills'
 $CopilotDest = Join-Path (Join-Path $HOME '.copilot') 'skills'
+$ClaudeDest = Join-Path (Join-Path $HOME '.claude') 'skills'
 
 # Remote destinations are always under the remote user's home (Linux hosts).
 $RemoteGrokRel = '.grok/skills'
 $RemoteCursorRel = '.cursor/skills'
 $RemoteCopilotRel = '.copilot/skills'
+$RemoteClaudeRel = '.claude/skills'
 # Consumer-repo cloud dest (I6). Not a source tree; not written inside this repo.
 $ProjectRel = '.github/skills'
 
@@ -72,6 +84,9 @@ else {
 
 $Force = $false
 $DryRun = $false
+# $false = every skill in the selected product. $true = $SkillFilter only.
+$SkillsSet = $false
+$SkillFilter = New-Object System.Collections.Generic.List[string]
 # ask = prompt on a TTY when GitHub Copilot (the product) is missing
 # yes  = --host; no = --no-host
 $HostAction = 'ask'
@@ -127,7 +142,7 @@ function Invoke-GitPullMain {
 
 function Show-Usage {
     $text = @'
-sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, and ~/.copilot
+sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, ~/.copilot, and ~/.claude/skills
 
 Usage:
   .\scripts\cli.ps1 install              # same as: install all (local)
@@ -135,12 +150,20 @@ Usage:
   .\scripts\cli.ps1 install grok
   .\scripts\cli.ps1 install cursor
   .\scripts\cli.ps1 install copilot
+  .\scripts\cli.ps1 install claude       # .claude\skills\<name>\ → ~\.claude\skills\<name>\
+  .\scripts\cli.ps1 install grok --skills plannify,debugify
+  .\scripts\cli.ps1 install --force grok
+  .\scripts\cli.ps1 install --force --skills plannify grok
+  .\scripts\cli.ps1 install --force --skills plannify,debugify grok
+  .\scripts\cli.ps1 install grok cursor --skills plannify
+  .\scripts\cli.ps1 install --force copilot --host
   .\scripts\cli.ps1 project C:\path\to\repo  # .copilot\skills → <repo>\.github\skills
   .\scripts\cli.ps1 project --dry-run C:\path\to\repo
   .\scripts\cli.ps1 pullinst              # git pull origin main, then install
   .\scripts\cli.ps1 pullinst grok
   .\scripts\cli.ps1 pullinst cursor
   .\scripts\cli.ps1 pullinst copilot
+  .\scripts\cli.ps1 pullinst claude
   .\scripts\cli.ps1 install --remote                 # all skills → all connections
   .\scripts\cli.ps1 install grok --remote casai      # name or alias from connections.env
   .\scripts\cli.ps1 install --remote casai CAS2SYS
@@ -154,6 +177,7 @@ Usage:
   .\scripts\cli.ps1 saveify dir                      # saveify snapshot store
 
 Options:
+  --skills LIST Install only these skills (comma-separated; repeatable)
   --force       Always install, even if dest is newer
   --dry-run     Print actions only; do not write
   --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
@@ -167,7 +191,8 @@ Targets:
   grok     .grok\<skill>\           →  ~\.grok\skills\<skill>\
   cursor   .cursor\skills\<skill>\  →  ~\.cursor\skills\<skill>\
   copilot  .copilot\skills\<skill>\ →  ~\.copilot\skills\<skill>\
-  all      grok + cursor + copilot (default when target omitted)
+  claude   .claude\skills\<skill>\  →  ~\.claude\skills\<skill>\
+  all      grok + cursor + copilot + claude (default when target omitted)
 
 Project / cloud (copilot only; I6 — not a fourth install target):
   project  .copilot\skills\<skill>\ →  <consumer-repo>\.github\skills\<skill>\
@@ -182,11 +207,21 @@ the same as sshub / sshot (e.g. casai, CASSADYAIFAP).
 
 Remote install uses Windows OpenSSH (ssh.exe / scp.exe). Skills land in
 the remote user's home (~/.grok/skills, ~/.cursor/skills,
-~/.copilot/skills when the copilot target is selected).
+~/.copilot/skills when the copilot target is selected,
+~/.claude/skills when the claude target is selected).
 
 A skill is installed when the destination is missing, or when any file under
 the repo skill is newer than the newest file under the installed skill.
-With --force, every skill is reinstalled regardless of mtimes.
+Omit --skills to install every skill in the selected product. --skills takes
+one comma-separated list, repeated flags, or both. Spaces around commas are
+trimmed. Each name must be a skill directory in every selected product
+(.grok/<name>, .cursor/skills/<name>, .copilot/skills/<name>,
+.claude/skills/<name>). all is a
+product target, not a skill name. tmux is not a skill target; --skills with
+only tmux is an error. With --force, every selected skill is recopied even
+if the installed copy is newer. Installed folders that are not in the source
+are left in place. pullinst and status use the same targets and --skills
+filter.
 
 Scratch source (ify Nimages and Grok /image last-N images):
   .\scripts\cli.ps1 scratch show                     # current source; unset is OK (skills use workspace scratch/)
@@ -567,6 +602,14 @@ function Get-SkillDirs {
     return @($names)
 }
 
+function Get-SkillsToInstall {
+    param([string]$Src)
+    if (-not $script:SkillsSet) {
+        return @(Get-SkillDirs $Src)
+    }
+    return @($script:SkillFilter.ToArray())
+}
+
 function Test-ShouldInstallTs {
     param([int64]$SrcTs, [int64]$DestTs)
     if ($script:Force) {
@@ -701,8 +744,16 @@ function Get-TargetPaths {
                 Label = 'copilot'
             }
         }
+        'claude' {
+            return @{
+                Src   = $script:ClaudeSrc
+                Dest  = $script:ClaudeDest
+                Rel   = $script:RemoteClaudeRel
+                Label = 'claude'
+            }
+        }
         default {
-            Die "unknown target: $Target (use grok, cursor, copilot, or all)"
+            Die "unknown target: $Target (use grok, cursor, copilot, claude, or all)"
         }
     }
 }
@@ -713,7 +764,7 @@ function Install-TargetLocal {
     if (-not (Test-Path -LiteralPath $info.Src -PathType Container)) {
         Die "source not found: $($info.Src)"
     }
-    $skills = @(Get-SkillDirs $info.Src)
+    $skills = @(Get-SkillsToInstall $info.Src)
     if ($skills.Count -eq 0) {
         Write-Out ("{0}: no skills under {1}" -f $info.Label, $info.Src)
         return
@@ -953,7 +1004,10 @@ function Install-Project {
     }
     $repo = Resolve-ProjectRepo $raw
     $dest = Join-Path $repo $script:ProjectRel
-    $skills = @(Get-SkillDirs $script:CopilotSrc)
+    if ($script:SkillsSet) {
+        Assert-SelectedSkills -Targets @('copilot')
+    }
+    $skills = @(Get-SkillsToInstall $script:CopilotSrc)
     if ($skills.Count -eq 0) {
         Write-Out ("project: no skills under {0}" -f $script:CopilotSrc)
         return
@@ -972,7 +1026,7 @@ function Show-TargetStatusLocal {
         Write-Out '  (source missing)'
         return
     }
-    foreach ($name in @(Get-SkillDirs $info.Src)) {
+    foreach ($name in @(Get-SkillsToInstall $info.Src)) {
         $srcSkill = Join-Path $info.Src $name
         $destSkill = Join-Path $info.Dest $name
         $srcTs = Get-NewestMtime $srcSkill
@@ -1070,7 +1124,7 @@ function Install-TargetRemote {
     if (-not (Test-Path -LiteralPath $info.Src -PathType Container)) {
         Die "source not found: $($info.Src)"
     }
-    $skills = @(Get-SkillDirs $info.Src)
+    $skills = @(Get-SkillsToInstall $info.Src)
     if ($skills.Count -eq 0) {
         Write-Out ("{0} {1}: no skills under {2}" -f $script:ResolvedName, $info.Label, $info.Src)
         return $true
@@ -1102,7 +1156,7 @@ function Show-TargetStatusRemote {
         Write-Out '  (source missing)'
         return $true
     }
-    $skills = @(Get-SkillDirs $info.Src)
+    $skills = @(Get-SkillsToInstall $info.Src)
     if (-not (Get-RemoteSkillMtimes -RelParent $info.Rel -Names $skills)) {
         Write-ErrLine '  error: cannot reach host'
         return $false
@@ -1205,9 +1259,79 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'saveify') {
 
 # ── arg parse (same rules as cli.sh) ──────────────────────────
 
+function Add-SkillNames {
+    param([string]$Raw)
+    if ([string]::IsNullOrEmpty($Raw)) {
+        Die '--skills list is empty'
+    }
+    $parts = $Raw.Split(',')
+    if ($parts.Count -eq 0) {
+        Die '--skills list is empty'
+    }
+    foreach ($part in $parts) {
+        $trimmed = $part.Trim()
+        if ([string]::IsNullOrEmpty($trimmed)) {
+            Die '--skills list is empty'
+        }
+        if ([string]::Equals($trimmed, 'all', [System.StringComparison]::Ordinal)) {
+            Die 'all is a product target, not a skill name'
+        }
+        $seen = $false
+        foreach ($existing in $script:SkillFilter) {
+            if ([string]::Equals($existing, $trimmed, [System.StringComparison]::Ordinal)) {
+                $seen = $true
+                break
+            }
+        }
+        if (-not $seen) {
+            [void]$script:SkillFilter.Add($trimmed)
+        }
+    }
+    $script:SkillsSet = $true
+}
+
+function Assert-SelectedSkills {
+    param([string[]]$Targets)
+    if (-not $script:SkillsSet) {
+        return
+    }
+    if ($script:SkillFilter.Count -eq 0) {
+        Die '--skills list is empty'
+    }
+    if ($null -eq $Targets -or $Targets.Count -eq 0) {
+        Die '--skills cannot be used when the only target is tmux'
+    }
+    $errors = New-Object System.Collections.Generic.List[string]
+    foreach ($name in $script:SkillFilter) {
+        $missing = New-Object System.Collections.Generic.List[string]
+        foreach ($target in $Targets) {
+            $info = Get-TargetPaths $target
+            $found = $false
+            foreach ($have in @(Get-SkillDirs $info.Src)) {
+                if ([string]::Equals($have, $name, [System.StringComparison]::Ordinal)) {
+                    $found = $true
+                    break
+                }
+            }
+            if (-not $found) {
+                [void]$missing.Add($target)
+            }
+        }
+        if ($missing.Count -gt 0) {
+            [void]$errors.Add(('unknown skill: {0} (not in {1})' -f $name, ($missing -join ' ')))
+        }
+    }
+    if ($errors.Count -gt 0) {
+        foreach ($err in $errors) {
+            Write-ErrLine "error: $err"
+        }
+        exit 1
+    }
+}
+
 function Test-KnownTarget {
     param([string]$Token)
-    return ($Token -eq 'grok' -or $Token -eq 'cursor' -or $Token -eq 'copilot' -or $Token -eq 'all')
+    return ($Token -eq 'grok' -or $Token -eq 'cursor' -or $Token -eq 'copilot' -or $Token -eq 'claude' -or $Token -eq 'all')
 }
 
 $ArgList = New-Object System.Collections.Generic.List[string]
@@ -1227,6 +1351,15 @@ $i = 0
         }
         '^(--force|-Force)$' {
             $Force = $true
+            $i++
+            continue parseLoop
+        }
+        '^(--skills|-Skills)$' {
+            $i++
+            if ($i -ge $CliArgs.Count -or $CliArgs[$i].StartsWith('-')) {
+                Die '--skills requires a comma-separated list of skill names'
+            }
+            Add-SkillNames $CliArgs[$i]
             $i++
             continue parseLoop
         }
@@ -1307,6 +1440,7 @@ if ($Cmd -eq 'project') {
 $Targets = New-Object System.Collections.Generic.List[string]
 $TargetSet = $false
 
+# Skill names arrive only through --skills and are never connection names.
 foreach ($tok in $Rest) {
     if (Test-KnownTarget $tok) {
         if ($tok -eq 'all') {
@@ -1314,6 +1448,7 @@ foreach ($tok in $Rest) {
             [void]$Targets.Add('grok')
             [void]$Targets.Add('cursor')
             [void]$Targets.Add('copilot')
+            [void]$Targets.Add('claude')
         }
         else {
             [void]$Targets.Add($tok)
@@ -1329,6 +1464,22 @@ foreach ($tok in $Rest) {
     }
 }
 
+if ($SkillsSet -and -not $TargetSet) {
+    $onlyTmux = $false
+    if ($Rest.Count -gt 0) {
+        $onlyTmux = $true
+        foreach ($tok in $Rest) {
+            if (-not [string]::Equals($tok, 'tmux', [System.StringComparison]::Ordinal)) {
+                $onlyTmux = $false
+                break
+            }
+        }
+    }
+    if ($onlyTmux) {
+        Die '--skills cannot be used when the only target is tmux'
+    }
+}
+
 if ($RemoteConns.Count -gt 0) {
     $filtered = New-Object System.Collections.Generic.List[string]
     foreach ($tok in @($RemoteConns)) {
@@ -1339,6 +1490,7 @@ if ($RemoteConns.Count -gt 0) {
                     [void]$Targets.Add('grok')
                     [void]$Targets.Add('cursor')
                     [void]$Targets.Add('copilot')
+                    [void]$Targets.Add('claude')
                 }
                 else {
                     [void]$Targets.Add($tok)
@@ -1358,6 +1510,7 @@ if (-not $TargetSet -or $Targets.Count -eq 0) {
     [void]$Targets.Add('grok')
     [void]$Targets.Add('cursor')
     [void]$Targets.Add('copilot')
+    [void]$Targets.Add('claude')
 }
 
 $deduped = New-Object System.Collections.Generic.List[string]
@@ -1386,6 +1539,7 @@ switch ($Cmd) {
         if (-not $DoLocal -and -not $DoRemote) {
             $DoLocal = $true
         }
+        Assert-SelectedSkills -Targets @($Targets)
         $rc = Invoke-ForTargets -Mode install -Targets @($Targets) -RemoteNames @($RemoteConns)
         if ($DryRun) {
             Write-Out '(dry-run: no files written)'
@@ -1399,6 +1553,7 @@ switch ($Cmd) {
         if (-not $DoLocal -and -not $DoRemote) {
             $DoLocal = $true
         }
+        Assert-SelectedSkills -Targets @($Targets)
         $rc = Invoke-ForTargets -Mode status -Targets @($Targets) -RemoteNames @($RemoteConns)
         exit $rc
     }

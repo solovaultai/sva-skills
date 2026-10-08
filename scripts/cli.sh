@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # sva-skills installer — sync repo skills into ~/.grok, ~/.cursor,
-# and ~/.copilot (local and/or across sshub connections from connections.env)
+# ~/.copilot, and ~/.claude/skills (local and/or across sshub connections
+# from connections.env)
 #
 # Usage:
 #   ./scripts/cli.sh install              # same as: install all (local) + tmux titles
@@ -8,15 +9,23 @@
 #   ./scripts/cli.sh install grok
 #   ./scripts/cli.sh install cursor
 #   ./scripts/cli.sh install copilot
+#   ./scripts/cli.sh install claude       # .claude/skills/<name>/ → ~/.claude/skills/<name>/
 #   ./scripts/cli.sh install tmux         # only the ~/.tmux.conf title lines
 #   ./scripts/cli.sh tmux                 # same as: install tmux
 #   ./scripts/cli.sh install copilot --host
 #   ./scripts/cli.sh install copilot --no-host
+#   ./scripts/cli.sh install grok --skills plannify,debugify
+#   ./scripts/cli.sh install --force grok
+#   ./scripts/cli.sh install --force --skills plannify grok
+#   ./scripts/cli.sh install --force --skills plannify,debugify grok
+#   ./scripts/cli.sh install grok cursor --skills plannify
+#   ./scripts/cli.sh install --force copilot --host
 #   ./scripts/cli.sh project /path/to/consumer-repo   # .copilot/skills → <repo>/.github/skills
 #   ./scripts/cli.sh pullinst             # git pull origin main, then install
 #   ./scripts/cli.sh pullinst grok
 #   ./scripts/cli.sh pullinst cursor
 #   ./scripts/cli.sh pullinst copilot
+#   ./scripts/cli.sh pullinst claude
 #   ./scripts/cli.sh install --remote                 # all skills → all connections
 #   ./scripts/cli.sh install grok --remote casai      # grok skills → one host (name or alias)
 #   ./scripts/cli.sh install --remote casai cas2      # all skills → listed hosts
@@ -28,6 +37,7 @@
 #   ./scripts/cli.sh saveify dir|ls|resolve|rm
 #
 # Options:
+#   --skills LIST Install only these skills (comma-separated; repeatable)
 #   --force       Always install, even if dest is newer
 #   --dry-run     Print actions only; do not write
 #   --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
@@ -43,14 +53,17 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GROK_SRC="${ROOT}/.grok"
 CURSOR_SRC="${ROOT}/.cursor/skills"
 COPILOT_SRC="${ROOT}/.copilot/skills"
+CLAUDE_SRC="${ROOT}/.claude/skills"
 GROK_DEST="${HOME}/.grok/skills"
 CURSOR_DEST="${HOME}/.cursor/skills"
 COPILOT_DEST="${HOME}/.copilot/skills"
+CLAUDE_DEST="${HOME}/.claude/skills"
 
 # Remote destinations are always under the remote user's home.
 REMOTE_GROK_REL=".grok/skills"
 REMOTE_CURSOR_REL=".cursor/skills"
 REMOTE_COPILOT_REL=".copilot/skills"
+REMOTE_CLAUDE_REL=".claude/skills"
 # Consumer-repo cloud dest (I6). Not a source tree; not written inside this repo.
 PROJECT_REL=".github/skills"
 
@@ -60,6 +73,9 @@ ENV_FILE="${SSHUB_ENV_FILE:-$SSHUB_DATA_DIR/connections.env}"
 
 FORCE=0
 DRY_RUN=0
+# 0 = every skill in the selected product. 1 = SKILLS_FILTER only.
+SKILLS_SET=0
+SKILLS_FILTER=()
 DO_REMOTE=0
 # ask = prompt on a TTY when GitHub Copilot (the product) is missing
 # yes  = --host (install product without asking)
@@ -79,7 +95,7 @@ REMOTE_CONNS=()
 
 usage() {
   cat <<'EOF'
-sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, and ~/.copilot
+sva-skills installer — sync repo skills into ~/.grok, ~/.cursor, ~/.copilot, and ~/.claude/skills
 
 Usage:
   ./scripts/cli.sh install              # same as: install all (local) + tmux titles
@@ -87,16 +103,24 @@ Usage:
   ./scripts/cli.sh install grok
   ./scripts/cli.sh install cursor
   ./scripts/cli.sh install copilot
+  ./scripts/cli.sh install claude       # .claude/skills/<name>/ → ~/.claude/skills/<name>/
   ./scripts/cli.sh install tmux         # only the ~/.tmux.conf title lines
   ./scripts/cli.sh tmux                 # same as: install tmux
   ./scripts/cli.sh install copilot --host
   ./scripts/cli.sh install copilot --no-host
+  ./scripts/cli.sh install grok --skills plannify,debugify
+  ./scripts/cli.sh install --force grok
+  ./scripts/cli.sh install --force --skills plannify grok
+  ./scripts/cli.sh install --force --skills plannify,debugify grok
+  ./scripts/cli.sh install grok cursor --skills plannify
+  ./scripts/cli.sh install --force copilot --host
   ./scripts/cli.sh project /path/to/repo # .copilot/skills → <repo>/.github/skills
   ./scripts/cli.sh project --dry-run /path/to/repo
   ./scripts/cli.sh pullinst              # git pull origin main, then install
   ./scripts/cli.sh pullinst grok
   ./scripts/cli.sh pullinst cursor
   ./scripts/cli.sh pullinst copilot
+  ./scripts/cli.sh pullinst claude
   ./scripts/cli.sh install --remote                 # all skills → all connections
   ./scripts/cli.sh install grok --remote casai      # name or alias from connections.env
   ./scripts/cli.sh install --remote casai CAS2SYS
@@ -110,6 +134,7 @@ Usage:
   ./scripts/cli.sh saveify dir                      # saveify snapshot store
 
 Options:
+  --skills LIST Install only these skills (comma-separated; repeatable)
   --force       Always install, even if dest is newer
   --dry-run     Print actions only; do not write
   --host        Install GitHub Copilot (VS Code + CLI when possible) without asking
@@ -123,7 +148,8 @@ Targets:
   grok     .grok/<skill>/           →  ~/.grok/skills/<skill>/
   cursor   .cursor/skills/<skill>/  →  ~/.cursor/skills/<skill>/
   copilot  .copilot/skills/<skill>/ →  ~/.copilot/skills/<skill>/
-  all      grok + cursor + copilot, and the tmux title lines
+  claude   .claude/skills/<skill>/  →  ~/.claude/skills/<skill>/
+  all      grok + cursor + copilot + claude, and the tmux title lines
   tmux     only ~/.tmux.conf title lines (also: ./scripts/cli.sh tmux)
 
 General install (no target, or all, or pullinst) ensures these lines in
@@ -147,7 +173,16 @@ the same as sshub / sshot (e.g. casai, CASSADYAIFAP).
 
 A skill is installed when the destination is missing, or when any file under
 the repo skill is newer than the newest file under the installed skill.
-With --force, every skill is reinstalled regardless of mtimes.
+Omit --skills to install every skill in the selected product. --skills takes
+one comma-separated list, repeated flags, or both. Spaces around commas are
+trimmed. Each name must be a skill directory in every selected product
+(.grok/<name>, .cursor/skills/<name>, .copilot/skills/<name>,
+.claude/skills/<name>). all is a
+product target, not a skill name. tmux is not a skill target; --skills with
+only tmux is an error. With --force, every selected skill is recopied even
+if the installed copy is newer. Installed folders that are not in the source
+are left in place. pullinst and status use the same targets and --skills
+filter.
 
 Scratch source (ify Nimages and Grok /image last-N images):
   ./scripts/cli.sh scratch show                     # current source; unset is OK (skills use workspace scratch/)
@@ -385,6 +420,115 @@ skill_dirs() {
   done | sort
 }
 
+# Names selected for one product source. Unfiltered installs keep skill_dirs
+# order. --skills keeps the order given on the command line.
+skills_for_src() {
+  local src="$1"
+  if [[ "$SKILLS_SET" -eq 0 ]]; then
+    skill_dirs "$src"
+    return 0
+  fi
+  local name
+  for name in "${SKILLS_FILTER[@]}"; do
+    printf '%s\n' "$name"
+  done
+}
+
+# True when skill_dirs would install this basename. Does not join the
+# caller's string onto a path, so names like ../ are never looked up outside
+# the source tree.
+skill_known_in() {
+  local src="$1"
+  local want="$2"
+  local name
+  while IFS= read -r name; do
+    if [[ "$name" == "$want" ]]; then
+      return 0
+    fi
+  done < <(skill_dirs "$src")
+  return 1
+}
+
+# Record names from one --skills value. Empty slots and a bare "all" fail
+# during parse, before any copy.
+add_skill_names() {
+  local raw="$1"
+  local part trimmed existing seen
+  local -a parts=()
+  IFS=',' read -ra parts <<< "$raw"
+  if [[ "${#parts[@]}" -eq 0 ]]; then
+    die "--skills list is empty"
+  fi
+  for part in "${parts[@]}"; do
+    trimmed="${part#"${part%%[![:space:]]*}"}"
+    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"
+    if [[ -z "$trimmed" ]]; then
+      die "--skills list is empty"
+    fi
+    if [[ "$trimmed" == "all" ]]; then
+      die "all is a product target, not a skill name"
+    fi
+    seen=0
+    for existing in "${SKILLS_FILTER[@]+"${SKILLS_FILTER[@]}"}"; do
+      if [[ "$existing" == "$trimmed" ]]; then
+        seen=1
+        break
+      fi
+    done
+    if [[ "$seen" -eq 0 ]]; then
+      SKILLS_FILTER+=("$trimmed")
+    fi
+  done
+  SKILLS_SET=1
+}
+
+# Every --skills name must exist in every selected product source.
+# Prints every miss, then exits, so nothing is copied.
+validate_skill_selection() {
+  local name target src
+  local -a errors=()
+  local -a missing=()
+  for name in "${SKILLS_FILTER[@]}"; do
+    missing=()
+    for target in "$@"; do
+      case "$target" in
+        grok) src="$GROK_SRC" ;;
+        cursor) src="$CURSOR_SRC" ;;
+        copilot) src="$COPILOT_SRC" ;;
+        claude) src="$CLAUDE_SRC" ;;
+        *)
+          die "unknown target: $target (use grok, cursor, copilot, claude, or all)"
+          ;;
+      esac
+      if ! skill_known_in "$src" "$name"; then
+        missing+=("$target")
+      fi
+    done
+    if [[ "${#missing[@]}" -gt 0 ]]; then
+      errors+=("unknown skill: ${name} (not in ${missing[*]})")
+    fi
+  done
+  if [[ "${#errors[@]}" -gt 0 ]]; then
+    local e
+    for e in "${errors[@]}"; do
+      echo "error: ${e}" >&2
+    done
+    exit 1
+  fi
+}
+
+# --skills with no product (tmux alone, or the tmux command) is an error.
+require_skill_selection() {
+  [[ "$SKILLS_SET" -eq 0 ]] && return 0
+  if [[ "${#SKILLS_FILTER[@]}" -eq 0 ]]; then
+    die "--skills list is empty"
+  fi
+  if [[ "${#TARGETS[@]}" -eq 0 ]]; then
+    die "--skills cannot be used when the only target is tmux"
+  fi
+  validate_skill_selection "${TARGETS[@]}"
+}
+
 # src_ts / dest_ts comparison (0 = dest missing/empty)
 should_install_ts() {
   local src_ts="$1"
@@ -509,8 +653,13 @@ install_target_local() {
       dest="$COPILOT_DEST"
       label="copilot"
       ;;
+    claude)
+      src="$CLAUDE_SRC"
+      dest="$CLAUDE_DEST"
+      label="claude"
+      ;;
     *)
-      die "unknown target: $target (use grok, cursor, copilot, or all)"
+      die "unknown target: $target (use grok, cursor, copilot, claude, or all)"
       ;;
   esac
 
@@ -519,7 +668,7 @@ install_target_local() {
   fi
 
   local skills
-  mapfile -t skills < <(skill_dirs "$src")
+  mapfile -t skills < <(skills_for_src "$src")
   if [[ "${#skills[@]}" -eq 0 ]]; then
     echo "${label}: no skills under ${src}"
     return 0
@@ -776,8 +925,12 @@ install_project() {
   repo="$(resolve_project_repo "${raw:-.}")"
   dest="${repo}/${PROJECT_REL}"
 
+  if [[ "$SKILLS_SET" -eq 1 ]]; then
+    validate_skill_selection copilot
+  fi
+
   local skills
-  mapfile -t skills < <(skill_dirs "$COPILOT_SRC")
+  mapfile -t skills < <(skills_for_src "$COPILOT_SRC")
   if [[ "${#skills[@]}" -eq 0 ]]; then
     echo "project: no skills under ${COPILOT_SRC}"
     return 0
@@ -809,8 +962,13 @@ status_target_local() {
       dest="$COPILOT_DEST"
       label="copilot"
       ;;
+    claude)
+      src="$CLAUDE_SRC"
+      dest="$CLAUDE_DEST"
+      label="claude"
+      ;;
     *)
-      die "unknown target: $target (use grok, cursor, copilot, or all)"
+      die "unknown target: $target (use grok, cursor, copilot, claude, or all)"
       ;;
   esac
 
@@ -830,7 +988,7 @@ status_target_local() {
       action="skip"
     fi
     printf '  %-8s  %-20s  %s\n' "$action" "$name" "$(reason_for "$src_skill" "$dest_skill")"
-  done < <(skill_dirs "$src")
+  done < <(skills_for_src "$src")
 }
 
 # ── remote install ────────────────────────────────────────────
@@ -938,6 +1096,11 @@ install_target_remote() {
       rel="$REMOTE_COPILOT_REL"
       label="copilot"
       ;;
+    claude)
+      src="$CLAUDE_SRC"
+      rel="$REMOTE_CLAUDE_REL"
+      label="claude"
+      ;;
     *)
       die "unknown target: $target"
       ;;
@@ -948,7 +1111,7 @@ install_target_remote() {
   fi
 
   local skills
-  mapfile -t skills < <(skill_dirs "$src")
+  mapfile -t skills < <(skills_for_src "$src")
   if [[ "${#skills[@]}" -eq 0 ]]; then
     echo "${RESOLVED_NAME} ${label}: no skills under ${src}"
     return 0
@@ -992,6 +1155,11 @@ status_target_remote() {
       rel="$REMOTE_COPILOT_REL"
       label="copilot"
       ;;
+    claude)
+      src="$CLAUDE_SRC"
+      rel="$REMOTE_CLAUDE_REL"
+      label="claude"
+      ;;
     *)
       die "unknown target: $target"
       ;;
@@ -1004,7 +1172,7 @@ status_target_remote() {
   fi
 
   local skills
-  mapfile -t skills < <(skill_dirs "$src")
+  mapfile -t skills < <(skills_for_src "$src")
   if ! remote_skill_mtimes "$rel" "${skills[@]}"; then
     echo "  error: cannot reach host" >&2
     return 1
@@ -1199,6 +1367,14 @@ while [[ $# -gt 0 ]]; do
       FORCE=1
       shift
       ;;
+    --skills)
+      shift
+      if [[ $# -eq 0 || "$1" == -* ]]; then
+        die "--skills requires a comma-separated list of skill names"
+      fi
+      add_skill_names "$1"
+      shift
+      ;;
     --host)
       if [[ "$HOST_ACTION" == "no" ]]; then
         die "use only one of --host or --no-host"
@@ -1254,7 +1430,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 CMD="${ARGS[0]:-}"
-# Remaining positionals after command: target (grok|cursor|copilot|all) and/or conns
+# Remaining positionals after command: target (grok|cursor|copilot|claude|all) and/or conns
 # when --remote was not used with trailing conns.
 REST=("${ARGS[@]:1}")
 
@@ -1275,20 +1451,21 @@ fi
 
 TARGETS=()
 TARGET_SET=0
-KNOWN_TARGETS="grok|cursor|copilot|all"
+KNOWN_TARGETS="grok|cursor|copilot|claude|all"
 
 is_known_target() {
-  [[ "$1" =~ ^(grok|cursor|copilot|all)$ ]]
+  [[ "$1" =~ ^(grok|cursor|copilot|claude|all)$ ]]
 }
 
-# Positionals after command that are skill targets, or the tmux title option.
+# Positionals after command that are product targets, or the tmux title option.
+# Skill names arrive only through --skills and are never connection names.
 for tok in "${REST[@]+"${REST[@]}"}"; do
   if [[ "$tok" == "tmux" ]]; then
     DO_TMUX=1
     TMUX_EXPLICIT=1
   elif is_known_target "$tok"; then
     if [[ "$tok" == "all" ]]; then
-      TARGETS=(grok cursor copilot)
+      TARGETS=(grok cursor copilot claude)
       DO_TMUX=1
     else
       TARGETS+=("$tok")
@@ -1314,7 +1491,7 @@ if [[ "${#REMOTE_CONNS[@]}" -gt 0 ]]; then
     elif is_known_target "$tok"; then
       if [[ "$TARGET_SET" -eq 0 ]]; then
         if [[ "$tok" == "all" ]]; then
-          TARGETS=(grok cursor copilot)
+          TARGETS=(grok cursor copilot claude)
           DO_TMUX=1
         else
           TARGETS+=("$tok")
@@ -1338,7 +1515,7 @@ fi
 if [[ "$TMUX_EXPLICIT" -eq 1 && "$TARGET_SET" -eq 0 ]]; then
   TARGETS=()
 elif [[ "$TARGET_SET" -eq 0 || "${#TARGETS[@]}" -eq 0 ]]; then
-  TARGETS=(grok cursor copilot)
+  TARGETS=(grok cursor copilot claude)
   DO_TMUX=1
 fi
 
@@ -1366,12 +1543,16 @@ case "$CMD" in
     exit 0
     ;;
   install | pullinst | tmux)
+    if [[ "$SKILLS_SET" -eq 1 && "${#TARGETS[@]}" -eq 0 ]]; then
+      die "--skills cannot be used when the only target is tmux"
+    fi
     if [[ "$CMD" == "pullinst" ]]; then
       pull_origin_main
     fi
     if [[ "$DO_LOCAL" -eq 0 && "$DO_REMOTE" -eq 0 ]]; then
       DO_LOCAL=1
     fi
+    require_skill_selection
     rc=0
     if [[ "${#TARGETS[@]}" -gt 0 ]]; then
       run_for_targets install || rc=$?
@@ -1399,6 +1580,7 @@ case "$CMD" in
     if [[ "$DO_LOCAL" -eq 0 && "$DO_REMOTE" -eq 0 ]]; then
       DO_LOCAL=1
     fi
+    require_skill_selection
     run_for_targets status
     exit $?
     ;;

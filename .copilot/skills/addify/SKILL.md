@@ -101,6 +101,13 @@ restarted skill consumes the flags.
 
 ---
 
+## Named images (`img`)
+
+Cite promptify **Named images**. Do not fork that grammar.
+`img=<file>`, `img:<file>`, `img=[a,b]`, and `img:[a,b]` on this
+line are flags for the restarted verb. Every token counts. Strip
+them from the added text and hand them through. Do not drop them.
+
 ## Recover last ify
 
 Scan **this conversation** **newest-first** for a user turn that
