@@ -333,26 +333,28 @@ Do not read `references/HELP.md` except for `/phasify help` (also `--help`, `/?`
 
 `shared.md` holds locate-plan, capture task, scratch images, named images, multi-pass, response shape, and hard rules. Todo, explain, dummy, a tldr phase tell, guide, coach, howto, and show read it so they can locate the plan. They do not optimize.
 
-On a mutating run, apply **Phase boundary** before the mode-file read. If that optimize is a clear or a new chat, stop. Do not read the mode file on that turn.
+On a mutating run, apply **Phase boundary** before the mode-file read. If that optimize fires, stop. Do not read the mode file on that turn.
 
 ## Phase boundary
 
-Cite the optify skill's `references/optify_contract.md`. Clear and compact follow that contract. Do not compact between phases when nothing is armed and the previous ify verb in this conversation was phasify.
+Cite the optify skill's `references/optify_contract.md`. Clear and compact follow that contract. A phase mutation is not an optimize. Do not compact between phases when nothing is armed and the meter is under the cutoff.
 
 Mutating runs: Named, Next, Next-N, Run-to-end, Stop-before-end, Defer, Undefer, Rundefer, Todone, Block, Unblock, Runblock, Remove. **Howto, show, explain, dummy, a tldr phase tell, guide, and coach do not optimize.** Help, exact tldr, and pass do not optimize. A question after `tldr` does not optimize. Todo is read-only and does not optimize. Explain, dummy, tldr-tell, guide, and coach do not change Status and do not rewrite the phased plan.
 
-**Start** of a mutating run, before the mode-file read. Optimize, then stop the turn, if either is true:
+**Start** of a mutating run, before the mode-file read. Optimize, then stop the turn, only when one of these is true:
 
 - `before=1` is in the env file (armed). This fires even when optify is off. It does not set `enabled=on`.
-- Optify is on **and** the previous ify verb in this conversation was not phasify (a verb change). A verb-change optimize runs only while on. When the switch is off, a verb change does not optimize.
+- Optify is on, the host shows a context meter at or above about 70%, and this is the same effort. That check uses the mutation as the moment to look. The mutation is not the trigger. Do not replace "about 70%". If the host shows no meter, do not invent a percentage and do not optimize. Use this tree's continue row when it has one, and do not write the handoff. A host with no continue row uses its only row and writes the handoff.
 
-Clear `before` when that shot fires: remove the `before` key and leave `enabled` and `after`. Do not flip `enabled`. Do not clear `after` at the start. A verb change with `before` already clear still optimizes when on, and there is no `before` key to remove. Remove the key through `./scripts/cli.sh optify` or `scripts/cli.ps1 optify`. Do not edit the env file by hand. Do not remove `after` in the same write.
+A verb change does not optimize. The previous ify verb not being phasify does not optimize. Plannify, then phasify, does not optimize and does not write the handoff. When neither start condition above is true, open the execute instructions.
+
+Clear `before` only when that shot fires: remove the `before` key and leave `enabled` and `after`. Do not flip `enabled`. Do not clear `after` at the start. A verb change with `before` already clear does not optimize, and there is no `before` key to remove. Remove the key through `./scripts/cli.sh optify` or `scripts/cli.ps1 optify`. Do not edit the env file by hand. Do not remove `after` in the same write.
 
 If that start optimize already stopped the turn, an armed `after` waits for the phase that actually finishes.
 
 **End** of a phase, if `after=1`: print the phase COMPLETED banner and the phase table **first**, land the status update, **then** optimize, then stop. Clear `after` when that shot fires (remove the `after` key; leave `enabled` and `before`). This end step is Execute, or Todone marking `Done` (those mode files carry it). Defer, undefer, block, unblock, and remove do not print a COMPLETED banner. An armed `after` fires even when optify is off and does not set `enabled=on`.
 
-A verb change is a clear (or this host's new-chat row), not a compact. Same-effort `before` / `after` is a compact, or this host's only row when that row is the only one. Cursor, Copilot Chat, and grok.com have no continue row: same effort still uses that only row and still writes the handoff.
+A verb change is not a clear and not a compact. Same-effort `before` / `after`, and the meter at or above about 70%, are a compact, or this host's only row when that row is the only one. Cursor, Copilot Chat, and grok.com have no continue row: same effort still uses that only row and still writes the handoff. A continue row does not write the handoff.
 
 ### Optimize
 

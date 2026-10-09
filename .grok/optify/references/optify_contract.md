@@ -175,24 +175,32 @@ commands are `/optify now`, and a `before` or
 `after` one-shot when it fires. Arming `before`
 or `after` while off only sets that key.
 
-A verb change, and a context meter at or above
-about 70%, run only while the switch is on.
+A context meter at or above about 70% runs only
+while the switch is on. A verb change does not
+optimize. A phase mutation does not optimize.
+When the switch is on, a mutating phase may
+check that meter. The mutation is the moment of
+the check. It is not the trigger.
 
 ---
 
 ## When to clear
 
 A clear is a new effort. Use the host row for a
-new verb or a new chat.
+new verb or a new chat. A clear happens only
+when an optimize is already firing for `/optify
+now`, an armed `before` or `after`, or the
+meter. A verb change is not that firing. A
+phase mutation is not that firing.
 
-- The next ify verb is not the verb that just ran
-  in this window. Example: plannify, then
-  debugify.
-- `optify now` when the next work is a different
+- `/optify now` when the next work is a different
   effort.
+- An armed `before` or `after` is firing, and
+  the next work is a different effort.
 
 `/optify now` with no next verb on the line is
-the same effort, so it compacts.
+the same effort, so it compacts. Plannify, then
+phasify, does not clear and does not optimize.
 
 ---
 
@@ -214,12 +222,13 @@ Compact when one of these is true:
 
 If the host has no meter, do not invent a
 percentage. With no meter, compact only on `now`
-or an armed `before` or `after`. Treat a verb
-change as a clear.
+or an armed `before` or `after`. A verb change
+is not a compact and not a clear.
 
 Do not compact between every phase when nothing
 is armed. A phase boundary alone is not a compact.
-Do not replace "about 70%" with another cutoff.
+A phase mutation alone is not an optimize. Do
+not replace "about 70%" with another cutoff.
 
 An armed `after` at the end of a phase is an
 optimize. Clear versus compact still follows the
@@ -277,20 +286,28 @@ string. Do not drop either word.
 
 ## Phasify
 
-At the start of a phase, if `before` is armed, or
-the verb just changed and the switch is on, run
-the optimize and stop. Clear `before` when that
-shot fires. A verb change with `before` already
-clear still optimizes when the switch is on, and
-there is no `before` key to remove. Do not clear
-`after` at the start.
+At the start of a mutating phase, optimize and
+stop only when one of these is true:
 
-When the switch is off, a verb change at the
-start does not optimize. An armed `before` still
-fires, writes the handoff when the action is a
-clear or a new chat, prints the host command,
-clears `before`, and stops. It does not set
-`enabled=on`.
+- `before` is armed. Clear `before` when that
+  shot fires. This fires when the switch is off.
+  It does not set `enabled=on`. It writes the
+  handoff when the action is a clear or a new
+  chat, prints the host command, and stops.
+- The switch is on, the host shows a context
+  meter at or above about 70%, and this is the
+  same effort. That is the meter check. Use the
+  continue row when this host has one, and do
+  not write the handoff. A host with no continue
+  row uses its only row and writes the handoff.
+  If the host has no meter, do not invent a
+  percentage and do not optimize.
+
+A verb change does not optimize, on or off.
+`before` already clear does not optimize. There
+is no `before` key to remove unless that shot
+fired. Plannify, then phasify, does not
+optimize. Do not clear `after` at the start.
 
 A start optimize stops the turn. An armed `after`
 waits for the phase that actually finishes.

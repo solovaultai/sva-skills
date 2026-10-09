@@ -181,10 +181,10 @@ A host with no continue row uses its only row. That row is a new
 chat or a new conversation.
 
 A different effort uses this tree's new-verb row, or the only row
-when that is all this tree has. Different effort means the next
-ify verb is not the verb that just ran, or `/optify now` and the
-next work is a different effort. The next command is one the user
-already typed. Do not invent one.
+when that is all this tree has. No next verb named on `/optify now`
+is the same effort. The next command is one the user already typed.
+Do not invent one. A verb change is not by itself a different effort
+and does not optimize.
 
 A fired `before` or `after` uses these same rules, then
 `optify clear-shots`, then stops. It does not set `enabled=on`.
