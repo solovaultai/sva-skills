@@ -60,6 +60,7 @@ verbs.
 | Plan / design / phases / “how should we slice this” (no current-phase execute) | **plannify** |
 | Instructions live in local files | **fromify** when no ify verb is named; if the user already named a verb, that verb with `from=` |
 | Document this prompt | **docify**. Default is askify; a leading ify verb selects that verb |
+| Shrink context or turn token policy on or off | **optify** |
 | Implement / execute / build / “just do it” (not a named phase, not a bug) | **runnify** |
 | Question / list / options / explain **existing** (read-only) | **askify** |
 
@@ -76,7 +77,7 @@ When two rows both fit, prefer the **least mutable** verb:
 `askify` > `plannify` > `runnify`
 
 Then the rest of the table order (ify / addify / promptify /
-debugify / phasify / fromify / docify stay as matched). Examples:
+debugify / phasify / fromify / docify / optify stay as matched). Examples:
 
 - “What files exist and then add a flag” — question + implement:
   prefer **askify** for a list/explain ask; only **runnify** if
@@ -118,6 +119,7 @@ invented):
 | ify | `help`, `tldr`, or `smart <prompt>` — not a domain answer |
 | fromify | file instructions as `from=` (defaults to plannify); a named verb keeps that verb with `from=` |
 | docify | document this prompt; default askify; a leading ify verb selects that verb |
+| optify | `/optify` with `on`, `off`, `now`, `before`, or `after` when that is the ask |
 
 ---
 
@@ -126,7 +128,8 @@ invented):
 After flag strip, any non-empty body whose first token is not
 `help` / `--help` / `/?` / `tldr` / `smart` / `which` / `pass` is
 **implicit smart**. Same decision table, same preamble, same
-no-dispatch rule.
+no-dispatch rule. Bare `/optify` is that verb's status print. It is
+not implicit smart. Optify has no smart mode.
 
 `help me …` is **not** implicit smart (unknown-verb path).
 

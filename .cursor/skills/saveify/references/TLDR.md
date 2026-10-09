@@ -4,7 +4,7 @@ A thin snapshot verb. Writes the current ify context, or deletes a
 snapshot after yes/no. Does not plan, execute, or restore.
 `/resumeify` restores. Layout is `docs/saveify_contract.md`. No
 `smart` mode. `from=` splices local files (`docs/from_contract.md`).
-`docify` writes the deliverable (`docs/docify_contract.md`). Window
+`docify` writes the deliverable (`the docify skill's references/docify_contract.md`). Window
 prefix `SAVE:` (`docs/window_title.md`).
 Canonical slash is `/saveify`. `savify` is an alias,
 not a folder.

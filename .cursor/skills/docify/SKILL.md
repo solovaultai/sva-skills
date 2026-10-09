@@ -29,8 +29,12 @@ restore, that turn is the resume.
    that file is the body. `/docify:html` writes it as html. Do not
    print short usage. Do not say a prompt is required. Do not
    dispatch askify. Do not re-run the saved verb.
-3. Otherwise collect directive controls. Cite `docs/docify_contract.md`.
-   Do not fork that grammar.
+3. Otherwise collect directive controls. Read
+   `references/docify_contract.md` in this skill directory
+   (shipped next to `references/HELP.md`). Follow that file.
+   Do not look in the project `docs/` folder for the contract.
+   Workspace `docs/docify_contract.md` applies only when that
+   file is in this workspace. Do not fork that grammar.
 4. If the first remaining token is another ify verb or alias, that
    verb replaces askify. Remove only that token.
 5. Rebuild one trailing `docify:…` token. Do not append
@@ -81,7 +85,7 @@ verb. The written document includes each resolved image.
 
 ## Controls
 
-Cite `docs/docify_contract.md`. Consume a leading `docify` /
+Cite this skill's `references/docify_contract.md`. Consume a leading `docify` /
 `docify:…` token when it is present, then the following
 directive pieces. A body that does not start with `docify`
 still yields those pieces from the front (fromify already
@@ -92,7 +96,7 @@ piece. `docpathify` is a control, not a skill.
 `scripts/cli.ps1 docify`, then stop. The store changes. Do not
 dispatch. Do not write. A write with no prompt, including bare
 `/docify` and `/docify:html`, documents the last ify in this
-conversation. Cite **No prompt** in `docs/docify_contract.md`.
+conversation. Cite **No prompt** in `the docify skill's references/docify_contract.md`.
 Do not dispatch askify. Do not re-run the verb. No recoverable
 ify: **Error:** nothing to docify, then short usage. Do not
 write an empty document.
@@ -148,7 +152,7 @@ the selected verb. Help, tldr, pass, and empty do not read files.
 
 ## Docify
 
-Cite `docs/docify_contract.md`. The rewritten line’s `docify` /
+Cite this skill's `references/docify_contract.md`. The rewritten line’s `docify` /
 `docpathify` writes that verb’s deliverable. A write with no
 prompt writes the last ify deliverable. Help, tldr, and pass do
 not write. Empty `/docify` with no last ify does not write.
@@ -173,6 +177,16 @@ The selected verb then sets its own prefix.
 - No filename: the format token sets the generated extension.
   Do not append `=<NAME>.html`. `docify:html` writes
   `CAPS.html`. `docify:html:path:test.md` writes markdown.
+- No path and no filename: markdown, three to six words from
+  the task in `CAPS_WITH_UNDERSCORES`, in
+  `/home/ami/src/pytch/pytch-docs/agent/` when that directory
+  exists, otherwise workspace `pytch-docs/agent/` when that
+  directory exists. If neither exists: **Error:** pytch-docs
+  not found. Do not write to the project root.
+- `/docify:html` uses that same name and folder with `.html`.
+  `path=<directory>` puts the generated file in that directory.
+  A filename ending in `.md` writes markdown even when the
+  format token is html.
 - `Nimages` / `Npass` are handed to the selected verb.
 - Help, tldr, and pass do not dispatch and do not write.
   A write with no prompt writes the last ify deliverable.

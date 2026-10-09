@@ -2,7 +2,7 @@
 
 Print this file as the response when the user runs `/phasify help`,
 `/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer,
-rundefer, todo, todone, explain, block, unblock, runblock, howto, remove,
+rundefer, todo, todone, explain, dummy, coach, block, unblock, runblock, howto, remove,
 delete, or show.
 `/phasify tldr` prints the short page (`references/TLDR.md`), not
 this file.
@@ -12,6 +12,8 @@ If the remaining body after flag strip is exactly `pass` or
 section below and stop. There is no `/pass` skill.
 
 Empty `/phasify` is **Next**, not this page.
+
+A normal `/phasify` run does not read this file.
 
 ---
 
@@ -27,11 +29,11 @@ Need a new plan from current statuses? Use **`/plannify fromhere`**
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+(see `the docify skill's references/docify_contract.md`). Guide and coach cite `docs/docify_contract.md`. Help, exact tldr, and pass do not write.
 
 Window name is `PHASE:P<n>/<total>:<PREFIX>: <summary>` (see
 `docs/window_title.md`). Empty `/phasify` is Next, so it retitles.
-Help, tldr, and pass do not.
+Help and pass do not. Exact `tldr` does not. Dummy, a tldr phase tell, guide, and coach use the phase they are about.
 
 ---
 
@@ -59,10 +61,10 @@ Unblock / Runblock / Todone). Do **not** invent statuses.
 | `Planned` | **Task** row only | Task-row / not-started planning state. Not a work-phase Status. |
 | `Understood` | **Flags** row only | Flags captured. Not a work-phase Status. |
 
-**Not statuses:** `todo`, `todone`, and `howto` are **commands**. Todo prints a
+**Not statuses:** `todo`, `todone`, `explain`, `dummy`, `guide`, `coach`, and `howto` are **commands**. Todo prints a
 list and does not change Status. Todone prints the list, then sets
-Status `Done` (no execute, no ack wait). Howto prints steps past a
-block and does not change Status.
+Status `Done` (no execute, no ack wait). Explain, dummy, a tldr phase tell, guide, and coach do not change Status. Howto prints steps past a
+block and does not change Status. Guide is a second word, not runblock. Coach is its own mode.
 
 ### How statuses tie together
 
@@ -130,16 +132,16 @@ Status **`Done`** means the phase finished. Mark `Done` only if the
 work **landed**. Exception: **todone** (user asserts the work; briefing
 then `Done`; no execute). Exception: **runblock** marks `Done` when
 the blocked phase has no remaining automation (short note; no Todo
-briefing). Explain / named todo / named block of a
-`Done` phase is an **Error:**. Next and bare todo skip `Done`.
+briefing). Named todo / named block of a
+`Done` phase is an **Error:**. Named explain, dummy, and a tldr phase tell may target `Done` and report what landed. Done content is what landed. A thin record says so and quotes the phase description. Do not invent work. Next and bare todo skip `Done`. Count selectors on explain, dummy, and tldr skip `Done`.
 
 ### Deferred phase
 
 A phase with Status **`Deferred`** (or **`Def-Blocked`**) is parked on
 purpose. Next, execute (`/phasify` / `next` / Next-N / done / `-N`),
 bare todo, bare todone, and bare rundefer-eligibility **skip** it until
-you **undefer** or **rundefer**. Bare **explain** / `explain N` do
-**not** skip Deferred / Def-Blocked — they explain the park.
+you **undefer** or **rundefer**. Bare **explain** / `explain N`, bare **dummy** / `dummy N`, and a tldr phase tell do
+**not** skip Deferred / Def-Blocked — they tell the park. They do not change Status.
 
 This is **not** the same as **Blocked**. Blocked is a hard stop:
 execute-next cannot proceed through it. Deferred means “not now” —
@@ -178,13 +180,101 @@ Todone means you already did (or are asserting) the work. Execute
 `/phasify explain` prints a **full explanation** of a phase: what is
 in it, why it exists, what its Status means (defer / todo / blocked
 glossary), and a mandatory **TL/DR**. It does **not** execute the
-phase and does **not** change Status.
+phase, does **not** change Status, and does **not** rewrite or
+reprint the phased plan. The **TL/DR** is the explanation only.
 
 Todo is a numbered checklist (manual vs agent). Explain is a
 write-up + status glossary + TL/DR — not a task list. Bare explain
 targets the next not-`Done` phase **including** Deferred /
 Def-Blocked (unlike bare todo). `explain N` / `Nexplain` /
-`explainN` = next N; named is only the `P`/`p` family.
+`explainN` = next N not-Done, not named PN. Count selectors skip
+`Done`. Named is only the `P`/`p` family and may be `Done` (what
+landed). Pending stays this full write-up. Optional second word
+`guide` (`explain guide`, `3explain guide`).
+
+**Blocked**, **Def-Blocked**, and partially blocked (`Progress`
+with a recorded blocker, same as howto) add detailed steps from
+the record. Other statuses get no unblock list. **Done content**
+is what landed. A thin record says so and quotes the phase
+description. Do not invent work.
+
+### Dummy
+
+`/phasify dummy` is the non-technical tell of the next not-Done
+phase: the intent, then a simple description. No commands, paths,
+or APIs. It does **not** execute, does **not** change Status, and
+does **not** rewrite or reprint the plan. `dummy N` / `Ndummy` /
+`dummyN` = next N not-Done, **not** named PN. Named is only
+`dummy pN` and may be `Done`. `dummy 0` is **Error:** (use
+`dummy p0`). Optional second word `guide` (`dummy guide`).
+
+**Blocked**, **Def-Blocked**, and partially blocked (`Progress`
+with a recorded blocker, same as howto): spelled-out task names,
+not enough to perform them. Other statuses get no unblock list.
+**Done content** is what landed. A thin record says so and quotes
+the phase description. Do not invent work.
+
+### Tldr of a phase
+
+Exact `/phasify tldr` with no other token prints
+`references/TLDR.md` and stops. That is never a phase id.
+`tldr help` is not help.
+
+A phase tell needs a selector: `tldr 1`, `tldr N`, `Ntldr`,
+`tldrN`, `tldr pN`, `pN tldr`. `tldr N` = next N not-Done, not
+named PN. Named `pN` may be `Done`. `tldr 0` is **Error:** (use
+`tldr p0`). The tell is the explanation only (no process, no
+followup). Optional second word `guide`. A leftover that is not
+a selector and not `guide` is still an explanation-only question.
+Do not execute. Do not change Status. Do not rewrite or reprint
+the plan.
+
+**Blocked**, **Def-Blocked**, and partially blocked (`Progress`
+with a recorded blocker, same as howto): a numbered list a
+capable person could carry out. Other statuses get no unblock
+list. **Done content** is what landed. A thin record says so and
+quotes the phase description. Do not invent work.
+
+### Guide
+
+`guide` is **only** the second word on explain, tldr, or dummy
+(`explain guide`, `tldr guide p3`, `dummy guide`, `3explain guide`).
+It is not a mode of its own and it is not runblock. Match `coach`
+before `guide`. A leading `guide` is **Error:**. `coach guide` is
+**Error:**.
+
+Every target must be blocked or partially blocked (`Blocked`,
+`Def-Blocked`, or `Progress` with a recorded blocker, same as
+howto). Otherwise **Error:** and no file.
+
+User-guide depth on top of that tell, plus a mermaid of the path.
+Web images, links, and PDFs only when reuse is allowed (public
+domain, Creative Commons, or an official vendor doc you may link).
+Cite title, URL, and license. Do not copy those files into the
+repo. Do not invent pixels.
+
+Writes through docify defaults (`docs/docify_contract.md`: stored
+`path`, `format`, and `prefix`). Otherwise the directory is
+`/home/ami/src/pytch/pytch-docs/agent/`, the format is markdown,
+and the name is generated CAPS from the phase title (`GUIDE` if
+the title is empty). Does not commit. Missing pytch-docs is
+**Error:**. Does not change Status. Does not reprint the plan.
+
+### Coach
+
+`/phasify coach` is its own mode, matched before `guide`. Not
+runblock. Not howto. `coach` / `coach 1` is the next blocked or
+partially blocked phase. `coach pN` only if that phase is blocked
+or partially blocked. `coach 0` is **Error:** (use `coach p0`).
+`coach N` for N ≥ 2, `Ncoach`, and `coachN` are **Error:** (one
+phase). `coach guide` is **Error:**.
+
+One instruction at a time. Wait for questions and for the output
+of that step, then the next step. If the output does not show the
+step is done, say what is missing and wait. After the last step,
+write a `COACH_LOG` the same way as guide and print the summary.
+Status stays unchanged. Does not reprint the plan. Then the person
+can `/phasify unblock` or `/phasify runblock`.
 
 ### Block
 
@@ -308,7 +398,10 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)
 /phasify rundefer        — Undefer+execute next Deferred phase (also Nrundefer / rundefer N / rundeferN)
 /phasify todo            — Todo next not-done / not-deferred phase (also Ntodo / todo N)
-/phasify explain         — Explain next not-Done phase (includes Deferred; also Nexplain / explain N / explainN)
+/phasify explain         — Full write-up of the next not-Done phase (includes Deferred; count selectors skip Done; no execute, no Status change, does not rewrite the plan; explain N / Nexplain / explainN = next N, not named PN; named pN may be Done, what landed; thin record quotes the description; pending stays the full write-up; optional second word guide; Blocked / Def-Blocked / partially blocked: detailed steps from the record; other statuses: no unblock list)
+/phasify dummy           — Non-technical tell of the next not-Done phase (no execute, no Status change, does not rewrite the plan; dummy N / Ndummy / dummyN = next N, not named PN; named is only dummy pN and may be Done; dummy 0 is Error, use dummy p0; optional second word guide; on a block: spelled-out task names, not enough to perform; other statuses: no unblock list)
+/phasify explain guide   — Only the second word on explain, tldr, or dummy (explain guide, tldr guide p3, dummy guide, 3explain guide). Not runblock. Every target must be blocked or partially blocked, else Error and no file. User-guide depth, mermaid, web images/links/PDFs only when reuse is allowed. Writes through docify defaults, else /home/ami/src/pytch/pytch-docs/agent/, markdown, generated CAPS name (GUIDE if title empty). Does not commit. Missing pytch-docs is Error. Does not change Status. Does not reprint the plan.
+/phasify coach           — Matched before guide. coach / coach 1 = next blocked or partially blocked phase. coach pN only if that phase is blocked or partially blocked. coach 0 is Error (use coach p0). coach N for N>=2, Ncoach, coachN are Error (one phase). coach guide is Error. One instruction at a time; wait for questions and output, then the next step. Writes a COACH_LOG the same way as guide and prints the summary. Not runblock. Not howto. No Status change.
 /phasify todone          — Todo+close next eligible phase (also Ntodone / todone pN; todone N = next N)
 /phasify block [reason]  — Block next 1 eligible phase (also Nblock / block pN / block N)
 /phasify unblock         — Verify next Blocked / Def-Blocked phase (also Nunblock / unblock N)
@@ -319,14 +412,18 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify smart <prompt>  — select a mode from the live plan, then run it (not Next; not implicit)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
-/phasify tldr            — short form; stop (never a phase id)
+/phasify tldr            — exact tldr with no other token prints references/TLDR.md and stops (never a phase id; tldr help is not help). Phase tell needs tldr 1, tldr N, Ntldr, tldrN, tldr pN, or pN tldr. tldr N = next N not-Done. Named pN may be Done. tldr 0 is Error (use tldr p0). A leftover that is not a selector and not guide is still an explanation-only question. Optional second word guide. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list.
 /phasify pass            — Pass (Npass) subsection only (also pass help)
 ```
 
 Parse **after** stripping `Nimages` / `Npass` (see Flags). Any mode may
 take optional flags. `-2pass` is a pass flag, not stop-before-end.
 Help is **not** a phase selector. Exact `tldr` after strip is the
-short page, never a phase id. `pass` / `pass help` after strip is
+short page and nothing else, never a phase id. A selector is a phase
+tell. `tldr help` is not help. A question that is not a selector is
+answered with the explanation only. Explain, dummy, a tldr phase tell,
+guide, and coach do not rewrite the phased plan and do not change
+Status. `pass` / `pass help` after strip is
 Pass help, not a task.
 
 ---
@@ -346,7 +443,9 @@ Pass help, not a task.
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | No — status only (`Left`) |
 | `rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` | **Rundefer** | Yes — undefer then execute those phases |
 | `todo`, `Ntodo`, `todo N` | **Todo** | No — detailed list only (no Status change) |
-| `explain`, `Nexplain`, `explain N`, `explainN` | **Explain** | No — full explanation + glossary + TL/DR (no Status change) |
+| `explain`, `Nexplain`, `explain N`, `explainN` | **Explain** | No — full write-up + glossary + TL/DR. Count selectors skip Done. Pending stays the full write-up. Named `pN` may be Done (what landed; thin record quotes the description; do not invent work). Blocked / Def-Blocked / partially blocked: detailed steps from the record. Other statuses: no unblock list. Optional second word `guide`. No Status change. Does not rewrite the plan |
+| `dummy`, `Ndummy`, `dummy N`, `dummyN` | **Dummy** | No — non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan |
+| `coach`, `coach 1`, `coach pN` | **Coach** | No — matched before guide. `coach` / `coach 1` = next blocked or partially blocked phase. `coach pN` only if that phase is. `coach 0` Error (use `coach p0`). `coach N` for N≥2, `Ncoach`, `coachN` Error. `coach guide` is Error. One step at a time; wait, then the next step. Writes a `COACH_LOG` the same way as guide and prints the summary. Not runblock. Not howto. No Status change |
 | `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | No phase work — Todo-depth list, then Status `Done` |
 | `block`, `Nblock`, `block pN` [reason] | **Block** | No — Status `Blocked` / `Def-Blocked` only |
 | `unblock`, `Nunblock`, `unblock N` | **Unblock** | No phase work — verify, then `Unblocked` or `Deferred` on pass |
@@ -357,7 +456,7 @@ Pass help, not a task.
 | `smart <prompt>` | **Smart** | Router — preamble then dispatch the selected mode (not Next; not implicit) |
 | `show` / `refresh` | **Show** | No — print table only |
 | `help` / `--help` / `/?` | **Help** | No — print this reference |
-| `tldr` | **tldr** | No — print the short page (never a phase id) |
+| `tldr` | **tldr** | No — exact `tldr` with no other token prints `references/TLDR.md` and stops (never a phase id; `tldr help` is not help). Selectors: `tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`. `tldr N` = next N not-Done. Named `pN` may be Done. `tldr 0` is Error (use `tldr p0`). A leftover that is not a selector and not `guide` is an explanation-only question. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list. Optional second word `guide` |
 | `pass` / `pass help` | **Pass help** | No — print the Pass (`Npass`) section |
 | `/plannify fromhere` | **fromhere** | Replan (plannify skill, not phasify) |
 
@@ -369,7 +468,7 @@ status only. **Undefer** does **not** execute. **Todone** also
 prints a Todo-depth briefing, then sets `Done` (no ack wait).
 **Remove** (`delete` alias) drops work-phase row(s) after yes/no
 confirm (plan mutation; no implementation).
-**Todo**, **Explain**, **Howto**, **Show**, **Help**, and **tldr** are read-only.
+**Todo**, **Explain**, **Dummy**, a tldr phase tell, **Guide**, **Coach**, **Howto**, **Show**, **Help**, and exact **tldr** are read-only. Explain, dummy, tldr-tell, guide, and coach do not change Status and do not enter Execute.
 **Smart** is a router (preamble then dispatch); not implicit.
 
 ---
@@ -386,13 +485,13 @@ confirm (plan mutation; no implementation).
 | `-` / `-0` / `-N` (N = 0–9) after flag strip | **Stop-before-end** |
 | `-2pass` | Pass flag, **not** stop-before-end |
 | `help` / `--help` / `/?` after flag strip | **Help**, do not execute |
-| `tldr` after flag strip | **tldr** (short page), never a phase id |
+| `tldr` after flag strip | Exact **tldr** prints `references/TLDR.md` and stops (never a phase id). A selector (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`) is a phase tell (`tldr N` = next N not-Done; named `pN` may be Done; `tldr 0` is Error, use `tldr p0`). A leftover that is not a selector and not `guide` is an explanation-only question. Optional second word `guide`. `tldr help` is not help |
 | `pass` / `pass help` after flag strip | **Pass help** (Npass subsection), not a task |
 | `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | Run-to-end (case-insensitive) |
 | `toend` / `to-end` / `to end` after flag strip | Run-to-end (not empty Next; `to-end` is not `-N`) |
 
 New tokens are words (`done`, `toend`, `defer`, `undefer`, `rundefer`,
-`todo`, `todone`, `explain`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`) or a **leading minus** (`-2`),
+`todo`, `todone`, `explain`, `dummy`, `coach`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`) or a **leading minus** (`-2`),
 never something that collides with `2pass`. Match `runblock` /
 `Nrunblock` / `runblockN` as **Runblock** first (the token contains
 `block` and `run` — do not collapse to `block`, `unblock`,
@@ -423,11 +522,21 @@ eligible**, not named PN. Named block is only `pN` / `Nblock` /
 `pN block`. `2block` = named P2. Match `unblock` / `Nunblock` as
 **Unblock**, not Undefer, not Rundefer, not Todo, not Todone, not Block.
 `unblock` ≠ `undefer` ≠ `rundefer` ≠ `runblock` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
-Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
-not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
+Match `coach` before `guide`. `coach` / `coach 1` is the next
+blocked or partially blocked phase. `coach pN` only if that phase
+is blocked or partially blocked. `coach 0` is **Error:** (use
+`coach p0`). `coach N` for N ≥ 2, `Ncoach`, and `coachN` are
+**Error:** (one phase). `coach guide` is **Error:**. Match `guide`
+only as the second word on explain, tldr, or dummy (`explain guide`,
+`tldr guide p3`, `dummy guide`, `3explain guide`). A leading `guide`
+is **Error:**.
+Match `dummy` / `Ndummy` / `dummyN` like explain: `dummy N` is next
+N not-Done; named is only `pN`; `dummy 0` is **Error:** (use
+`dummy p0`). Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
+not Todone, not `toend` / `end`, not dummy. **`explain N` / `explain 3` /
 `explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
 means next N not-Done** (like `rundefer N`), **not** named PN.
-Named explain is only the `P`/`p` family. `explain 0` /
+Named explain is only the `P`/`p` family and may be `Done`. `explain 0` /
 `0explain` / `explain0` is **Error:** (use `explain p0`).
 Match `howto` / `Nhowto` / `howtoN` as **Howto**, not Explain,
 not Unblock, not Runblock, not Todo. **`howto N` / `howto 2` /
@@ -449,7 +558,21 @@ Match `remove` / `Nremove` / `removeN` and the alias `delete` /
 | `todo N` / `todo 3` | Named **P3** | Next-N |
 | `todone N` / `todone 3` | **Next N** eligible (like `block N`) | Named PN |
 | `explain N` / `explain 3` / `explain3` / `3explain` / `Nexplain` / `explainN` | **Next N** not-Done (includes Deferred) | Named PN |
-| `explain P3` / `explainP3` / `P3explain` / `explain p3` | Named **P3** | Next-3 |
+| `explain P3` / `explainP3` / `P3explain` / `explain p3` | Named **P3** (any status, including Done) | Next-3 |
+| `dummy N` / `dummy 3` / `dummy3` / `3dummy` / `Ndummy` / `dummyN` | **Next N** not-Done | Named PN |
+| `dummy P3` / `dummyP3` / `P3dummy` / `dummy p3` | Named **P3** (any status, including Done) | Next-3 |
+| `dummy 0` / `0dummy` / `dummy0` | **Error:** (use `dummy p0`) | Named P0 · “next 0” |
+| `2dummy` / `dummy2` | **Next 2** not-Done | Named P2 |
+| `tldr N` / `tldr 1` / `Ntldr` / `tldrN` | **Next N** not-Done (tldr tell) | Short page · named PN |
+| `tldr pN` / `tldr PN` / `pN tldr` | Named **PN** (tldr tell; may be Done) | Short page |
+| `tldr 0` / `0tldr` / `tldr0` | **Error:** (use `tldr p0`) | Named P0 · short page |
+| `tldr help` | Not help (explanation only) | Help |
+| `explain guide` / `tldr guide p3` / `dummy guide` / `3explain guide` | **Guide** (only the second word; every target blocked or partially blocked, else Error and no file) | runblock · a mode named guide |
+| `guide` alone | **Error:** (second word only) | A mode |
+| `coach` / `coach 1` / `coach pN` / `pN coach` | **Coach** (one blocked or partially blocked phase; `coach pN` only if it is) | guide · howto · runblock |
+| `coach 0` / `0coach` / `coach0` | **Error:** (use `coach p0`) | Named P0 |
+| `coach N` (N ≥ 2) / `Ncoach` / `coachN` / `2coach` / `coach2` | **Error:** (one phase) | Next N · named P2 |
+| `coach guide` | **Error:** coach does not take `guide` | Guide |
 | `block N` / `block 2` | **Next N** eligible | Named PN |
 | `rundefer N` / `rundefer 2` / `Nrundefer` / `rundeferN` / `2rundefer` / `rundefer2` | **Next N** Deferred / Def-Blocked, then execute | Named PN |
 | `runblock N` / `runblock 2` / `Nrunblock` / `runblockN` / `2runblock` / `runblock2` | **Next N** Blocked / Def-Blocked, then run-or-mark | Named PN |
@@ -480,7 +603,9 @@ Match `remove` / `Nremove` / `removeN` and the alias `delete` /
 | `unblock` | **Unblock** | Block · undefer · rundefer · runblock · todo · todone · explain |
 | `toend` / `to-end` / `to end` | Run-to-end | Todo · todone · explain · `-N` |
 | `-2pass` | **Npass** flag | Stop-before-end `-2` |
-| `tldr` after strip | **tldr** (short page) | A task · a phase |
+| `tldr` after strip, no other token | **tldr** (short page) | A phase tell · a task |
+| `coach` | **Coach** (one step at a time) | howto · runblock · guide |
+| `guide` as second word | **Guide** on explain / tldr / dummy | runblock |
 | `pass` / `pass help` after strip | **Pass help** | A task · a phase |
 
 `unblock` ≠ `undefer` ≠ `rundefer` ≠ `runblock` ≠ `todo` ≠ `todone` ≠ `explain` ≠ `block`.
@@ -493,9 +618,9 @@ not Todone, not `toend` / `end`. **`explain N` / `explain 3` /
 `explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
 means next N not-Done** (like `rundefer N` / `block N` /
 `todone N`), **not** named PN. Named explain is only the `P`/`p`
-family. `explain 0` / `0explain` / `explain0` is **Error:** (use
+family and may be `Done`. `explain 0` / `0explain` / `explain0` is **Error:** (use
 `explain p0`). Bare `explain` includes Deferred / Def-Blocked
-(unlike bare todo).
+(unlike bare todo). `dummy` ≠ `coach` ≠ `guide` ≠ `howto` ≠ `runblock`.
 
 ---
 
@@ -806,20 +931,26 @@ the `P`/`p` family.
 
 | Text | Effect |
 |------|--------|
-| `explain` / `explain 1` | Explain the **next 1 not-Done** phase (include `Deferred`, `Def-Blocked`, `Blocked`, `Left`, `Unblocked`, `Progress`, `Planned`, `Not started`). Unlike bare todo: do **not** skip Deferred. If none (all `Done`), say so and print the table. |
+| `explain` / `explain 1` | Explain the **next 1 not-Done** phase (include `Deferred`, `Def-Blocked`, `Blocked`, `Left`, `Unblocked`, `Progress`, `Planned`, `Not started`). Unlike bare todo: do **not** skip Deferred. If none (all `Done`), say so. Do not print or rewrite the phased plan. |
 | `explain N` / `explainN` / `Nexplain` / glued (`explain3` / `3explain` / `2explain`) (N ≥ 1) | Explain the **next N not-Done** phases (same eligibility as bare). |
-| `explain pN` / `explainP3` / `P3explain` / `p3explain` / `p3 explain` | Named that table id (`p0` = P0) except `Done`. |
+| `explain pN` / `explainP3` / `P3explain` / `p3explain` / `p3 explain` | Named that table id (`p0` = P0) at any Status, including `Done`. |
 | `explain 0` / `0explain` / `explain0` | **Error:** (use `explain p0`). Not named P0. |
 
 **Parse collision:** `explain 3` ≠ `explain P3`. `3explain` /
 `explain3` = next 3; `P3explain` / `explainP3` = named P3.
 `2explain` / `explain2` = next 2, **not** named P2 (unlike
-`2todo` / `2block`). Named Done: **Error:** cannot explain a
-completed phase. Invalid id: same **Error:** as invalid defer.
+`2todo` / `2block`). Count selectors skip `Done`. Named `pN` may
+be `Done`: report what landed. A thin record says so and quotes
+the phase description. Do not invent work. Pending stays the full
+write-up. Invalid id: same **Error:** as invalid defer.
+On Blocked, Def-Blocked, or partially blocked (`Progress` with a
+recorded blocker, same as howto), add detailed steps from the
+record. Other statuses get no unblock list. Optional second word
+`guide` (`explain guide`, `3explain guide`) is the Guide section.
 
-Fewer than N not-Done: explain all found, say the shortfall,
-print the table. None not-Done: say so + table. Next-N Explain
-does **not** stop on Blocked (explains and continues).
+Fewer than N not-Done: explain all found and say the shortfall.
+None not-Done: say so. Do not print or rewrite the phased plan.
+Next-N Explain does **not** stop on Blocked (explains and continues).
 
 If `Nimages` is present: acknowledge first, then Explain. If
 `Npass` > 1: extra pass(es) improve explanation quality — not a
@@ -829,10 +960,9 @@ whole-table replan. `Npass` = this explain run.
 plan order: heading, Status, Description, Reason if any, **What
 these statuses mean** (glossary tied to this phase), **What is
 in this phase**, **Why this phase**, **TL/DR** (1–2
-non-technical paragraphs — last subsection of that phase before
-Do not), Do not. After **all** explanations: 89-char
-`phase_layout.txt` table last. No COMPLETED banners for Explain
-itself (advisory).
+the explanation only — last subsection of that phase before
+Do not), Do not. Do not rewrite or reprint the phased plan. No
+phase table. No COMPLETED banners for Explain itself (advisory).
 
 ```text
 ## Explain — PN — <title>
@@ -853,13 +983,14 @@ Def-Blocked, Unblocked, Progress, Planned>
 <why this slice / why next (first not-Done, including Deferred) / why named>
 
 ### TL/DR
-<one or two non-technical paragraphs: what is in the phase and why>
+<the explanation only: what is in the phase and why. No process, no followup, no other information>
 
 ### Do not
 - Do not execute this phase from this command
 - Do not change Status
 - Do not invent files, APIs, or commands
 - Do not print a Todo task list (use /phasify todo for that)
+- Do not rewrite or reprint the phased plan
 ```
 
 ```text
@@ -1362,6 +1493,141 @@ phases to P0…P(n-1). Task / Flags unchanged. Print
 
 ---
 
+## Dummy
+
+Read-only. Non-technical intent, then a simple description. No
+commands, paths, or APIs. Does not execute. Does not change Status.
+Does not rewrite or reprint the phased plan.
+
+Selectors match explain. `dummy N` / `Ndummy` / `dummyN` / `2dummy` =
+next N not-Done, not named PN. Named is only `dummy pN` and may be
+`Done` (what landed; a thin record says so and quotes the phase
+description; do not invent work). `dummy 0` / `0dummy` / `dummy0`
+is **Error:** (use `dummy p0`). No execute. No Status change. Does
+not rewrite or reprint the plan.
+
+None not-Done: say so. Do not rewrite the plan. On `Blocked`,
+`Def-Blocked`, or partially blocked (`Progress` with a recorded
+blocker, same as howto): spelled-out task names, not enough to
+perform them. Other statuses get no unblock list.
+
+Optional second word `guide` (`dummy guide`) is **Guide**. Cite
+`docs/window_title.md`: the name uses this phase.
+
+```text
+/phasify dummy
+/phasify dummy 3
+/phasify 3dummy
+/phasify dummy p1
+/phasify dummy guide
+```
+
+---
+
+## Tldr of a phase
+
+Exact `/phasify tldr` with no other token prints `references/TLDR.md`
+and stops. That print is the whole reply. It does not retitle.
+
+A phase tell needs a selector: `tldr 1`, `tldr N`, `Ntldr`, `tldrN`,
+`tldr pN` (also `pN tldr`). Exact `tldr` is never a phase id.
+`tldr N` / `Ntldr` / `tldrN` = next N not-Done, not named PN. Named
+`pN` may be `Done` (what landed; a thin record says so and quotes
+the phase description; do not invent work). `tldr 0` is **Error:**
+(use `tldr p0`). `tldr help` is not help. The tell is the
+explanation only. No process narration. No followup. Optional
+second word `guide`.
+
+On `Blocked`, `Def-Blocked`, or partially blocked (`Progress` with
+a recorded blocker, same as howto): a numbered list a capable
+person could carry out. Other statuses get no unblock list. A
+leftover that is not a selector and not `guide` stays an
+explanation-only question. Do not change Status. Do not rewrite or
+reprint the plan. A tldr phase tell uses the phase it is about
+(`docs/window_title.md`).
+
+```text
+/phasify tldr
+/phasify tldr 1
+/phasify tldr p3
+/phasify 3tldr
+/phasify tldr guide p3
+```
+
+---
+
+## Guide
+
+Only the second word on explain, tldr, or dummy (`explain guide`,
+`tldr guide p3`, `dummy guide`, `3explain guide`). Not a mode. Not
+runblock. Runblock stays unblock, then execute or mark `Done`.
+Match `coach` before `guide`. A leading `guide` is **Error:**.
+
+Only when every target is blocked or partially blocked. Otherwise
+**Error:** and do not write a file.
+
+User-guide depth on top of that tell. Dummy stays non-technical.
+Tldr stays the explanation plus a numbered list. Explain stays the
+full write-up plus detailed instructions from the record. Always a
+mermaid of the path. Web images, links, and PDFs only when the
+source allows reuse (public domain, Creative Commons, or an official
+vendor doc you may link). Cite title, URL, and license. Do not copy
+those files into the repo. Do not invent pixels.
+
+Cite `docs/docify_contract.md`. Write through the stored path,
+format, and prefix, else `/home/ami/src/pytch/pytch-docs/agent/`,
+markdown, and a generated `CAPS` name from the phase title (`GUIDE`
+if the title is empty). Missing pytch-docs checkout: **Error:**.
+Do not invent another folder. Do not commit. Print the absolute
+path. Do not change Status. Do not reprint the plan. Cite
+`docs/window_title.md`: the name uses the phase this guide is about.
+
+```text
+/phasify explain guide
+/phasify dummy guide
+/phasify tldr guide p3
+```
+
+---
+
+## Coach
+
+Its own mode. One blocked or partially blocked phase. One
+instruction at a time, from the guide’s steps. Wait for questions.
+Ask for the output of that step. If the output does not show the
+step is done, say what is missing and wait. If it does, go to the
+next step. Keep a short log of each step, what the person entered
+or ran, and the verdict.
+
+Do not change Status. Do not execute. Do not reprint or rewrite the
+phased plan. Not runblock. Not howto. Match `coach` before `guide`.
+
+`coach` / `coach 1` = next blocked or partially blocked phase.
+`coach pN` only if that phase is blocked or partially blocked.
+`coach 0` is **Error:** (use `coach p0`). `coach N` for N ≥ 2,
+`Ncoach`, and `coachN` are **Error:** (one phase). `coach guide`
+is **Error:**. None eligible: say so. Do not rewrite the plan. Do
+not write a file. No plan: `/plannify` first.
+
+One instruction at a time. Wait for questions and for the output
+of that step, then the next step. After the last step, write a
+`COACH_LOG` the same way as guide (docify defaults, else
+`/home/ami/src/pytch/pytch-docs/agent/`, markdown, generated CAPS
+name; empty title → `COACH_LOG`). Does not commit. Missing
+pytch-docs is **Error:** for the file; still print the summary.
+Print the absolute path, print the summary, and offer the log.
+The person can then
+`/phasify unblock` or `/phasify runblock`. Cite
+`docs/docify_contract.md` and `docs/window_title.md`.
+
+```text
+/phasify coach
+/phasify coach p1
+/phasify p1 coach
+```
+
+---
+
 ## Show / refresh
 
 Aliases: `show`, `refresh`. **Read-only.** No implementation.
@@ -1443,6 +1709,11 @@ Examples after strip:
 | `/phasify next 1images` | Next | 1 image |
 | `/phasify todo 1image` | Todo | 1 image |
 | `/phasify explain 1image` | Explain | 1 image |
+| `/phasify dummy 1image` | Dummy | 1 image |
+| `/phasify explain guide` | Guide on the next not-Done phase, only if blocked or partially blocked | none |
+| `/phasify tldr 1` | Tldr phase tell (next 1 not-Done) | none |
+| `/phasify tldr` | Short page | none |
+| `/phasify coach 1image` | Coach | 1 image |
 | `/phasify todone 1image` | Todone | 1 image |
 | `/phasify defer 2pass waiting on legal` | Defer next | `2pass`; reason = waiting on legal |
 | `/phasify rundefer 1image` | Rundefer | 1 image |
@@ -1490,7 +1761,7 @@ stops. Full reference: `/phasify help`.
 **Meaning on phasify:** N pipeline passes of **this invocation's
 mode work** (execute, Rundefer undefer+execute, Runblock
 unblock+execute-or-Done, Todo briefing,
-Explain briefing, Unblock test, Block/Defer reason, Remove
+Explain briefing, Dummy tell, Tldr phase tell, Guide file, Coach log, Unblock test, Block/Defer reason, Remove
 target list + confirm, Show). Not a phase selector. Not a
 whole-table replan
 (`/plannify fromhere`). Prefer setting images/pass on
@@ -1624,10 +1895,10 @@ Closing recap: after the last banner of this run, print only
 one-line next-step (e.g. `/phasify next`). `show` prints only the
 table. `todo` prints the Todo report (or “nothing eligible” + table).
 `explain` prints the Explain report for each target (or “nothing
-eligible” + table). Named explain of a `Done` phase: **Error:**
-cannot explain a completed phase. `explain 0` / `0explain`:
-**Error:** (use `explain p0`). No COMPLETED banners for Explain
-itself. After all explanations: table last.
+eligible”). It does not rewrite or reprint the phased plan. Named
+`pN` may be `Done` (what landed). `explain 0` / `0explain`: **Error:** (use `explain p0`).
+Dummy, a tldr phase tell, guide, and coach also skip the table and do not change Status.
+No COMPLETED banners for Explain itself. No phase table.
 `todone` prints the Todo-depth briefing for each target, sets Status
 `Done` (no ack wait), then the full table. Named todone of a `Done`
 phase: **Error:** cannot todone a completed phase. `block` prints
@@ -1670,8 +1941,11 @@ is the **plannify** skill. Phasify does not replan.
 - Execute only the selected phase(s). Replan with `/plannify fromhere`.
 - Empty `/phasify` is Next. Never print this help for an empty invocation.
 - `help` / `--help` / `/?` (after flag strip) prints this page and stops.
-  Exact `tldr` (after flag strip) prints `references/TLDR.md` and
-  stops — never a phase id. `pass` / `pass help` (after flag strip)
+  Exact `tldr` (after flag strip, no other token) prints `references/TLDR.md` and
+  stops. That print is the whole reply. Exact `tldr` is never a phase id. A selector (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`) is a phase tell (`tldr N` = next N not-Done; named `pN` may be Done; `tldr 0` is Error, use `tldr p0`). `tldr help` is not help. A leftover that is not a selector and not `guide` is
+  still an explanation-only question: no process, no followup, no other
+  information. Optional second word `guide`. Explain, dummy, a tldr phase tell, guide, and coach do not rewrite or reprint the
+  phased plan and do not change Status. `pass` / `pass help` (after flag strip)
   prints **Pass (`Npass`)**
   and stops. There is no `/pass` skill.
 - Multi-phase runs are sequential and synchronous. Stop on `Blocked`.
@@ -1764,12 +2038,54 @@ is the **plannify** skill. Phasify does not replan.
   `Nexplain` / `explainN` / `3explain` / `explain3` / `2explain`
   (N ≥ 1) = next N not-Done (**not** named PN). Named is only
   `pN` / `PN`. `explain 0` / `0explain` / `explain0`: **Error:**
-  (use `explain p0`). Named `Done`: **Error:** cannot explain a
-  completed phase. None not-Done: say so + table. Fewer than N:
-  explain all found, say the shortfall, print the table. Does
-  **not** stop on Blocked. Each phase ends with **TL/DR**. Table
-  last. No COMPLETED banners for Explain itself. Parse `explain`
-  as Explain, not Todo, not Todone, not `toend` / `end`.
+  (use `explain p0`). Count selectors skip `Done`. Named `pN` may
+  be `Done` (what landed). A thin record says so and quotes the
+  phase description. Do not invent work. Pending stays the full
+  write-up. Optional second word `guide`.
+  None not-Done: say so. Fewer than N: explain all found and say
+  the shortfall. Do not rewrite or reprint the phased plan. Does
+  **not** stop on Blocked. On Blocked, Def-Blocked, or partially
+  blocked (`Progress` with a recorded blocker, same as howto):
+  detailed steps from the record. Other statuses get no unblock
+  list. Each phase ends with **TL/DR**, and that TL/DR is the
+  explanation only. No phase table. No COMPLETED banners for
+  Explain itself.
+  Parse `explain` as Explain, not Todo, not Todone, not `toend` /
+  `end`.
+- `dummy` / `Ndummy` / `dummy N` / `dummyN` are the non-technical
+  tell of the next not-Done phase. No commands, paths, or APIs.
+  `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is
+  only `dummy pN` and may be `Done` (what landed; thin record quotes
+  the description; do not invent work). `dummy 0` is **Error:**
+  (use `dummy p0`). No execute. No Status change. Does not rewrite
+  the plan. Optional second word `guide`. On Blocked, Def-Blocked,
+  or partially blocked: spelled-out task names, not enough to
+  perform. Other statuses get no unblock list.
+- A tldr phase tell needs a selector (`tldr 1`, `tldr N`, `Ntldr`,
+  `tldrN`, `tldr pN`, `pN tldr`). `tldr N` = next N not-Done. Named
+  `pN` may be `Done`. Exact `tldr` prints `references/TLDR.md` and
+  stops (never a phase id). `tldr help` is not help. `tldr 0` is
+  **Error:** (use `tldr p0`). A leftover that is not a selector and
+  not `guide` is still an explanation-only question. Optional
+  second word `guide`. On a block: a numbered list a capable person
+  could carry out. Other statuses get no unblock list.
+- `guide` is only the second word on explain, tldr, or dummy
+  (`explain guide`, `tldr guide p3`, `dummy guide`, `3explain guide`).
+  Not runblock. Every target must be blocked or partially blocked,
+  else **Error:** and no file. User-guide depth, mermaid, and web
+  images, links, and PDFs only when reuse is allowed. Writes through
+  docify defaults, else `/home/ami/src/pytch/pytch-docs/agent/`,
+  markdown, generated CAPS name (`GUIDE` if the title is empty).
+  Does not commit. Missing pytch-docs is **Error:**. Does not change
+  Status. Does not reprint the plan. Cite `docs/docify_contract.md`.
+- `coach` is matched before `guide`. `coach` / `coach 1` = next
+  blocked or partially blocked phase. `coach pN` only if that phase
+  is blocked or partially blocked. `coach 0` is **Error:** (use
+  `coach p0`). `coach N` for N ≥ 2, `Ncoach`, and `coachN` are
+  **Error:** (one phase). `coach guide` is **Error:**. One
+  instruction at a time. Wait for questions and output, then the
+  next step. Writes a `COACH_LOG` the same way as guide and prints
+  the summary. Not runblock. Not howto. No Status change.
 - `todone` / `Ntodone` / `todone pN` / `todone N` print the
   Todo-depth briefing, then set Status `Done`. Do not execute. Do
   not wait for ack. Bare `todone` = next 1 eligible (same as bare

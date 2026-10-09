@@ -3,7 +3,7 @@
 A thin file front end. Splices local files into an ify prompt and
 dispatches to that verb. Default is plannify. Does not plan or execute
 by itself. File slots follow `docs/from_contract.md`.
-`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+`docify` / `docpathify` write the deliverable (`the docify skill's references/docify_contract.md`).
 Window prefix `FROM:` (`docs/window_title.md`).
 
 ```text

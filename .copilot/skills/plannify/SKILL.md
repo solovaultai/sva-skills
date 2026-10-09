@@ -26,12 +26,15 @@ coach. Like `/runnify`, but the "run" produces a **plan**, never code changes.
 
 ## Base pipeline
 
-1. Read and follow `~/.copilot/skills/promptify/SKILL.md` for:
-   - Step 1 Intent analysis
-   - Step 2 Workspace validation
-   - Step 4 Scores (Execution Readiness / Coverage / Confidence; revise once if any
-     score < 80)
-   - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
+1. Read `~/.copilot/skills/promptify/SKILL.md`:
+   - **Optify on** (default): only these headings — **Flag parse order**, **Scratch images**, **Named images**, **Multi-pass**, **Hard rules**. Do not read the rest of that file.
+   - **Optify off** (`enabled=off`): read the whole file, then follow:
+     - Step 1 Intent analysis
+     - Step 2 Workspace validation
+     - Step 4 Scores (Execution Readiness / Coverage / Confidence; revise once if any
+       score < 80)
+     - Its Hard rules (workspace is source of truth; never invent files/APIs/tools/DBs).
+   Cite the optify skill's `references/optify_contract.md`. Optify is on unless `${XDG_DATA_HOME:-$HOME/.local/share}/sva-skills/optify.env` contains `enabled=off`. A missing file or a missing `enabled` key is on. Only `enabled=off` is off. Reading that env file is enough to decide. `./scripts/cli.sh optify show` is the supported way to change the switch.
 2. Force mode = **Planning** (`/plannify`), even if the user only said "plannify".
 3. Treat `/planify`, `/promptify-plan`, and `/plify` as aliases of this skill.
 4. Treat `/plannify fromhere` and `planify fromhere` as **fromhere**
@@ -419,7 +422,7 @@ Help, tldr, pass, and empty do not read files.
 
 ## Docify
 
-Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
+Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

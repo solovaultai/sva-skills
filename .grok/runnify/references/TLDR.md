@@ -5,7 +5,7 @@ execute only the optimized prompt and append Results. Aliases:
 `/runify`, `/promptify-run`.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
-`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+`docify` / `docpathify` write the deliverable (`the docify skill's references/docify_contract.md`).
 Window prefix `RUN:` (`docs/window_title.md`).
 
 ```text

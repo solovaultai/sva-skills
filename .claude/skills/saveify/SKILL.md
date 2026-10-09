@@ -365,7 +365,7 @@ Help, tldr, and pass do not read files.
 
 ## Docify
 
-Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, and pass do not write that file. Empty `/saveify` still writes the snapshot.
+Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, and pass do not write that file. Empty `/saveify` still writes the snapshot.
 
 ## Window title
 
@@ -416,5 +416,5 @@ Help, tldr, pass, list, delete, `--help`, and `/?` do not retitle.
   an alias of `/saveify`. Empty `/saveify` is still an auto-name save.
 - `Nimages` / `Npass`: promptify Flag parse order. Do not fork. Do
   not loop.
-- Cite `docs/from_contract.md`, `docs/docify_contract.md`, and
+- Cite `docs/from_contract.md`, `the docify skill's references/docify_contract.md`, and
   `docs/window_title.md`. Prefix `SAVE:`.

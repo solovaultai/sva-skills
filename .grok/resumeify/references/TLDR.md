@@ -4,7 +4,7 @@ A thin restore front end. Lists saved ify contexts and reprints one.
 Does not plan or execute phases. Does not write or delete. Store and
 reprint follow `docs/saveify_contract.md`.
 `from=` splices local files (`docs/from_contract.md`). `docify` writes
-the deliverable (`docs/docify_contract.md`). Window prefix `RESUME:`
+the deliverable (`the docify skill's references/docify_contract.md`). Window prefix `RESUME:`
 (`docs/window_title.md`).
 
 ```text

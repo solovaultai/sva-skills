@@ -18,8 +18,10 @@ description: >-
 
 You are running **Promptify in Execution mode** (`/runnify`).
 
-1. Read and follow **all** instructions in:
-   `~/.cursor/skills/promptify/SKILL.md`
+1. Read `~/.cursor/skills/promptify/SKILL.md`:
+   - **Optify on** (default): only these headings — **Flag parse order**, **Scratch images**, **Named images**, **Multi-pass**, **Hard rules**. Do not read the rest of that file.
+   - **Optify off** (`enabled=off`): read and follow **all** instructions in that file.
+   Cite the optify skill's `references/optify_contract.md`. Optify is on unless `${XDG_DATA_HOME:-$HOME/.local/share}/sva-skills/optify.env` contains `enabled=off`. A missing file or a missing `enabled` key is on. Only `enabled=off` is off. Reading that env file is enough to decide. `./scripts/cli.sh optify show` is the supported way to change the switch.
 2. Force mode = **Execution** (`/runnify`), even if the user only said "runnify".
 3. Do **not** stop after Optimized Prompt + Scores — **execute** the optimized
    prompt, then append **Results**.
@@ -84,7 +86,7 @@ If the user message has no task body after `/runnify`, explain:
 
 Response format and pipeline: same as Promptify `/runnify` section in
 `~/.cursor/skills/promptify/SKILL.md` (Intent · Workspace · Optimized Prompt ·
-Scores · Results · **Phased plan last** when the work is multi-phase).
+Scores · Results · **Phased plan last** when the work is multi-phase). When optify is off, that section is inside the whole-file read above. When optify is on, do not open promptify headings other than **Flag parse order**, **Scratch images**, **Named images**, **Multi-pass**, and **Hard rules**.
 
 ## From files
 
@@ -94,7 +96,7 @@ Help, tldr, pass, and empty do not read files.
 
 ## Docify
 
-Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
+Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 

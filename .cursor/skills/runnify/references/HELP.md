@@ -25,7 +25,7 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+(see `the docify skill's references/docify_contract.md`). Help, tldr, and pass do not write.
 
 Window title prefix is `RUN:` (see `docs/window_title.md`).
 Help, tldr, and pass do not retitle.

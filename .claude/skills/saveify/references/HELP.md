@@ -30,7 +30,7 @@ not restate that layout.
 `docs/from_contract.md`). Help, tldr, and pass do not read files.
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `docs/docify_contract.md`). Help, tldr, and pass do not write that
+(see `the docify skill's references/docify_contract.md`). Help, tldr, and pass do not write that
 file. Empty `/saveify` still writes the snapshot.
 
 `savify` is an alias of `/saveify`, not a folder.

@@ -26,7 +26,7 @@ File slots, path resolution, splice, and errors:
 `docs/from_contract.md`. This page does not restate that parser.
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `docs/docify_contract.md`). Help, tldr, and pass do not write.
+(see `the docify skill's references/docify_contract.md`). Help, tldr, and pass do not write.
 
 Window title prefix is `FROM:` (see `docs/window_title.md`).
 Help, tldr, and pass do not retitle.

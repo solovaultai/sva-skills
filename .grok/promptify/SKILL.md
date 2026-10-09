@@ -521,7 +521,7 @@ Rules:
 
 - Cite `docs/from_contract.md`. `from=` and `from:` splice local files into this prompt. Help, tldr, pass, and empty do not read files.
 
-- Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
+- Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 
 - Never invent workspace resources.
 - Never claim files/DBs/APIs exist without checking.

@@ -36,7 +36,7 @@ Addify reuses the ancestor's prefix. Phasify is
 empty usage do not retitle.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
-`docify` / `docpathify` write this verb's deliverable (see `docs/docify_contract.md`). Not a verb.
+`docify` / `docpathify` write this verb's deliverable (see `the docify skill's references/docify_contract.md`). Not a verb.
 
 ---
 
@@ -65,6 +65,8 @@ ify and you have more text for that same run, use `/addify`.
 /ify which <prompt>  — alias of smart
 /ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
+/optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
+/gitify              — every dirty repo under the open folder (empty is a real commit)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -101,7 +103,7 @@ they said “ify this”.
 | **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
 | **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
 | **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
-| **phasify** | Next phase / named PN / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
+| **phasify** | Next phase / named PN / **explain** / **dummy** / **tldr** phase tell / **guide** / **coach** / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
 | **debugify** | Bug / failing / root cause — **full** Debug Mode loop (not Cursor’s kickoff-only debugify) | `/debug`, `dbgify`, `debify` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
 | **addify** | Append text to the last ify in this chat and restart/continue that skill | — |
@@ -110,9 +112,11 @@ they said “ify this”.
 | **ify** | Which verb / family help / tldr | — |
 | **saveify** | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. | `savify` |
 | **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. | `resumify` |
+| **optify** | Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.grok/optify/SKILL.md`. | — |
+| **gitify** | Add each dirty repo under the open folder and make one commit. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, and `link`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. | — |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
-`phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify`.
+`phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify`.
 
 ---
 
@@ -262,6 +266,11 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
 | `/runnify <prompt>` | Optimize then execute |
 | `/phasify` | Execute the next plan phase |
+| `/phasify explain` | Full write-up of the next not-Done phase. Count selectors skip Done. Named `pN` may be Done (what landed; thin record quotes the description; do not invent work). Pending stays the full write-up. Blocked / Def-Blocked / partially blocked (`Progress` with a recorded blocker, same as howto): detailed steps from the record. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
+| `/phasify dummy` | Non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
+| `/phasify tldr` | Exact `tldr` with no other token prints that verb’s `references/TLDR.md` and stops (never a phase id; `tldr help` is not help). Phase tell needs `tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, or `pN tldr`. `tldr N` = next N not-Done. Named `pN` may be Done. `tldr 0` is Error (use `tldr p0`). A leftover that is not a selector and not `guide` is still an explanation-only question. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list. Optional second word `guide`. |
+| `/phasify explain guide` | Only the second word on explain, tldr, or dummy (`explain guide`, `tldr guide p3`, `dummy guide`, `3explain guide`). Not runblock. Every target must be blocked or partially blocked, else Error and no file. User-guide depth, mermaid, web images/links/PDFs only when reuse is allowed. Writes through docify defaults, else `/home/ami/src/pytch/pytch-docs/agent/`, markdown, generated CAPS name (`GUIDE` if title empty). Does not commit. Missing pytch-docs is Error. Does not change Status. Does not reprint the plan. |
+| `/phasify coach` | Matched before guide. `coach` / `coach 1` = next blocked or partially blocked phase. `coach pN` only if that phase is blocked or partially blocked. `coach 0` is Error (use `coach p0`). `coach N` for N≥2, `Ncoach`, `coachN` are Error (one phase). `coach guide` is Error. One instruction at a time; wait for questions and output, then the next step. Writes a `COACH_LOG` the same way as guide and prints the summary. Not runblock. Not howto. No Status change. |
 | `/phasify runblock` | Unblock+run leftover work or mark `Done` (`runblock pN` / `runblockPN` / `PNrunblock` named; `runblock N` / `Nrunblock` / `2runblock` = next N blocked, not PN) |
 | `/phasify howto` | Steps past the next blocked or partially blocked phase (`howto pN` named; `howto N` / `2howto` = next N, not PN). None: nothing to do, reprint the plan. |
 | `/phasify remove` | Drop next not-Done phase after yes/no (`remove pN` / title named; `remove N` / `2remove` = next N, not PN). `delete` is an exact alias. |
@@ -271,3 +280,5 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/addify <text>` | Append `<text>` to the last ify and restart/continue that skill |
 | `/saveify` | Save the current ify context (auto-name if unnamed). Delete by name or # after yes/no. Empty `/saveify` is a real save. |
 | `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. |
+| `/optify` | Token policy, on by default. `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. |
+| `/gitify` | Add each dirty repo under the open folder and make one commit. A basename or component selects one. Optional tag, msg, and link. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |

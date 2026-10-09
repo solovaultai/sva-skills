@@ -270,7 +270,7 @@ Help, tldr, and pass do not read files.
 
 ## Docify
 
-Cite `docs/docify_contract.md`. Do not restate it.
+Cite `the docify skill's references/docify_contract.md`. Do not restate it.
 This skill does not write or delete a snapshot.
 
 ## Window title

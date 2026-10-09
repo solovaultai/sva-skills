@@ -18,8 +18,21 @@ this page. `help me …` is a **prompt**, not Help.
 
 A **thin front end**. Collects docify directive controls, then
 dispatches an ify verb. Default verb is **askify**. Does not answer,
-plan, or write a second file. The selected verb writes under
-`docs/docify_contract.md`.
+plan, or write a second file. The selected verb writes the
+deliverable. Rules are this skill's `references/docify_contract.md`,
+shipped next to this help file. Do not look for
+`docs/docify_contract.md` in the project being documented.
+
+No path and no filename: markdown, a name of three to six words
+in `CAPS_WITH_UNDERSCORES`, and
+`/home/ami/src/pytch/pytch-docs/agent/` when that directory
+exists, else workspace `pytch-docs/agent/` when that directory
+exists. If neither exists, stop with **Error:** pytch-docs not
+found. Do not use the project root.
+
+`/docify:html` writes that generated name as `.html` in the same
+folder. `path=<directory>` chooses the folder. A filename ending
+in `.md` writes markdown, because the extension wins.
 
 `from=` slots stay on the rewritten line for the selected verb (see
 `docs/from_contract.md`). Help, tldr, and pass do not read files.
@@ -52,7 +65,7 @@ body and the format is html. Do not print the short usage. Do
 not say a prompt is required. Do not dispatch askify. Do not
 re-run the saved verb. Bare `/docify` writes that same body in
 the default format. Cite **No prompt** in
-`docs/docify_contract.md`. Saveify writes the snapshot. No
+`the docify skill's references/docify_contract.md`. Saveify writes the snapshot. No
 recoverable ify: **Error:** nothing to docify, then short
 usage. Do not write an empty file.
 

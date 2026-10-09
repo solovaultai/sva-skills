@@ -2,7 +2,7 @@
 
 A thin front end. Documents an ify prompt. Default is askify. The
 first non-control token selects another ify verb. Does not write a
-second file. Controls follow `docs/docify_contract.md`.
+second file. Controls follow this skill's `references/docify_contract.md`.
 `from=` slots stay on the rewritten line (`docs/from_contract.md`).
 Window prefix `DOC:` (`docs/window_title.md`).
 

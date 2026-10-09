@@ -14,8 +14,8 @@ token, not a verb and not a skill.
 
 ## Scope
 
-Ify set: addify, askify, debugify, docify, fromify, ify,
-phasify, plannify, promptify, resumeify, runnify, saveify.
+Ify set: addify, askify, debugify, docify, fromify, gitify,
+ify, phasify, plannify, promptify, resumeify, runnify, saveify.
 
 Not ify utilities. They do not detect docify: `image`,
 `imagine`, `help`, `check-work`, `code-review`,
@@ -217,6 +217,7 @@ the normal reply.
 | docify | The selected verb writes one file. No task text: the last ify deliverable |
 | resumeify | The reprinted saved body |
 | saveify | Snapshot `plan.md`, or `task.txt` then kickoff and notes |
+| gitify | Each commit message in the bunch, and each tag name when one was made |
 
 If the typed line names one heading that appears in
 that deliverable (the heading words, with or without
@@ -470,9 +471,24 @@ walk does not write into pytch-docs.
 
 A few lines in the verb's `SKILL.md`. Do not paste
 this file. Put the same cite in `.grok/<verb>/`,
-`.cursor/skills/<verb>/`, and
-`.copilot/skills/<verb>/`.
+`.cursor/skills/<verb>/`, `.copilot/skills/<verb>/`,
+and `.claude/skills/<verb>/`.
+
+Ship a byte copy of this file at
+`<docify-skill>/references/docify_contract.md`
+(`.claude/skills/docify/references/docify_contract.md`,
+and the same path under `.cursor/skills/docify/`,
+`.grok/docify/`, and `.copilot/skills/docify/`).
+Agents read that copy. It is this file. Edit this
+file, then copy it again. Do not edit the copy in
+place.
+
+Workspace `docs/docify_contract.md` is this file
+only when the workspace is sva-skills. In any other
+project that path is absent. Do not treat that
+absence as a new output folder. Do not write to the
+project root.
 
 ```markdown
-Cite `docs/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
+Cite the docify skill's `references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
 ```

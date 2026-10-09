@@ -29,7 +29,7 @@ This page does not restate that store.
 `docs/from_contract.md`). Help, tldr, and pass do not read files.
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `docs/docify_contract.md`). This skill does not write or delete a
+(see `the docify skill's references/docify_contract.md`). This skill does not write or delete a
 snapshot.
 
 Window title prefix is `RESUME:` (see `docs/window_title.md`). A real

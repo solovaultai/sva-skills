@@ -6,7 +6,7 @@ execution-ready prompt. `/promptify` does not execute the work; `/runnify`
 does.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
-`docify` / `docpathify` write the deliverable (`docs/docify_contract.md`).
+`docify` / `docpathify` write the deliverable (`the docify skill's references/docify_contract.md`).
 Window prefix `PROMPT:` (`docs/window_title.md`).
 
 ```text

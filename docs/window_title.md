@@ -24,10 +24,14 @@ Same prefix both times.
 
 Leave the name when the turn ends. Do not restore `gHHMMSS`.
 
-**Do not retitle** help, `--help`, `/?`, tldr, `pass`, `pass help`,
+**Do not retitle** help, `--help`, `/?`, exact tldr, `pass`, `pass help`,
 or empty usage. Empty `/phasify` is Next, so it does set the name.
+Exact `/phasify tldr` (no other token) does not retitle. A phasify
+tldr phase tell (a selector is present) does.
 Empty `/saveify` is a real save, so it does set the name. Empty
-`/resumeify` lists and leaves the name.
+`/resumeify` lists and leaves the name. Empty `/optify` prints
+status and leaves the name. Empty `/gitify` is a real commit, so
+it does set the name.
 
 ---
 
@@ -51,6 +55,18 @@ from the end of the summary until it fits. Never cut the prefix.
 | phasify | `PHASE:P<n>/<total>:<PREFIX>: <summary>` |
 | saveify | `SAVE: <summary>` |
 | resumeify | `RESUME: <summary>` |
+| optify | `OPT: <summary>` |
+| gitify | `GIT: <summary>` |
+
+Optify `<summary>` is the single subcommand word: `on`, `off`,
+`now`, `before`, or `after` (example `OPT: now`). Help, tldr, pass,
+and bare `/optify` do not retitle.
+
+Gitify `<summary>` is three to six words of the commit. One repo
+keeps that. Several repos use three to six words, the link token
+when that token is already that short. Help, tldr, pass, and
+dry-run do not retitle. A live bunch that commits does, including
+empty `/gitify`.
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
 `ASK`, `IFY`, `FROM`, `DOC`). `<summary>` is a few words of the recovered Task, not
@@ -60,14 +76,19 @@ keep that summary text.
 `<n>` is the work phase this run is on (`P0` prints as `P0`).
 `<total>` is the work-phase count. Task and Flags do not count.
 Next-N, run-to-end, stop-before-end, rundefer, and runblock update
-the name at the **start** of each phase. Show, todo, explain, and howto use
-the phase that mode is about. Howto with nothing to do leaves the name.
-Help, tldr, and pass do not retitle.
+the name at the **start** of each phase. Show, todo, explain, dummy,
+guide, and coach use the phase they are about. A tldr phase tell
+(a selector such as `tldr 1`, `tldr N`, `Ntldr`, or `tldr pN`) uses
+that phase too. Howto with nothing to do leaves the name. Dummy,
+guide, and coach with nothing eligible leave the name.
+Help, exact tldr, and pass do not retitle.
 
 ```text
 PLAN: ify window titles
 DBG: inbound route mismatch
 PHASE:P1/4:PLAN: ify window titles
+OPT: now
+GIT: add gitify verb
 ```
 
 ---
@@ -117,18 +138,22 @@ A few lines in the verb's `SKILL.md`. Do not paste this file. If that
 
 Cite `docs/window_title.md`. Prefix for this verb: `PLAN:`.
 Set the tmux window name per that contract on a real task.
-Help, tldr, pass, and empty usage do not retitle.
+Help, exact tldr, pass, and empty usage do not retitle.
 ```
 
 Put the same cite in `.grok/<verb>/`, `.cursor/skills/<verb>/`,
-`.copilot/skills/<verb>/`, and `.claude/skills/<verb>/`. Off tmux the
-command does nothing.
+`.copilot/skills/<verb>/`, and `.claude/skills/<verb>/`
+(optify: `.claude/skills/optify/`, `.grok/optify/`,
+`.cursor/skills/optify/`, and `.copilot/skills/optify/`).
+Off tmux the command does nothing.
 
 ---
 
 ## Adding a verb
 
 1. Add one row to the prefix table in this file.
-2. Thin cite in that verb's `SKILL.md` in all three trees.
+2. Thin cite in that verb's `SKILL.md` in `.claude/skills/<verb>/`,
+   `.grok/<verb>/`, `.cursor/skills/<verb>/`, and
+   `.copilot/skills/<verb>/`.
 3. Do not invent a second title dialect.
 4. Catalog line (README and ify HELP) only when the verb is new.

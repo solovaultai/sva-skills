@@ -32,6 +32,7 @@
   .\scripts\cli.ps1 scratch show
   .\scripts\cli.ps1 scratch ls 3
   .\scripts\cli.ps1 docify show
+  .\scripts\cli.ps1 optify show
   .\scripts\cli.ps1 saveify dir
 #>
 # Do not use [CmdletBinding()]/param() — bash-style --force/--remote must
@@ -174,6 +175,7 @@ Usage:
   .\scripts\cli.ps1 scratch show                     # screenshot folder for ify Nimages / Grok /image
   .\scripts\cli.ps1 scratch ls [N]                   # last-N image paths (default 5)
   .\scripts\cli.ps1 docify show                      # docify defaults (scratch, format, path, prefix)
+  .\scripts\cli.ps1 optify show                      # optify switch (enabled, before, after)
   .\scripts\cli.ps1 saveify dir                      # saveify snapshot store
 
 Options:
@@ -242,6 +244,17 @@ Docify defaults (typed-line docify / docpathify):
   .\scripts\cli.ps1 docify clear scratch|format|path|prefix
 Config: %LOCALAPPDATA%\sva-skills\docify.env
 Keys: scratch, format, path, prefix. docif and scrach are not keys.
+
+Optify switch (on/off and one-shot before/after):
+  .\scripts\cli.ps1 optify on
+  .\scripts\cli.ps1 optify off
+  .\scripts\cli.ps1 optify show
+  .\scripts\cli.ps1 optify before
+  .\scripts\cli.ps1 optify after
+  .\scripts\cli.ps1 optify clear-shots
+Config: ${XDG_DATA_HOME:-$HOME/.local/share}/sva-skills/optify.env
+Keys: enabled (on|off), before, after. Missing file or missing enabled is on.
+Only enabled=off is off. off does not clear before or after.
 
 Saveify snapshots (see docs/saveify_contract.md):
   .\scripts\cli.ps1 saveify dir
@@ -1247,6 +1260,16 @@ if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'docify') {
     exit 0
 }
 
+. (Join-Path $PSScriptRoot 'lib\optify_resolve.ps1')
+if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'optify') {
+    $optifyRest = @()
+    if ($CliArgs.Count -gt 1) {
+        $optifyRest = @($CliArgs[1..($CliArgs.Count - 1)])
+    }
+    Invoke-OptifyCommand -OptifyArgs $optifyRest
+    exit 0
+}
+
 . (Join-Path $PSScriptRoot 'lib\saveify_resolve.ps1')
 if ($CliArgs.Count -gt 0 -and $CliArgs[0] -eq 'saveify') {
     $saveifyRest = @()
@@ -1558,6 +1581,6 @@ switch ($Cmd) {
         exit $rc
     }
     default {
-        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, docify, saveify, --help)"
+        Die "unknown command: $Cmd (try: install, pullinst, project, status, list, scratch, docify, optify, saveify, --help)"
     }
 }
