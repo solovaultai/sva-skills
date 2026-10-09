@@ -8,17 +8,21 @@ description: >-
   selects one repo. tag or tag:NAME annotated-tags that commit.
   msg replaces, prepends, or postfixes the message. link:TEXT
   stamps [multirepo-link=TEXT] on every commit in the bunch.
-  dry-run prints that action list and writes nothing. status,
-  push, log, diff, commit, and git are stop words, not repo names.
-  Any other unmatched token stops with no git write. /gitify help or
-  /gitify --help (also /?) prints the full reference. /gitify tldr
-  prints the short page. /gitify pass and pass help print the Pass
-  (Npass) subsection. Does not push, amend, skip hooks, or change
-  git config. No smart mode. Recognizes nimages / Nimages / N
+  dry-run prints that action list and writes nothing. forcemain
+  merges the checked-out branch into main and leaves the repo on
+  main. status, push, log, diff, commit, and git are stop words,
+  not repo names. Any other unmatched token stops with no git
+  write. /gitify help or /gitify --help (also /?) prints the full
+  reference. /gitify tldr prints the short page. /gitify pass and
+  pass help print the Pass (Npass) subsection. After a successful
+  commit, runs `git push origin <current-branch>`. Detached HEAD
+  aborts before `git add`. Does not amend, skip hooks, or change
+  git config. Does not push tags. Does not pull. Does not use
+  `--force`. No smart mode. Recognizes nimages / Nimages / N
   images / N-images and npass / Npass / N-pass / N pass per
   promptify Flag parse order (stripped before the directives;
   gitify does not run its own pass loop).
-argument-hint: "[repo|tag|msg|link|dry-run|help|tldr|pass]"
+argument-hint: "[repo|tag|msg|link|dry-run|forcemain|help|tldr|pass]"
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -27,8 +31,19 @@ disable-model-invocation: true
 
 You are running **Gitify** (`/gitify`) — a **thin commit verb**
 in the Promptify family. For each dirty repo in the bunch you
-`git add -A`, then make one commit. You may annotated-tag that
-commit. You do not push, amend, skip hooks, or change git config.
+`git add -A`, then make one commit, then
+`git push origin <current-branch>`. Before any `git add`, read
+the branch with `git rev-parse --abbrev-ref HEAD`. Name `main`
+pushes `git push origin main`. Any other branch name, including
+`master`, pushes `git push origin <that-name>`. Detached `HEAD`
+is **Error** before `git add`. No add, no commit, no push, in
+this repo or any later repo in the bunch. You may annotated-tag
+that commit before the push. `forcemain` is the only merge. On
+`main` it adds nothing. On any other branch it pushes that
+branch, merges it into `main`, pushes `main`, deletes the branch,
+and finishes on `main`. You do not amend, skip hooks, or change
+git config. You do not push tags. You do not use `--force`. You
+do not pull.
 You do not plan, execute, debug, or answer. There is no `smart`
 mode. Empty `/gitify` commits every dirty repo under the open
 folder, not short usage.
@@ -36,13 +51,15 @@ folder, not short usage.
 1. Strip `Nimages` / `Npass` on the typed line (Flag parse order).
 2. Help, tldr, and pass print only, then stop. They do not touch git.
 3. Splice `from=` / `from:` files. Strip a typed-line `docify`.
-4. Parse `tag`, `msg`, `link`, and `dry-run`. One optional selector
+4. Parse `tag`, `msg`, `link`, `dry-run`, and `forcemain`. One optional selector
    names one repo. A stop word or any other unmatched token stops
    with no git write.
 5. Resolve the open folder and the bunch. Classify archived, clean,
    and dirty. Path sort is fixed.
-6. Preflight every dirty repo. Build one action list before the
-   first `git add`. `dry-run` prints that list and writes nothing.
+6. Preflight every dirty repo. Read the branch before the first
+   `git add`. Detached `HEAD` aborts before `git add`. Build one
+   action list before that add. `dry-run` prints that list and
+   writes nothing.
    A live run executes that same list. Tag only after that commit
    succeeds.
 7. Set the window title when a live bunch commits, including empty
@@ -62,7 +79,8 @@ only. Do not run a second pass loop. Do not run Scratch images.
 Strip `Nimages` / `Npass` first (Flag parse order). Then take the
 first whole token, case-insensitive. Reserved first tokens are
 modes, not directives: `help`, `tldr`, `pass`, `--help`, `/?`.
-`pass help` is pass. These do not add, commit, tag, or retitle.
+`pass help` is pass. These do not add, commit, tag, push, merge,
+or retitle.
 
 - First token `help`, `--help`, or `/?`: **read and print**
   `references/HELP.md` (this skill folder) and **stop**. Further
@@ -92,6 +110,7 @@ Same exception shape as empty `/saveify` (a real save) and empty
 /gitify msg:TEXT+       — labeled custom block after the message
 /gitify link:TEXT       — [multirepo-link=TEXT] on every commit
 /gitify dry-run         — print the action list; write nothing
+/gitify forcemain       — push this branch, merge it into main, finish on main
 /gitify help            — full reference (also --help, /?)
 /gitify tldr            — short form (stop)
 /gitify pass help       — Pass (Npass) subsection (also `pass`)
@@ -122,7 +141,7 @@ is a leftover. Stop with no git write.
 
 The typed line is the text after the verb. File bodies are
 literal. Do not scan them for `tag`, `msg`, `link`, `dry-run`,
-`from=`, `docify`, or a selector.
+`forcemain`, `from=`, `docify`, or a selector.
 
 1. **Flags.** Already stripped.
 2. **Help, tldr, pass.** First token, above. Stop. Do not read
@@ -149,6 +168,7 @@ not syntax. `msg:hello world` is `msg:hello` plus leftover `world`.
 | `msg:TEXT+` / `msg=TEXT+` | Labeled custom block after the generated message. |
 | `link:TEXT` / `link=TEXT` | End every commit message with `[multirepo-link=TEXT]`. |
 | `dry-run` | Bare token. Print the action list. Do not write. |
+| `forcemain` | Bare token. Case-insensitive. On `main`, adds nothing. On any other branch, push it, merge it into `main`, and finish on `main`. |
 
 A `msg` value that starts with `+` and ends with `+` (`msg:+hello+`,
 `msg:+`) is **Error**. An empty value (`msg`, `msg:`, `msg=`,
@@ -159,7 +179,13 @@ tokens is **Error** before any write.
 `link:TEXT` and `link=TEXT` are one token. The value has no spaces.
 `link:hello world` is `link:hello` plus leftover `world`. `dry-run`
 is a bare token. Two of them is **Error**. `dry-run:TEXT` and
-`dry-run=TEXT` are **Error** before any write.
+`dry-run=TEXT` are **Error** before any write. `forcemain` is a
+bare token, case-insensitive, same shape as `dry-run`. One token.
+Two of them is **Error** before any write. `forcemain:TEXT` and
+`forcemain=TEXT` are **Error**. It is not a selector and not a
+stop word. Typed `push` stays a stop word. That word is not this
+directive. It applies to every dirty repo in the bunch, the same
+way `tag` and `msg` do. A clean repo is still skipped.
 
 A token that is not a directive is a selector, unless it is a stop
 word. One selector is optional. Two selector tokens is **Error**
@@ -168,8 +194,11 @@ before any write.
 `status`, `push`, `log`, `diff`, `commit`, and `git` are stop
 words. They are not repo names and not selectors. A stop word, or
 any other unmatched token, stops the turn with no write. Print
-that gitify only adds, commits, and optionally tags. It is not a
-git engine. Do not add, commit, or tag.
+that a typed `push` is not a repo and not a request. That word
+is not the `forcemain` directive. After a successful commit,
+gitify runs `git push origin <current-branch>`. It is not a git
+engine. Do not add, commit, tag, or push when a stop word aborted
+the turn.
 
 ---
 
@@ -253,9 +282,16 @@ The brackets are part of the line. No `link` token means no line.
 
 `dry-run` is a bare token. Two of them is **Error**. It prints the
 run notes and, for each dirty repo, the action that would run:
-repo path, `git add -A`, the full commit message, and the tag name
-when one was requested. It does not stage, commit, tag, or edit
-git config. It does not write a notes file.
+repo path, `git add -A`, the full commit message, the tag name
+when one was requested, and `git push origin <branch>`. It does
+not stage, commit, tag, push, checkout, merge, delete, or edit
+git config. It does not write a notes file. It does not pull.
+With `forcemain` on `main`, that push line is
+`git push origin main` and nothing more. With `forcemain` on any
+other branch, it prints these commands in this order and does not
+run them: `git push origin <branch>`, `git checkout main`,
+`git merge <branch>`, `git push origin main`,
+`git branch -d <branch>`, `git push origin --delete <branch>`.
 
 Live run (no `dry-run`) executes that same list in that same order,
 with those same messages and tag names. Build the list before the
@@ -279,6 +315,10 @@ and `git tag` are not. A secret-like path or an existing tag in
 any dirty repo aborts the whole bunch with no write. Dry-run prints
 that error and also writes nothing.
 
+- Detached `HEAD`: **Error** before `git add`. In every dirty
+  repo, read the branch with `git rev-parse --abbrev-ref HEAD`.
+  When that name is `HEAD`, no add, no commit, no push, in this
+  repo or any later repo in the bunch.
 - Not a git repo, or an empty open-folder candidate set on a bare
   run: **Error:** not a git repo.
 - Selector: zero matches, or two non-archived matches, is
@@ -311,15 +351,26 @@ tag exists, stop the bunch. Do not append `-2`.
 
 ## Commit
 
-For each dirty repo, from that repository root, in path order:
+For each dirty repo, from that repository root, in path order.
+
+Before any `git add`, read the branch with
+`git rev-parse --abbrev-ref HEAD`.
+
+- Name `main`: after a successful commit, `git push origin main`.
+- Any other branch name, including `master`: `git push origin <that-name>`.
+- Detached `HEAD`: **Error** before `git add`. No add, no commit,
+  no push, in this repo or any later repo in the bunch.
 
 ```text
 git add -A
 ```
 
 Then one commit in that repo. The message is extensive. Do not
-push. Do not amend. Do not pass `--no-verify`. Do not change git
-config. Do not run `git commit -a` in place of `git add -A`.
+amend. Do not pass `--no-verify`. Do not change git config. Do
+not run `git commit -a` in place of `git add -A`. After that
+commit succeeds, and after an optional annotated tag, push the
+checked-out branch as specified below. Do not use `--force`. Do
+not push tags. Do not pull.
 
 **Generated message.** Subject plus a body, from this iteration,
 for that repo:
@@ -365,19 +416,71 @@ TEXT
 ```
 
 If the commit hook rejects the commit, print the hook output. Do
-not tag that commit. Do not continue to later repos. Do not retry
-with `--no-verify`. Do not amend. Leave the index as the hook left
-it. Dry-run cannot simulate hooks.
+not tag that commit. Do not push. Do not continue to later repos.
+Do not retry with `--no-verify`. Do not amend. Leave the index as
+the hook left it. Dry-run cannot simulate hooks.
 
 When the commit succeeds and a tag was requested, annotated-tag
-that commit. `git tag -a <name> -m "<subject>"`. Do not use `-f`.
-Do not create a lightweight tag. Do not move an existing tag. Do
-not push the tag. The same requested `tag:NAME` is used in every
-repo. A bare `tag` is derived per repo, before the first `git add`.
+that commit before the push. `git tag -a <name> -m "<subject>"`.
+Do not use `-f`. Do not create a lightweight tag. Do not move an
+existing tag. Do not push the tag. The same requested `tag:NAME`
+is used in every repo. A bare `tag` is derived per repo, before
+the first `git add`.
+
+Then push from that repository root. Do not use `--force`. Do
+not push tags. Do not pull. A clean repo still has no commit and
+no push. A rejected commit still does not push.
+
+No `forcemain`: run `git push origin <branch>` and stay on that
+branch. There is no merge and no branch to close. On `main` that
+command is `git push origin main`.
+
+When `forcemain` is set and the checked-out branch is `main`,
+`forcemain` adds nothing: commit, then `git push origin main`,
+and stay on `main`. There is no merge and no branch to close.
+
+When `forcemain` is set and the checked-out branch is not `main`,
+after the commit and the optional local tag:
+
+1. `git push origin <branch>`
+2. `git checkout main`
+3. `git merge <branch>`
+4. `git push origin main`
+5. `git branch -d <branch>`
+6. `git push origin --delete <branch>`
+
+When that sequence finishes, `HEAD` is `main`. The feature branch
+is gone locally and on `origin`. The tag is still not pushed.
+
+There is no other merge. Nothing merges into a branch other than
+`main`. No merge directive besides `forcemain`.
+
+If the push fails, print the output. Do not continue to later
+repos. Do not amend. Failure stops the bunch. Do not use
+`--force` or `git branch -D`.
+
+- Branch push fails: stay on that branch. Do not merge. Do not
+  delete.
+- `git checkout main` fails: stay on that branch. Do not delete.
+- Merge fails: `git merge --abort`, then `git checkout <branch>`.
+  Do not delete. Do not push `main`.
+- `git push origin main` fails: stay on `main`. Do not delete the
+  branch.
+- `git branch -d` fails: do not delete the remote branch.
+- Remote delete fails: print the output. The repo is already on
+  `main`. Still do not continue to later repos.
+
+`dry-run` prints `git push origin <branch>`, and when `forcemain`
+applies off `main` it prints those six commands in that order. It
+does not checkout, merge, delete, or push. Help, tldr, pass, and
+dry-run do not push or merge.
 
 A live run prints the run notes, then for each commit the hash,
-the subject, and the tag name when one was made. `dry-run` prints
-the run notes and the action list, and it does not print a hash.
+the subject, the tag name when one was made, and that
+`git push origin <branch>` ran. When the `forcemain` sequence
+finishes, also say `HEAD` is `main`. `dry-run` prints the run
+notes and the action list, including that push command, and it
+does not print a hash and does not push.
 
 ---
 
@@ -401,15 +504,26 @@ characters. Do not invent a second prefix.
 
 Help, tldr, pass, `--help`, `/?`, and `dry-run` do not retitle. A
 stop (leftover token, selector error, nothing to commit, tag
-exists, secret, not a repo, hook rejection) does not retitle.
+exists, secret, not a repo, detached `HEAD`, hook rejection) does
+not retitle.
 `GIT` is not a phasify ancestor prefix.
 
 ## Hard rules
 
 - Thin commit verb. For each dirty repo, `git add -A`, then one
-  commit. Optional annotated tag. Do not push. Do not amend. Do
-  not skip hooks. Do not change git config. Do not add a
-  `scripts/cli.sh` subcommand.
+  commit, then `git push origin <current-branch>`. Before any
+  `git add`, read the branch with
+  `git rev-parse --abbrev-ref HEAD`. Name `main`:
+  `git push origin main`. Any other branch name, including
+  `master`: `git push origin <that-name>`. Detached `HEAD` is
+  **Error** before `git add`. No add, no commit, no push, in this
+  repo or any later repo in the bunch. Optional annotated tag
+  before that push. Do not push tags. Do not pull. Do not amend.
+  Do not skip hooks. Do not change git config. Do not use
+  `--force`. Do not add a `scripts/cli.sh` subcommand. A clean
+  repo still has no commit and no push. A rejected commit still
+  does not push. If the push fails, print the output, do not
+  continue to later repos, do not amend.
 - Empty `/gitify` commits every dirty repo under the open folder.
   It sets `GIT:` when a commit happens. It is not short usage.
 - One optional selector. A basename, or a component (basename
@@ -424,26 +538,34 @@ exists, secret, not a repo, hook rejection) does not retitle.
   commit, or tag. A failed `gh` call is not archived. Clean:
   note it. No empty commit. Dirty: one landed gitify commit.
   Path sort is fixed.
-- One `tag` token. One `msg` token. One `link` token. `:` and
-  `=` are the same. Keys are case-insensitive. A value has no
-  spaces. `+` on both sides, an empty value, or two of either
-  `tag` or `msg` is **Error** before `git add`. Two `link` tokens,
-  or an empty `link` value, is **Error** before any write.
-  `link:hello world` is `link:hello` plus leftover `world`.
+- One `tag` token. One `msg` token. One `link` token. One
+  `forcemain` token. `:` and `=` are the same. Keys are
+  case-insensitive. A value has no spaces. `+` on both sides, an
+  empty value, or two of either `tag` or `msg` is **Error** before
+  `git add`. Two `link` tokens, or an empty `link` value, is
+  **Error** before any write. `link:hello world` is `link:hello`
+  plus leftover `world`.
 - Every commit message in the bunch ends with
   `[multirepo-link=TEXT]` after `msg` replace, prepend, or postfix.
   The brackets are part of the line. No `link` token means no line.
 - `dry-run` is one bare token. Two of them is **Error**. It prints
   the run notes and, for each dirty repo, the repo path,
-  `git add -A`, the full commit message, and the tag name when one
-  was requested. It does not stage, commit, tag, edit git config,
-  or write a notes file. A live run executes that same list in
-  that same order, with those same messages and tag names. Build
-  the list before the first `git add`.
+  `git add -A`, the full commit message, the tag name when one
+  was requested, and `git push origin <branch>`. With `forcemain`
+  on a branch other than `main`, it prints `git push origin <branch>`,
+  `git checkout main`, `git merge <branch>`, `git push origin main`,
+  `git branch -d <branch>`, and `git push origin --delete <branch>`,
+  in that order. It does not stage, commit, tag, push, checkout,
+  merge, delete, edit git config, or write a notes file. A live
+  run executes that same list in that same order, with those same
+  messages and tag names, then pushes. Build the list before the
+  first `git add`. Help, tldr, pass, and dry-run do not push or
+  merge.
 - `status`, `push`, `log`, `diff`, `commit`, and `git` are stop
   words, not repo names. Any other unmatched token stops with no
-  git write. Gitify only adds, commits, and optionally tags. It
-  is not a git engine.
+  git write. A typed `push` is a stop word, not the post-commit
+  push, and not `forcemain`. After a successful commit, gitify
+  runs `git push origin <current-branch>`. It is not a git engine.
 - A secret-like path or an existing tag in any dirty repo aborts
   the whole bunch with no write. Dry-run prints that error and
   also writes nothing.
@@ -454,8 +576,35 @@ exists, secret, not a repo, hook rejection) does not retitle.
   Do not move it. A secret-like path is **Error** before `git add`.
   No upstream: say so, and build the message from the working tree
   and commits since the last tag, or the working tree only.
+- `forcemain` is one bare token, case-insensitive, same shape as
+  `dry-run`. Two tokens is **Error** before any write.
+  `forcemain:TEXT` and `forcemain=TEXT` are **Error**. It is not a
+  selector and not a stop word. It applies to every dirty repo in
+  the bunch, the same way `tag` and `msg` do. A clean repo is
+  still skipped. On `main` it adds nothing: commit, then
+  `git push origin main`, and stay on `main`. There is no merge
+  and no branch to close. On any other branch, after the commit
+  and the optional local tag: `git push origin <branch>`,
+  `git checkout main`, `git merge <branch>`, `git push origin main`,
+  `git branch -d <branch>`, `git push origin --delete <branch>`.
+  Finish on `main`. The feature branch is gone locally and on
+  `origin`. The tag is still not pushed. There is no other merge.
+  Nothing merges into a branch other than `main`. No merge
+  directive besides `forcemain`. Failure stops the bunch. Do not
+  continue to later repos. Do not use `--force` or `git branch -D`.
+  Branch push fails: stay on that branch. Do not merge. Do not
+  delete. `git checkout main` fails: stay on that branch. Do not
+  delete. Merge fails: `git merge --abort`, then
+  `git checkout <branch>`. Do not delete. Do not push `main`.
+  `git push origin main` fails: stay on `main`. Do not delete the
+  branch. `git branch -d` fails: do not delete the remote branch.
+  Remote delete fails: print the output. The repo is already on
+  `main`. Still do not continue to later repos. `dry-run` prints
+  those commands in that order and does not checkout, merge,
+  delete, or push.
 - Hook rejection: print the hook output. Do not tag that commit.
-  Do not continue to later repos. Dry-run cannot simulate hooks.
+  Do not push. Do not continue to later repos. Dry-run cannot
+  simulate hooks.
 - Dry-run does not retitle. A live bunch that commits does. One
   repo keeps today's summary. Several repos use three to six words,
   the link token when that token is already that short.

@@ -3,8 +3,13 @@
 Add each dirty repo under the open folder and make one commit. A
 basename (`pytch-fluent`) or component (`fluent`) selects one repo.
 Optional annotated tag, custom message, and link line. `dry-run`
-prints the action list and writes nothing. Does not push, amend,
-skip hooks, or change git config. Not a git engine. `from=` splices
+prints the action list and writes nothing. `forcemain` merges the
+checked-out branch into `main` and leaves the repo on `main`.
+After a successful commit, a live run executes
+`git push origin <current-branch>`. Detached `HEAD` aborts before
+`git add`. Does not amend, skip hooks, or change git config.
+Does not push tags. Does not pull. Does not use `--force`.
+Not a git engine. `from=` splices
 local files (`docs/from_contract.md`). `docify` writes the
 deliverable (the docify skill's `references/docify_contract.md`).
 Window prefix `GIT:` (`docs/window_title.md`). No smart mode. Empty
@@ -21,6 +26,7 @@ Window prefix `GIT:` (`docs/window_title.md`). No smart mode. Empty
 /gitify msg:TEXT+       — labeled custom block after the message
 /gitify link:TEXT       — [multirepo-link=TEXT] on every commit
 /gitify dry-run         — print the action list; write nothing
+/gitify forcemain       — push this branch, merge it into main, finish on main
 /gitify help            — full reference (also --help / /?)
 /gitify tldr            — short form (stop)
 /gitify pass            — Pass (Npass) subsection only (also pass help)
@@ -39,8 +45,9 @@ Empty `/gitify` commits every dirty repo under the open folder.
 | `msg:+TEXT` / `msg+=TEXT` | Labeled custom block, then the generated message | `+` on both sides is Error |
 | `msg:TEXT+` / `msg=TEXT+` | Generated message, then the labeled custom block | A value has no spaces |
 | `link:TEXT` / `link=TEXT` | Append `[multirepo-link=TEXT]` after `msg` | Brackets are part of the line. No link token means no line. `link:hello world` leaves leftover `world` |
-| `dry-run` | Print run notes and the action list | Does not stage, commit, tag, edit git config, or write a notes file. Live run executes that same list |
-| anything else | Stop. No add, no commit, no tag | `status`, `push`, `log`, `diff`, `commit`, and `git` are stop words, not repo names |
+| `dry-run` | Print run notes and the action list, including `git push origin <branch>`. With `forcemain` off `main`, also the checkout, merge, push `main`, `git branch -d`, and `git push origin --delete` lines | Does not stage, commit, tag, push, checkout, merge, delete, edit git config, or write a notes file. Live run executes that same list |
+| `forcemain` | On `main`: commit, then `git push origin main`, stay on `main`. On any other branch: `git push origin <branch>`, `git checkout main`, `git merge <branch>`, `git push origin main`, `git branch -d <branch>`, `git push origin --delete <branch>`, finish on `main` | Bare token. Case-insensitive. One token. Two is **Error**. `forcemain:TEXT` and `forcemain=TEXT` are **Error**. Not a selector. No other merge. Failure stops the bunch |
+| anything else | Stop. No add, no commit, no tag, no push | `status`, `push`, `log`, `diff`, `commit`, and `git` are stop words, not repo names |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Further words (`help me …`) stay on Help |
 | `tldr` | Print this short page and stop | Exact `tldr` is this page. `tldr help` is not Help |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
@@ -51,6 +58,9 @@ the turn. Archived (path segment `archive`, or
 `gh` call is not archived. Clean repos are noted. No empty commit.
 A secret-like path (`.env`, `credentials.json`, a private key) or
 an existing tag in any dirty repo aborts the bunch before any write.
-Dry-run prints that error and also writes nothing. No upstream: say
-so. A rejected hook is printed. Do not tag that commit. Do not
-continue to later repos. Dry-run does not retitle.
+Dry-run prints that error and also writes nothing. Detached `HEAD`
+is **Error** before `git add`. No upstream: say so. A rejected
+hook is printed. Do not tag that commit. Do not push. Do not
+continue to later repos. A failed push stops the bunch. Do not
+use `--force`. Dry-run does not push or merge and does not
+retitle.
