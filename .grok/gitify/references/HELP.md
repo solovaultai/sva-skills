@@ -123,6 +123,7 @@ It is not a selector and not a stop word. Two selector tokens is
 
 `status`, `push`, `log`, `diff`, `commit`, and `git` are stop words.
 They are not repo names. Any other unmatched token stops the turn.
+An `img=` / `img:` token is a leftover, not a directive. Stop with no git write.
 A typed `push` is a stop word, not the post-commit push, and not
 `forcemain`. After a successful commit, gitify runs
 `git push origin <current-branch>`. It is not a git engine.

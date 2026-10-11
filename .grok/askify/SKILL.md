@@ -9,7 +9,9 @@ description: >
   run and the answer produced. Recognizes Nimages / N images / N-images as a
   pointer to the newest N images from the configured scratch source (or workspace scratch/). Recognizes
   Npass / N-pass / N pass as a request to take N passes (pass 1 is a
-  documented pre-plan when N > 1) before answering. Print a complete
+  documented pre-plan when N > 1) before answering. `/askify dummy`
+  is a non-technical tell (no commands, paths, or APIs), the same kind
+  as phasify dummy. Print a complete
   reference with `/askify help` or `/askify --help` (also `/?`).
   `/askify tldr` prints the short page.
 metadata:
@@ -138,7 +140,8 @@ After optimize + scoring:
    clarification remains (multiple readings that materially change the answer), ask
    1–2 targeted questions with the `ask_user_question` tool before answering.
 4. Produce the answer under `## Answer`, citing verified file paths / line references.
-   Keep depth proportional to the question.
+   Keep depth proportional to the question. **Dummy** replaces this item
+   with the non-technical tell (see **Dummy**).
 5. If the question is about (or continues) a **multi-phase plan**, end with the
    promptify Trailing phase status table (completed vs left). Skip only for a
    true single-step question.
@@ -178,14 +181,72 @@ phase table when that section requires it).
 **`/askify plan <prompt>`:** print the full Response format (the plan
 plus the answer).
 
+## Dummy (`dummy`)
+
+Cite the phasify skill's `references/dummy.md` for the tell. Do not
+fork a second plain-language dialect.
+
+After flag strip and Help / `tldr` / `pass` checks, the whole token
+`dummy` (case-insensitive) is this directive when it is the first
+remaining token, or the token next to a leading `plan` (`dummy plan`
+or `plan dummy`). Strip those mode tokens. The remainder is the
+task. A later `dummy` inside the question stays question text.
+`dummy` is not Help, not `pass`, and not phasify. `dummy N`,
+`Ndummy`, `dummyN`, and `dummy pN` are **not** selectors here.
+Empty after the strip: short usage + “dummy needs a prompt.” Stop.
+That empty line does not retitle.
+
+Read-only, same pipeline. Override step 6’s `## Answer` and the
+trailing phase table: print the dummy tell instead. With `plan`,
+print the plan sections first and set the kickoff Deliverable to
+this tell.
+
+**No commands, paths, or APIs.** If a fact is only expressible as
+a command, path, or API, say what the person is trying to
+accomplish and stop there. Do not implement. Do not invent facts.
+
+A question about a phase of an existing plan uses that file’s
+Dummy report for the phase the question names (Intent, then plain
+language; What landed and To get past this only when that file
+includes them). Do not execute. Do not change Status. Do not
+rewrite or reprint the plan.
+
+Any other question uses:
+
+```text
+## Dummy — <short title>
+
+### Intent
+Why this matters, in everyday language.
+
+### In plain language
+A simple description of the answer. No commands, paths, or APIs.
+
+### Do not
+- Do not implement or edit from this command
+- Do not print commands, paths, or APIs
+- Do not invent facts
+```
+
+Acks first when a flag is present. `Nimages`: only what the images
+show, in non-technical language. `Npass` > 1: later passes improve
+this tell; the last pass emits it.
+
+```text
+/askify dummy what is this for
+/askify plan dummy what is this for
+/askify dummy plan what is this for
+```
+
 ## No task body
 
 If there is no task after the command, explain:
 
 ```text
-/askify <prompt>      — answer only (read-only; do not print the plan)
-/askify plan <prompt> — print the ask-kickoff plan, then answer
-/askify help          — full reference (also --help, /?)
+/askify <prompt>       — answer only (read-only; do not print the plan)
+/askify plan <prompt>  — print the ask-kickoff plan, then answer
+/askify dummy <prompt> — non-technical tell (no commands, paths, or APIs)
+/askify help           — full reference (also --help, /?)
 /askify tldr          — short form (stop)
 /askify pass help     — Pass (Npass) subsection (also `pass`)
 /plannify <prompt>    — coach then produce a plan
@@ -267,7 +328,13 @@ Confidence: XX
 | … | … | Left / Done |
 ```
 
+**`/askify dummy`** — acks, then the Dummy report. Not `## Answer`.
+No phased-plan table. `plan dummy` / `dummy plan` prints the plan
+sections first; the kickoff Deliverable is that tell.
+
 ## Trailing phase status (when the question is multi-phase)
+
+**Dummy** does not emit this table. The tell is the whole reply.
 
 Askify does **not** invent a plan. When the user asks about, continues, or the
 workspace already has a **multi-phase plan** (named P0/P1/…, a design phase
@@ -295,6 +362,7 @@ Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` /
 Cite `docs/window_title.md`. Prefix for this verb: `ASK:`.
 Set the tmux window name per that contract on a real task.
 Help, tldr, pass, and empty usage do not retitle.
+Empty `/askify dummy` is empty usage and does not retitle.
 
 ## Hard rules
 
@@ -304,11 +372,12 @@ Help, tldr, pass, and empty usage do not retitle.
 - The Ask-Kickoff Prompt must be copy-pasteable as a standalone ask instruction and
   must clearly say "answer, do not implement or plan."
 - Cite verified repo-relative paths; keep the answer proportional to the question.
+  Dummy does not print paths (see **Dummy**).
 - If Execution Readiness is Low or critical assets are Missing, say so and either
   resolve it via questions or answer only the parts the workspace supports, listing
   what could not be determined.
 - Multi-phase questions: last printed content is the Trailing phase status table
-  (done vs left). Do not emit a new implementation plan.
+  (done vs left). Do not emit a new implementation plan. Dummy skips that table.
 - `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
@@ -325,3 +394,8 @@ Help, tldr, pass, and empty usage do not retitle.
   Prompt, Scores) unless the user specified `/askify plan`. Default
   `/askify <prompt>` is answer-only. `plan` is not `pass` or
   `plannify`.
+- `dummy` (first token, or beside a leading `plan`) is the non-technical
+  tell. Cite the phasify skill's `references/dummy.md`. No commands,
+  paths, or APIs. No `## Answer`. No trailing phase table. Empty
+  `dummy` needs a prompt and does not retitle. Phase selectors stay
+  on `/phasify`.

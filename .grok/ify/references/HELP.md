@@ -30,7 +30,7 @@ user (or a later turn) runs that verb.
 A real ify task sets the tmux window name so a row of Grok
 windows can be told apart. The contract is `docs/window_title.md`.
 Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`,
-`DOC:`, `SAVE:`, `RESUME:`.
+`DOC:`, `SAVE:`, `RESUME:`, `OPT:`, `GIT:`.
 Addify reuses the ancestor's prefix. Phasify is
 `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and
 empty usage do not retitle.
@@ -66,7 +66,7 @@ ify and you have more text for that same run, use `/addify`.
 /ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
-/gitify              — every dirty repo under the open folder (empty is a real commit)
+/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -100,7 +100,7 @@ they said “ify this”.
 
 | Verb | When to use | Alias |
 |------|-------------|-------|
-| **askify** | Question / list / options / explain existing (read-only answer) | `/promptify-ask` |
+| **askify** | Question / list / options / explain existing (read-only answer). `dummy` is a non-technical tell | `/promptify-ask` |
 | **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
 | **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
 | **phasify** | Next phase / named PN / **explain** / **dummy** / **tldr** phase tell / **guide** / **coach** / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
@@ -113,7 +113,7 @@ they said “ify this”.
 | **saveify** | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. | `savify` |
 | **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. | `resumify` |
 | **optify** | Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.grok/optify/SKILL.md`. | — |
-| **gitify** | Add each dirty repo under the open folder and make one commit. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, and `link`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. | — |
+| **gitify** | Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. | — |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
 `phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify`.
@@ -261,6 +261,7 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | Command | Role |
 |---------|------|
 | `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
+| `/askify dummy <prompt>` | Non-technical tell. No commands, paths, or APIs. Same kind of explanation as `/phasify dummy`. Not a phase selector (`dummy N` / `dummy pN` stay on phasify). `plan dummy` prints the kickoff plan first |
 | `/plannify <prompt>` | Optimize then plan (read-only) |
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
@@ -281,4 +282,4 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/saveify` | Save the current ify context (auto-name if unnamed). Delete by name or # after yes/no. Empty `/saveify` is a real save. |
 | `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. |
 | `/optify` | Token policy, on by default. `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. |
-| `/gitify` | Add each dirty repo under the open folder and make one commit. A basename or component selects one. Optional tag, msg, and link. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |
+| `/gitify` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one. Optional tag, msg, link, and `forcemain`. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |

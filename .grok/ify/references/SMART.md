@@ -62,6 +62,7 @@ verbs.
 | Document this prompt | **docify**. Default is askify; a leading ify verb selects that verb |
 | Shrink context or turn token policy on or off | **optify** |
 | Implement / execute / build / “just do it” (not a named phase, not a bug) | **runnify** |
+| Plain-language / non-technical answer (not a phase on the current plan) | **askify** as `dummy <question>` |
 | Question / list / options / explain **existing** (read-only) | **askify** |
 
 If nothing matches: **askify** (least mutable default for a
@@ -109,7 +110,7 @@ invented):
 
 | Verb | Rewrite toward |
 |------|----------------|
-| askify | a question to answer read-only |
+| askify | a question to answer read-only; plain language → `dummy <question>` |
 | plannify | a planning request (plan, do not implement); current-plan feature add → `add <feature>` |
 | runnify | the work to execute |
 | phasify | the phase selector / next-phase request (no new plan) |

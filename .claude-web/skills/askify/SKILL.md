@@ -24,6 +24,10 @@ Answer the question. Do not edit, write, or apply a change. Do not produce a pla
 3. Give the answer. Cite the source you actually used.
 4. Stop.
 
+## Dummy
+
+When the first word is `dummy`, strip that word and answer in everyday language. State the intent, then a simple description. Do not print commands, paths, or APIs. If a fact can only be said as a command, path, or API, say what the person is trying to accomplish and stop there. A later `dummy` inside the question stays part of the question.
+
 ## Do not
 
 - Change files, settings, or product behavior.

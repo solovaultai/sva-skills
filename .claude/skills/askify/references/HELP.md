@@ -35,6 +35,7 @@ Help, tldr, and pass do not retitle.
 ```text
 /askify <prompt>       — answer only (read-only; do not print the plan)
 /askify plan <prompt>  — print the ask-kickoff plan, then answer
+/askify dummy <prompt> — non-technical tell (no commands, paths, or APIs)
 /askify help           — this reference (also --help / /?)
 /askify tldr           — short form; stop
 /askify pass           — Pass (Npass) subsection only (also pass help)
@@ -143,6 +144,61 @@ Ask-Kickoff Prompt → Scores → Answer → Phased plan (when required).
 `plan` is not `pass` and not `plannify`. Empty `/askify plan` is
 usage + “plan needs a prompt.”
 
+**`/askify dummy <prompt>`:** Scratch ack → Npass ack → Dummy report.
+Not `## Answer`. No phased-plan table. `plan dummy` / `dummy plan`
+prints the plan sections first, then the tell.
+
+---
+
+## Dummy (`dummy`)
+
+Cite the phasify skill's `references/dummy.md`. Do not fork a second
+plain-language dialect.
+
+The whole token `dummy` (case-insensitive) is this directive when it
+is the first remaining token after flag strip and Help / `tldr` /
+`pass` checks, or the token next to a leading `plan` (`dummy plan`
+or `plan dummy`). Strip those mode tokens. The remainder is the
+task. A later `dummy` inside the question stays question text.
+`dummy N`, `Ndummy`, `dummyN`, and `dummy pN` are **not** selectors
+here. Those stay on `/phasify`. Empty after the strip: short usage
++ “dummy needs a prompt.” Stop. That empty line does not retitle.
+
+The reply is a **non-technical tell**. **No commands, paths, or
+APIs.** If a fact is only expressible as a command, path, or API,
+say what the person is trying to accomplish and stop there. Do not
+implement. Do not invent facts. Do not print `## Answer`. Do not
+print the trailing phase table. The tell is the whole reply (acks
+first when a flag is present; the ask-kickoff plan only when `plan`
+was also set).
+
+A question about a phase of an existing plan uses that file’s Dummy
+report for the phase the question names. Do not execute. Do not
+change Status. Do not rewrite or reprint the plan.
+
+Any other question uses:
+
+```text
+## Dummy — <short title>
+
+### Intent
+Why this matters, in everyday language.
+
+### In plain language
+A simple description of the answer. No commands, paths, or APIs.
+
+### Do not
+- Do not implement or edit from this command
+- Do not print commands, paths, or APIs
+- Do not invent facts
+```
+
+```text
+/askify dummy what is this for
+/askify plan dummy what is this for
+/askify dummy plan what is this for
+```
+
 ---
 
 ## Hard rules (short)
@@ -150,7 +206,11 @@ usage + “plan needs a prompt.”
 - Never invent workspace resources.
 - Must not modify the system or emit a plan.
 - Kickoff prompt says “answer, do not implement or plan.”
-- Cite verified paths; keep depth proportional.
+- Cite verified paths; keep depth proportional. Dummy does not print
+  paths.
+- `dummy` is the non-technical tell (see **Dummy**). No commands,
+  paths, or APIs. No trailing phase table. Empty `dummy` needs a
+  prompt and does not retitle.
 - Low readiness / missing assets: say so; answer only what the
   workspace supports.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;

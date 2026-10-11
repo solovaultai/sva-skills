@@ -140,8 +140,11 @@ switch is off. It does not set `enabled=on`.
 
 No next verb named: same effort. Compact, or the host's only row
 when that host has no continue row. A different effort: the
-new-verb row, or that only row. A second token on the `/optify
-now` line is an unknown command, not the next verb.
+new-verb row, or that only row. A verb change is not by itself a
+different effort and does not optimize. A phase mutation does not
+optimize. Plannify, then phasify, does not clear and does not
+optimize. A second token on the `/optify now` line is an unknown
+command, not the next verb.
 
 Write the handoff only before a clear or a new chat. A compact
 does not write it. Then print:
@@ -182,7 +185,8 @@ does not optimize.
 When a shot fires, clear versus compact follows the contract.
 Clear the fired shot with `optify clear-shots`. Phasify howto,
 show, and explain do not optimize. A phase boundary alone is not
-a compact.
+a compact. A phase mutation alone is not an optimize. A verb
+change does not optimize, on or off.
 
 ---
 
@@ -262,8 +266,9 @@ Usage: /optify [on|off|now|before|after|help|tldr|pass]
   `after`, `clear-shots` are the writers.
 - Bare `/optify` previews. It does not optimize and it does not
   retitle.
-- `/optify now` with no next verb named is the same effort. It
-  works when off.
+- `/optify now` with no next verb named is the same effort. A
+  verb change is not a different effort and does not optimize.
+  A phase mutation does not optimize. Now works when off.
 - Handoff only before a clear or a new chat.
 - Exact `help` prints this page. Exact `tldr` prints
   `references/TLDR.md`. Exact `pass` / `pass help` prints **Pass

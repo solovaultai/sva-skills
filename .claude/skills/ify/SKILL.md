@@ -170,7 +170,7 @@ verb’s HELP.md.
 
 **optify.** Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`.
 
-**gitify.** Add each dirty repo under the open folder and make one commit. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, and `link`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`.
+**gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -212,7 +212,7 @@ Print this and **stop**. Not Help. Not Next.
 /ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
-/gitify              — every dirty repo under the open folder (empty is a real commit)
+/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
