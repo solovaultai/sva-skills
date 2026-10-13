@@ -77,10 +77,9 @@ keep that summary text.
 `<total>` is the work-phase count. Task and Flags do not count.
 Next-N, run-to-end, stop-before-end, rundefer, and runblock update
 the name at the **start** of each phase. Show, todo, explain, dummy,
-guide, and coach use the phase they are about. A tldr phase tell
+and guide use the phase they are about. A tldr phase tell
 (a selector such as `tldr 1`, `tldr N`, `Ntldr`, or `tldr pN`) uses
-that phase too. Howto with nothing to do leaves the name. Dummy,
-guide, and coach with nothing eligible leave the name.
+that phase too. Howto, coach, and instruct use the parent phase and leave the name when nothing is eligible. Dummy and guide leave the name when nothing is eligible.
 Help, exact tldr, and pass do not retitle.
 
 ```text
