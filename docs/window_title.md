@@ -27,7 +27,10 @@ Leave the name when the turn ends. Do not restore `gHHMMSS`.
 **Do not retitle** help, `--help`, `/?`, exact tldr, `pass`, `pass help`,
 or empty usage. Empty `/phasify` is Next, so it does set the name.
 Exact `/phasify tldr` (no other token) does not retitle. A phasify
-tldr phase tell (a selector is present) does.
+tldr phase tell (a selector is present) does. `/phasify ask`, a tldr
+question (any remainder that is not a selector and not `guide`), and
+a dummy question do not retitle. Leave the window on the phase the
+cycle was already on.
 Empty `/saveify` is a real save, so it does set the name. Empty
 `/resumeify` lists and leaves the name. Empty `/optify` prints
 status and leaves the name. Empty `/gitify` is a real commit, so
@@ -80,7 +83,7 @@ the name at the **start** of each phase. Show, todo, explain, dummy,
 and guide use the phase they are about. A tldr phase tell
 (a selector such as `tldr 1`, `tldr N`, `Ntldr`, or `tldr pN`) uses
 that phase too. Howto, coach, and instruct use the parent phase and leave the name when nothing is eligible. Dummy and guide leave the name when nothing is eligible.
-Help, exact tldr, and pass do not retitle.
+Help, exact tldr, and pass do not retitle. Ask, a tldr question, and a dummy question do not retitle.
 
 ```text
 PLAN: ify window titles

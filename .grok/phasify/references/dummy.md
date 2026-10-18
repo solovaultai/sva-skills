@@ -42,6 +42,17 @@ Parse after stripping `Nimages` / `Npass`. Match `dummy` /
 `2block`). `dummy 0` / `0dummy` / `dummy0` is **Error:** (use
 `dummy p0`).
 
+Bare `dummy`, `dummy N`, `dummy pN`, and `dummy guide` stay
+the phase tell. A remainder that is not a selector and not
+`guide` is the question. Answer in everyday language. No
+commands, paths, or APIs. If a fact only exists as a command,
+a path, or an API, say what the person is trying to accomplish
+and stop. Strip `Nimages` / `Npass` / `img=` first. Images are
+described only in that plain language. If the source or the
+images are missing, say so. Do not invent pixels. Do not
+execute. Do not change Status. Do not rewrite or reprint the
+phased plan. Do not start `/plannify`. Do not retitle.
+
 **No plan:** `/plannify` first. Do not invent phases.
 
 **Done content** (named `pN` only; count selectors skip `Done`):
@@ -110,7 +121,8 @@ A short list of task names, spelled out. Not enough to perform them.
 
 No phase table. No COMPLETED banners. Cite
 `docs/window_title.md`: the name uses the phase this tell is
-about. None eligible: leave the window name.
+about. None eligible: leave the window name. A dummy question
+does not retitle.
 
 ```text
 /phasify dummy
@@ -123,6 +135,7 @@ about. None eligible: leave the window name.
 /phasify p1 dummy
 /phasify dummy guide
 /phasify dummy 0
+/phasify dummy why are we doing this
 ```
 
 `dummy 0` is **Error:** (use `dummy p0`).

@@ -2,7 +2,7 @@
 
 Print this file as the response when the user runs `/phasify help`,
 `/phasify --help`, or `/phasify /?`. Do not execute, defer, undefer,
-rundefer, todo, todone, explain, dummy, coach, instruct, block, unblock, runblock, howto, remove,
+rundefer, todo, todone, explain, dummy, coach, instruct, ask, block, unblock, runblock, howto, remove,
 delete, or show.
 `/phasify tldr` prints the short page (`references/TLDR.md`), not
 this file.
@@ -33,7 +33,7 @@ A typed-line `docify` / `docpathify` writes this verb's deliverable
 
 Window name is `PHASE:P<n>/<total>:<PREFIX>: <summary>` (see
 `docs/window_title.md`). Empty `/phasify` is Next, so it retitles.
-Help and pass do not. Exact `tldr` does not. Dummy, a tldr phase tell, and guide use the phase they are about. Howto, coach, and instruct use the parent phase.
+Help and pass do not. Exact `tldr` does not. Ask, a tldr question, and a dummy question do not retitle. Dummy, a tldr phase tell, and guide use the phase they are about. Howto, coach, and instruct use the parent phase.
 
 ---
 
@@ -61,9 +61,9 @@ Unblock / Runblock / Todone). Do **not** invent statuses.
 | `Planned` | **Task** row only | Task-row / not-started planning state. Not a work-phase Status. |
 | `Understood` | **Flags** row only | Flags captured. Not a work-phase Status. |
 
-**Not statuses:** `todo`, `todone`, `explain`, `dummy`, `guide`, `coach`, `instruct`, and `howto` are **commands**. Todo prints a
+**Not statuses:** `todo`, `todone`, `explain`, `dummy`, `guide`, `coach`, `instruct`, `ask`, and `howto` are **commands**. Todo prints a
 list and does not change Status. Todone prints the list, then sets
-Status `Done` (no execute, no ack wait). Explain, dummy, a tldr phase tell, guide, coach, and instruct do not change Status. Howto prints steps past a
+Status `Done` (no execute, no ack wait). Explain, dummy, a tldr phase tell, guide, coach, instruct, and ask do not change Status. Howto prints steps past a
 block and does not change Status. Guide is a second word, not runblock. Coach is its own mode. Instruct is its own mode.
 
 ### How statuses tie together
@@ -207,6 +207,10 @@ does **not** rewrite or reprint the plan. `dummy N` / `Ndummy` /
 `dummyN` = next N not-Done, **not** named PN. Named is only
 `dummy pN` and may be `Done`. `dummy 0` is **Error:** (use
 `dummy p0`). Optional second word `guide` (`dummy guide`).
+Bare `dummy`, `dummy N`, `dummy pN`, and `dummy guide` stay the
+phase tell. A remainder that is not a selector and not `guide`
+is a plain-language question. No commands, paths, or APIs. Does
+not retitle.
 
 **Blocked**, **Def-Blocked**, and partially blocked (`Progress`
 with a recorded blocker, same as howto): spelled-out task names,
@@ -224,10 +228,11 @@ A phase tell needs a selector: `tldr 1`, `tldr N`, `Ntldr`,
 `tldrN`, `tldr pN`, `pN tldr`. `tldr N` = next N not-Done, not
 named PN. Named `pN` may be `Done`. `tldr 0` is **Error:** (use
 `tldr p0`). The tell is the explanation only (no process, no
-followup). Optional second word `guide`. A leftover that is not
-a selector and not `guide` is still an explanation-only question.
-Do not execute. Do not change Status. Do not rewrite or reprint
-the plan.
+followup). Optional second word `guide`. Any other remainder is
+a short direct answer: a few sentences, no headings, no process
+narration, no follow-up. Do not execute. Do not change Status.
+Do not rewrite or reprint the plan. Do not retitle. Exact `tldr`
+and a selector still win.
 
 **Blocked**, **Def-Blocked**, and partially blocked (`Progress`
 with a recorded blocker, same as howto): a numbered list a
@@ -371,6 +376,24 @@ the parent table. Parent Status stays. When the last user row
 is Done, one line: the parent phase is still blocked; the user
 can `/phasify unblock` or `/phasify runblock`. Do not run those.
 
+### Ask
+
+`/phasify ask <question>` is its own mode. Read-only. Match
+`ask` before Named and before Next. The remainder is the
+question. `ask p3` is the question, not Named P3. `ask 3` is
+the question, not Next-3. Empty `ask` is **Error:** `ask`
+needs a question. Do not execute.
+
+Answer from the current plan, this conversation, and verified
+files. Cite the phase ids the answer uses. Full enough to be
+useful. No new plan. No next-step menu. Do not change Status.
+Do not rewrite or reprint the phased plan. Do not start
+`/plannify`. Do not retitle.
+
+`Nimages` / `Npass` / `img=` are stripped first and read as
+evidence. No new `images` word. If the source or the images
+are missing, say so. Do not invent pixels.
+
 ### Remove (`delete` alias)
 
 `/phasify remove` **drops work-phase row(s)** from the current
@@ -431,10 +454,11 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify rundefer        — Undefer+execute next Deferred phase (also Nrundefer / rundefer N / rundeferN)
 /phasify todo            — Todo next not-done / not-deferred phase (also Ntodo / todo N)
 /phasify explain         — Full write-up of the next not-Done phase (includes Deferred; count selectors skip Done; no execute, no Status change, does not rewrite the plan; explain N / Nexplain / explainN = next N, not named PN; named pN may be Done, what landed; thin record quotes the description; pending stays the full write-up; optional second word guide; Blocked / Def-Blocked / partially blocked: detailed steps from the record; other statuses: no unblock list)
-/phasify dummy           — Non-technical tell of the next not-Done phase (no execute, no Status change, does not rewrite the plan; dummy N / Ndummy / dummyN = next N, not named PN; named is only dummy pN and may be Done; dummy 0 is Error, use dummy p0; optional second word guide; on a block: spelled-out task names, not enough to perform; other statuses: no unblock list)
+/phasify dummy           — Non-technical tell of the next not-Done phase (no execute, no Status change, does not rewrite the plan; dummy N / Ndummy / dummyN = next N, not named PN; named is only dummy pN and may be Done; dummy 0 is Error, use dummy p0; optional second word guide; on a block: spelled-out task names, not enough to perform; other statuses: no unblock list). Bare dummy, dummy N, dummy pN, and dummy guide stay the phase tell. A remainder that is not a selector and not guide is a plain-language question (no commands, paths, or APIs). Does not retitle.
 /phasify explain guide   — Only the second word on explain, tldr, or dummy (explain guide, tldr guide p3, dummy guide, 3explain guide). Not runblock. Every target must be blocked or partially blocked, else Error and no file. User-guide depth, mermaid, web images/links/PDFs only when reuse is allowed. Writes through docify defaults, else /home/ami/src/pytch/pytch-docs/agent/, markdown, generated CAPS name (GUIDE if title empty). Does not commit. Missing pytch-docs is Error. Does not change Status. Does not reprint the plan.
 /phasify coach           — Matched before guide. coach / coach 1 = next blocked or partially blocked phase. coach pN only if that phase is blocked or partially blocked. coach 0 is Error (use coach p0). coach N for N>=2, Ncoach, coachN are Error (one phase). coach guide is Error. One instruction at a time; wait for questions and output, then the next step. Writes a COACH_LOG the same way as guide and prints the summary. Not runblock. Not howto. No Status change.
 /phasify instruct        — Matched before Named and before Next. instruct / instruct 1 = next blocked or partially blocked phase. instruct pN only if that phase is. instruct 0 is Error (use instruct p0). instruct N for N>=2 is Error (one phase). Mini plan of Agent and User rows. Agent rows run read-only. User rows wait. mini / instruct next / pN-next submit evidence. Bare next and bare pN stay execute. No Status change. Not howto. Not coach.
+/phasify ask <question>  — Matched before Named and before Next. The remainder is the question. Empty ask is Error: ask needs a question. ask p3 and ask 3 are questions, not Named and not Next. Cite the phase ids the answer uses. No execute. No Status change. Does not rewrite or reprint the plan. Does not retitle. Nimages / Npass / img= are evidence. No new images word.
 /phasify mini            — Instruct advance: evidence, then the next user instruction
 /phasify pN-next         — Instruct advance for parent PN. Not Named. Not Next
 /phasify todone          — Todo+close next eligible phase (also Ntodone / todone pN; todone N = next N)
@@ -447,7 +471,7 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify smart <prompt>  — select a mode from the live plan, then run it (not Next; not implicit)
 /phasify show            — print the current table (also refresh)
 /phasify help            — this reference (also --help / /?)
-/phasify tldr            — exact tldr with no other token prints references/TLDR.md and stops (never a phase id; tldr help is not help). Phase tell needs tldr 1, tldr N, Ntldr, tldrN, tldr pN, or pN tldr. tldr N = next N not-Done. Named pN may be Done. tldr 0 is Error (use tldr p0). A leftover that is not a selector and not guide is still an explanation-only question. Optional second word guide. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list.
+/phasify tldr            — exact tldr with no other token prints references/TLDR.md and stops (never a phase id; tldr help is not help). Phase tell needs tldr 1, tldr N, Ntldr, tldrN, tldr pN, or pN tldr. tldr N = next N not-Done. Named pN may be Done. tldr 0 is Error (use tldr p0). Any other remainder is a short direct answer: a few sentences, no headings, no process narration, no follow-up. Optional second word guide stays the phase tell. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list. Exact tldr, a selector, and a tldr question do not retitle. A tldr phase tell does.
 /phasify pass            — Pass (Npass) subsection only (also pass help)
 ```
 
@@ -455,10 +479,11 @@ Parse **after** stripping `Nimages` / `Npass` (see Flags). Any mode may
 take optional flags. `-2pass` is a pass flag, not stop-before-end.
 Help is **not** a phase selector. Exact `tldr` after strip is the
 short page and nothing else, never a phase id. A selector is a phase
-tell. `tldr help` is not help. A question that is not a selector is
-answered with the explanation only. Explain, dummy, a tldr phase tell,
-guide, coach, and instruct do not rewrite the phased plan and do not change
-Status. `pass` / `pass help` after strip is
+tell. `tldr help` is not help. Any other remainder is a short
+direct answer: a few sentences, no headings, no process narration,
+no follow-up. Exact `tldr` and a selector still win. Explain, dummy, a tldr phase tell,
+guide, coach, instruct, and ask do not rewrite the phased plan and do not change
+Status. Ask, a tldr question, and a dummy question do not retitle. `pass` / `pass help` after strip is
 Pass help, not a task.
 
 ---
@@ -469,6 +494,7 @@ Pass help, not a task.
 |-----------------------|------|------------|
 | `instruct`, `instruct 1`, `instruct pN` | **Instruct** | No — matched before Named and before Next. One blocked or partially blocked parent phase as a mini plan. Agent rows run read-only. User rows wait. No Status change. Not howto. Not coach |
 | `mini`, `instruct next`, `pN-next` | **Instruct** | No — evidence for the current user substep, then the next user instruction. `pN-next` is not Named and not Next. Bare `next` and bare `pN` stay execute |
+| `ask <question>` | **Ask** | No — matched before Named and before Next. The remainder is the question. `ask p3` and `ask 3` are questions, not Named and not Next. Empty `ask` is Error: `ask` needs a question. No Status change. Does not retitle |
 | *(empty)* | **Next** | Yes — next incomplete phase (count = 1) |
 | `next`, `run next phase` | **Next** | Yes — same as empty. Bare `next` stays execute |
 | `0`, `p0`, `phase 0`, `run phase p0` | **Named** | Yes — that phase (P0) |
@@ -481,7 +507,7 @@ Pass help, not a task.
 | `rundefer`, `Nrundefer`, `rundefer N`, `rundeferN` | **Rundefer** | Yes — undefer then execute those phases |
 | `todo`, `Ntodo`, `todo N` | **Todo** | No — detailed list only (no Status change) |
 | `explain`, `Nexplain`, `explain N`, `explainN` | **Explain** | No — full write-up + glossary + TL/DR. Count selectors skip Done. Pending stays the full write-up. Named `pN` may be Done (what landed; thin record quotes the description; do not invent work). Blocked / Def-Blocked / partially blocked: detailed steps from the record. Other statuses: no unblock list. Optional second word `guide`. No Status change. Does not rewrite the plan |
-| `dummy`, `Ndummy`, `dummy N`, `dummyN` | **Dummy** | No — non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan |
+| `dummy`, `Ndummy`, `dummy N`, `dummyN` | **Dummy** | No — non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. Bare `dummy`, `dummy N`, `dummy pN`, and `dummy guide` stay the phase tell. A remainder that is not a selector and not `guide` is a plain-language question. No execute, no Status change, does not rewrite the plan, does not retitle |
 | `coach`, `coach 1`, `coach pN` | **Coach** | No — matched before guide. `coach` / `coach 1` = next blocked or partially blocked phase. `coach pN` only if that phase is. `coach 0` Error (use `coach p0`). `coach N` for N≥2, `Ncoach`, `coachN` Error. `coach guide` is Error. One step at a time; wait, then the next step. Writes a `COACH_LOG` the same way as guide and prints the summary. Not runblock. Not howto. No Status change |
 | `todone`, `Ntodone`, `todone pN`, `todone N` | **Todone** | No phase work — Todo-depth list, then Status `Done` |
 | `block`, `Nblock`, `block pN` [reason] | **Block** | No — Status `Blocked` / `Def-Blocked` only |
@@ -493,7 +519,7 @@ Pass help, not a task.
 | `smart <prompt>` | **Smart** | Router — preamble then dispatch the selected mode (not Next; not implicit) |
 | `show` / `refresh` | **Show** | No — print table only |
 | `help` / `--help` / `/?` | **Help** | No — print this reference |
-| `tldr` | **tldr** | No — exact `tldr` with no other token prints `references/TLDR.md` and stops (never a phase id; `tldr help` is not help). Selectors: `tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`. `tldr N` = next N not-Done. Named `pN` may be Done. `tldr 0` is Error (use `tldr p0`). A leftover that is not a selector and not `guide` is an explanation-only question. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list. Optional second word `guide` |
+| `tldr` | **tldr** | No — exact `tldr` with no other token prints `references/TLDR.md` and stops (never a phase id; `tldr help` is not help). Selectors: `tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`. `tldr N` = next N not-Done. Named `pN` may be Done. `tldr 0` is Error (use `tldr p0`). Any other remainder is a short direct answer: a few sentences, no headings, no process narration, no follow-up. On a block: a numbered list a capable person could carry out. Other statuses: no unblock list. Optional second word `guide` stays the phase tell. Exact `tldr` and a question do not retitle |
 | `pass` / `pass help` | **Pass help** | No — print the Pass (`Npass`) section |
 | `/plannify fromhere` | **fromhere** | Replan (plannify skill, not phasify) |
 
@@ -505,7 +531,7 @@ status only. **Undefer** does **not** execute. **Todone** also
 prints a Todo-depth briefing, then sets `Done` (no ack wait).
 **Remove** (`delete` alias) drops work-phase row(s) after yes/no
 confirm (plan mutation; no implementation).
-**Todo**, **Explain**, **Dummy**, a tldr phase tell, **Guide**, **Coach**, **Instruct**, **Howto**, **Show**, **Help**, and exact **tldr** are read-only. Explain, dummy, tldr-tell, guide, coach, and instruct do not change Status and do not enter Execute.
+**Todo**, **Explain**, **Dummy**, a tldr phase tell, **Guide**, **Coach**, **Instruct**, **Ask**, **Howto**, **Show**, **Help**, and exact **tldr** are read-only. Explain, dummy, tldr-tell, guide, coach, instruct, and ask do not change Status and do not enter Execute. A tldr question and a dummy question are read-only and do not retitle.
 **Smart** is a router (preamble then dispatch); not implicit.
 
 ---
@@ -522,10 +548,15 @@ confirm (plan mutation; no implementation).
 | `-` / `-0` / `-N` (N = 0–9) after flag strip | **Stop-before-end** |
 | `-2pass` | Pass flag, **not** stop-before-end |
 | `help` / `--help` / `/?` after flag strip | **Help**, do not execute |
-| `tldr` after flag strip | Exact **tldr** prints `references/TLDR.md` and stops (never a phase id). A selector (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`) is a phase tell (`tldr N` = next N not-Done; named `pN` may be Done; `tldr 0` is Error, use `tldr p0`). A leftover that is not a selector and not `guide` is an explanation-only question. Optional second word `guide`. `tldr help` is not help |
+| `tldr` after flag strip | Exact **tldr** prints `references/TLDR.md` and stops (never a phase id). A selector (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`) is a phase tell (`tldr N` = next N not-Done; named `pN` may be Done; `tldr 0` is Error, use `tldr p0`). Any other remainder is a short direct answer: a few sentences, no headings, no process narration, no follow-up. Optional second word `guide` stays the phase tell. `tldr help` is not help. Exact `tldr` and a selector still win |
 | `pass` / `pass help` after flag strip | **Pass help** (Npass subsection), not a task |
 | `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | Run-to-end (case-insensitive) |
 | `toend` / `to-end` / `to end` after flag strip | Run-to-end (not empty Next; `to-end` is not `-N`) |
+
+Match `ask` before Named and before Next. The remainder is
+the question. `ask p3` is not Named P3. `ask 3` is not Next-3.
+Empty `ask` is **Error:** `ask` needs a question. Do not execute.
+Do not retitle.
 
 Match `pN-next` and `instruct` before Named and before Next.
 `pN-next` / `PN-next` is **Instruct** advance, not Named PN and
@@ -538,7 +569,7 @@ stay execute. `instruct N` for N ≥ 2, `Ninstruct`, `instructN`,
 `instruct0` is **Error:** (use `instruct p0`).
 
 New tokens are words (`done`, `toend`, `defer`, `undefer`, `rundefer`,
-`todo`, `todone`, `explain`, `dummy`, `coach`, `instruct`, `mini`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`) or a **leading minus** (`-2`),
+`todo`, `todone`, `explain`, `dummy`, `coach`, `instruct`, `mini`, `ask`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`) or a **leading minus** (`-2`),
 never something that collides with `2pass`. Match `runblock` /
 `Nrunblock` / `runblockN` as **Runblock** first (the token contains
 `block` and `run` — do not collapse to `block`, `unblock`,
@@ -579,7 +610,10 @@ only as the second word on explain, tldr, or dummy (`explain guide`,
 is **Error:**.
 Match `dummy` / `Ndummy` / `dummyN` like explain: `dummy N` is next
 N not-Done; named is only `pN`; `dummy 0` is **Error:** (use
-`dummy p0`). Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
+`dummy p0`). Bare `dummy`, `dummy N`, `dummy pN`, and `dummy guide`
+stay the phase tell. A remainder that is not a selector and not
+`guide` is a plain-language question. A selector still wins.
+Match `explain` / `Nexplain` / `explainN` as **Explain**, not Todo,
 not Todone, not `toend` / `end`, not dummy. **`explain N` / `explain 3` /
 `explain3` / `3explain` / `Nexplain` / `explainN` / `2explain`
 means next N not-Done** (like `rundefer N`), **not** named PN.
@@ -613,7 +647,9 @@ Match `remove` / `Nremove` / `removeN` and the alias `delete` /
 | `tldr N` / `tldr 1` / `Ntldr` / `tldrN` | **Next N** not-Done (tldr tell) | Short page · named PN |
 | `tldr pN` / `tldr PN` / `pN tldr` | Named **PN** (tldr tell; may be Done) | Short page |
 | `tldr 0` / `0tldr` / `tldr0` | **Error:** (use `tldr p0`) | Named P0 · short page |
-| `tldr help` | Not help (explanation only) | Help |
+| `tldr help` | Not help (short direct answer) | Help |
+| `ask <question>` / `ask p3` / `ask 3` | **Ask** (before Named and before Next; remainder is the question) | Named P3 · Next-3 |
+| `ask` | **Error:** `ask` needs a question | Next · Named |
 | `explain guide` / `tldr guide p3` / `dummy guide` / `3explain guide` | **Guide** (only the second word; every target blocked or partially blocked, else Error and no file) | runblock · a mode named guide |
 | `guide` alone | **Error:** (second word only) | A mode |
 | `coach` / `coach 1` / `coach pN` / `pN coach` | **Coach** (one blocked or partially blocked phase; `coach pN` only if it is) | guide · howto · runblock |
@@ -655,7 +691,8 @@ Match `remove` / `Nremove` / `removeN` and the alias `delete` /
 | `unblock` | **Unblock** | Block · undefer · rundefer · runblock · todo · todone · explain |
 | `toend` / `to-end` / `to end` | Run-to-end | Todo · todone · explain · `-N` |
 | `-2pass` | **Npass** flag | Stop-before-end `-2` |
-| `tldr` after strip, no other token | **tldr** (short page) | A phase tell · a task |
+| `tldr` after strip, no other token | **tldr** (short page) | A phase tell · a question · a task |
+| `ask` | **Ask** (question about the current plan; no Status change) | Named · Next · execute |
 | `coach` | **Coach** (one step at a time) | howto · instruct · runblock · guide |
 | `instruct` | **Instruct** (mini plan; no Status change) | howto · coach · next · unblock · runblock |
 | `pN-next` | **Instruct** advance | Named PN · Next |
@@ -1567,7 +1604,13 @@ blocker, same as howto): spelled-out task names, not enough to
 perform them. Other statuses get no unblock list.
 
 Optional second word `guide` (`dummy guide`) is **Guide**. Cite
-`docs/window_title.md`: the name uses this phase.
+`docs/window_title.md`: the name uses this phase. Bare `dummy`,
+`dummy N`, `dummy pN`, and `dummy guide` stay this tell. A
+remainder that is not a selector and not `guide` is the
+question. Everyday language. No commands, paths, or APIs. If a
+fact only exists as one of those, say what the person is trying
+to accomplish and stop. Images are described only in that plain
+language. Do not retitle. A selector still wins.
 
 ```text
 /phasify dummy
@@ -1575,6 +1618,7 @@ Optional second word `guide` (`dummy guide`) is **Guide**. Cite
 /phasify 3dummy
 /phasify dummy p1
 /phasify dummy guide
+/phasify dummy why are we doing this
 ```
 
 ---
@@ -1595,11 +1639,13 @@ second word `guide`.
 
 On `Blocked`, `Def-Blocked`, or partially blocked (`Progress` with
 a recorded blocker, same as howto): a numbered list a capable
-person could carry out. Other statuses get no unblock list. A
-leftover that is not a selector and not `guide` stays an
-explanation-only question. Do not change Status. Do not rewrite or
-reprint the plan. A tldr phase tell uses the phase it is about
-(`docs/window_title.md`).
+person could carry out. Other statuses get no unblock list. Any
+other remainder is a short direct answer: a few sentences, no
+headings, no process narration, no follow-up. Do not change
+Status. Do not rewrite or reprint the plan. Do not retitle.
+Exact `tldr` and a selector still win. A tldr phase tell uses
+the phase it is about (`docs/window_title.md`). Exact `tldr`
+does not retitle. A tldr question does not retitle.
 
 ```text
 /phasify tldr
@@ -1607,6 +1653,7 @@ reprint the plan. A tldr phase tell uses the phase it is about
 /phasify tldr p3
 /phasify 3tldr
 /phasify tldr guide p3
+/phasify tldr why is this next
 ```
 
 ---
@@ -1689,6 +1736,11 @@ Its own mode. Read-only. One blocked or partially blocked parent
 phase. A mini plan the agent must not execute. Not howto. Not
 coach. Not next. Not unblock. Not runblock. Do not change parent
 Status. Do not rewrite the parent phased plan.
+
+Match `ask` before Named and before Next. The remainder is
+the question. `ask p3` is not Named P3. `ask 3` is not Next-3.
+Empty `ask` is **Error:** `ask` needs a question. Do not execute.
+Do not retitle.
 
 Match `pN-next` and `instruct` before Named and before Next.
 Bare `next` and bare `pN` stay execute. `pN-next` is not Named
@@ -2017,7 +2069,7 @@ table. `todo` prints the Todo report (or “nothing eligible” + table).
 `explain` prints the Explain report for each target (or “nothing
 eligible”). It does not rewrite or reprint the phased plan. Named
 `pN` may be `Done` (what landed). `explain 0` / `0explain`: **Error:** (use `explain p0`).
-Dummy, a tldr phase tell, guide, coach, and instruct also skip the table and do not change Status.
+Dummy, a tldr phase tell, a tldr question, a dummy question, ask, guide, coach, and instruct also skip the table and do not change Status. Ask, a tldr question, and a dummy question do not retitle.
 No COMPLETED banners for Explain itself. No phase table.
 `todone` prints the Todo-depth briefing for each target, sets Status
 `Done` (no ack wait), then the full table. Named todone of a `Done`
@@ -2064,8 +2116,8 @@ That is the **plannify** skill. Phasify does not replan.
 - `help` / `--help` / `/?` (after flag strip) prints this page and stops.
   Exact `tldr` (after flag strip, no other token) prints `references/TLDR.md` and
   stops. That print is the whole reply. Exact `tldr` is never a phase id. A selector (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`, `pN tldr`) is a phase tell (`tldr N` = next N not-Done; named `pN` may be Done; `tldr 0` is Error, use `tldr p0`). `tldr help` is not help. A leftover that is not a selector and not `guide` is
-  still an explanation-only question: no process, no followup, no other
-  information. Optional second word `guide`. Explain, dummy, a tldr phase tell, guide, coach, and instruct do not rewrite or reprint the
+  a short direct answer: a few sentences, no headings, no process
+  narration, no follow-up. Optional second word `guide` stays the phase tell. Exact `tldr` and a selector still win. Explain, dummy, a tldr phase tell, guide, coach, instruct, and ask do not rewrite or reprint the
   phased plan and do not change Status. `pass` / `pass help` (after flag strip)
   prints **Pass (`Npass`)**
   and stops. There is no `/pass` skill.
@@ -2181,15 +2233,29 @@ That is the **plannify** skill. Phasify does not replan.
   (use `dummy p0`). No execute. No Status change. Does not rewrite
   the plan. Optional second word `guide`. On Blocked, Def-Blocked,
   or partially blocked: spelled-out task names, not enough to
-  perform. Other statuses get no unblock list.
+  perform. Other statuses get no unblock list. Bare `dummy`,
+  `dummy N`, `dummy pN`, and `dummy guide` stay the phase tell. A
+  remainder that is not a selector and not `guide` is a
+  plain-language question. No commands, paths, or APIs. Do not
+  retitle. A selector still wins.
 - A tldr phase tell needs a selector (`tldr 1`, `tldr N`, `Ntldr`,
   `tldrN`, `tldr pN`, `pN tldr`). `tldr N` = next N not-Done. Named
   `pN` may be `Done`. Exact `tldr` prints `references/TLDR.md` and
   stops (never a phase id). `tldr help` is not help. `tldr 0` is
   **Error:** (use `tldr p0`). A leftover that is not a selector and
-  not `guide` is still an explanation-only question. Optional
-  second word `guide`. On a block: a numbered list a capable person
+  not `guide` is a short direct answer: a few sentences, no
+  headings, no process narration, no follow-up. Optional
+  second word `guide` stays the phase tell. Exact `tldr` and a
+  selector still win. Do not retitle. On a block: a numbered list a capable person
   could carry out. Other statuses get no unblock list.
+- `ask <question>` is read-only. Match `ask` before Named and
+  before Next. The remainder is the question. Empty `ask` is
+  **Error:** `ask` needs a question. `ask p3` and `ask 3` are
+  questions, not Named and not Next. Cite the phase ids the
+  answer uses. Do not execute. Do not change Status. Do not
+  rewrite or reprint the plan. Do not start `/plannify`. Do not
+  retitle. `Nimages` / `Npass` / `img=` are evidence. No new
+  `images` word.
 - `guide` is only the second word on explain, tldr, or dummy
   (`explain guide`, `tldr guide p3`, `dummy guide`, `3explain guide`).
   Not runblock. Every target must be blocked or partially blocked,

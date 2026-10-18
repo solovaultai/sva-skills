@@ -169,12 +169,17 @@ target is blocked or partially blocked. Other statuses get no
 unblock list.
 
 `guide` as the second word (`tldr guide`, `tldr guide p3`)
-follows `references/guide.md`.
+follows `references/guide.md`. That stays the phase tell.
 
-A question after `tldr` that is not a selector and not `guide`
-stays the explanation-only answer. Do not execute. Do not change
-Status. Do not rewrite or reprint the phased plan. Exact `tldr`
-does not retitle. A tldr phase tell uses the phase it is about.
+Any other remainder is the question. Answer in a few direct
+sentences. No headings. No process narration. No follow-up.
+No “in other words.” Strip `Nimages` / `Npass` / `img=` first.
+Images on that line are evidence, then the short answer. If
+the source or the images are missing, say so. Do not invent
+pixels. Do not execute. Do not change Status. Do not rewrite
+or reprint the phased plan. Do not start `/plannify`. Do not
+retitle. Exact `tldr` does not retitle. A tldr phase tell uses
+the phase it is about.
 
 ```text
 ## Tldr — PN — <title>
@@ -203,4 +208,5 @@ Blocked, Def-Blocked, or partially blocked only. Omit otherwise.
 /phasify tldr p3
 /phasify 3tldr
 /phasify tldr guide p3
+/phasify tldr why is this next
 ```

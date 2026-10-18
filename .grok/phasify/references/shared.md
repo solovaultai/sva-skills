@@ -152,7 +152,7 @@ When **N > 1**, pass 1 is a documented pre-plan only (`## Pre-plan
 2–N use that base; the last pass produces the mode's deliverable
 (execute, Rundefer undefer+execute, Runblock unblock+execute-or-Done,
 Todo briefing, Explain briefing, Dummy tell, Tldr phase tell,
-Guide file, Coach log, Howto steps, Unblock test,
+Tldr question, Dummy question, Ask answer, Guide file, Coach log, Howto steps, Unblock test,
 Block/Defer reason, Remove target list + confirm, Show table, …).
 
 **Npass on a single phase** is a multi-pass run of **that phase's
@@ -162,6 +162,7 @@ a re-plan of the whole table. Whole-table replan remains
 briefing quality, Explain briefing quality, Howto step quality, Unblock test design, Block/Defer reason quality,
 or execute / Rundefer / Runblock of a complex / complete phase.
 Extra pass(es) also improve a dummy tell, a tldr phase tell, a
+tldr question, a dummy question, an ask answer, a
 guide, or the coach step list (the coach still waits between steps).
 
 Print the promptify Npass acknowledgment after the scratch ack
@@ -221,15 +222,24 @@ say so. Fewer than N not-Done: explain all found and say the
 shortfall. No phase table. No COMPLETED banners for Explain
 itself (advisory). Each TL/DR is the explanation only.
 `dummy` is the non-technical tell (same selectors as explain;
-`dummy 0` is **Error:**, use `dummy p0`). A tldr **phase tell**
+`dummy 0` is **Error:**, use `dummy p0`). Bare `dummy`, `dummy N`,
+`dummy pN`, and `dummy guide` stay that tell. A remainder that
+is not a selector and not `guide` is a plain-language question.
+A tldr **phase tell**
 (`tldr 1`, `tldr N`, `Ntldr`, `tldr pN`) is the explanation only.
 Exact `tldr` with no other token still prints `references/TLDR.md`
-and stops. `guide` is a second word on those tells and writes a
+and stops. Any other tldr remainder is a few direct sentences.
+`guide` is a second word on those tells and writes a
 file only when every target is blocked or partially blocked.
 `coach` is one blocked phase, one step at a time, then a log.
+`ask <question>` answers the current plan. Empty `ask` is
+**Error:** `ask` needs a question. `ask p3` and `ask 3` are
+questions, not Named and not Next.
 Dummy, tldr-tell, explain, guide, and coach do not change Status
 and do not reprint the plan. On a block they add an unblock list
-at that depth. Other statuses get no unblock list.
+at that depth. Other statuses get no unblock list. Ask does not
+change Status and does not reprint the plan. Ask, a tldr
+question, and a dummy question do not retitle.
 Invalid todo id, or named todo of a `Done` phase: **Error:** (same style
 as defer). `todone` prints the Todo-depth briefing for each target, sets
 Status `Done` (no ack wait), then the full table. Invalid todone id, or
@@ -272,7 +282,7 @@ print the **Pass (`Npass`)** section only.
 
 
 ## Hard rules
-- Cite `docs/window_title.md`. Name is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Set the tmux window name per that contract on a real task. Help, exact `tldr`, and pass do not retitle. Dummy, explain, a tldr phase tell, guide, and coach use the phase they are about. Empty `/phasify` is Next, so it does.
+- Cite `docs/window_title.md`. Name is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Set the tmux window name per that contract on a real task. Help, exact `tldr`, and pass do not retitle. Ask, a tldr question, and a dummy question do not retitle. Dummy, explain, a tldr phase tell, guide, and coach use the phase they are about. Empty `/phasify` is Next, so it does.
 
 - Cite `docs/from_contract.md`. `from=` and `from:` splice local files into this prompt. Help, tldr, pass, and empty do not read files.
 
@@ -291,12 +301,13 @@ print the **Pass (`Npass`)** section only.
   the whole reply: do not narrate the process, add a followup, or
   add anything around the page. Do not rewrite or reprint the phased
   plan. A phase tell needs a selector (`tldr 1`, `tldr N`, `Ntldr`,
-  `tldrN`, `tldr pN`). `tldr help` is not help. A question after
-  `tldr` that is not a selector and not `guide` is the explanation
-  only. Do not write the process of answering. Do not add a followup
-  or any other information. Do not execute. Do not change Status.
-  Do not rewrite or reprint the phased plan. Exact `tldr` is never a
-  phase id. After flag strip,
+  `tldrN`, `tldr pN`). `tldr help` is not help. Any other remainder
+  is a short direct answer: a few sentences, no headings, no
+  process narration, no follow-up. Images on that line are
+  evidence, then the short answer. Do not execute. Do not change
+  Status. Do not rewrite or reprint the phased plan. Do not
+  retitle. Exact `tldr` and a selector still win. Exact `tldr` is
+  never a phase id. After flag strip,
   `pass` / `pass help` prints the **Pass (`Npass`)** section and
   stops.
 - All multi-phase execute modes are **sequential, synchronous, in plan
@@ -432,11 +443,27 @@ print the **Pass (`Npass`)** section only.
   only `pN` and may be `Done`. `dummy 0` / `0dummy` / `dummy0`:
   **Error:** (use `dummy p0`). On a block: task names, spelled out,
   not enough to perform them. No Status change. No plan rewrite.
+  Bare `dummy`, `dummy N`, `dummy pN`, and `dummy guide` stay the
+  phase tell. A remainder that is not a selector and not `guide`
+  is the question: everyday language, no commands, paths, or APIs.
+  If a fact only exists as one of those, say what the person is
+  trying to accomplish and stop. Images are described only in
+  that plain language. Do not retitle. A selector still wins.
 - A tldr phase tell (`tldr 1`, `tldr N`, `Ntldr`, `tldrN`, `tldr pN`)
   is the explanation only. No process narration. No followup. Same
   selectors as explain. `tldr 0` is **Error:** (use `tldr p0`). On a
   block: a numbered list a capable technologist could carry out.
-  Exact `tldr` stays the short page.
+  Exact `tldr` stays the short page. Any other remainder is a few
+  direct sentences. No headings. No follow-up. No “in other words.”
+  Do not retitle. Exact `tldr` and a selector still win.
+- `ask <question>` is read-only. Match `ask` before Named and
+  before Next. The remainder is the question. Cite the phase ids
+  the answer uses. Empty `ask` is **Error:** `ask` needs a
+  question. `ask p3` and `ask 3` are questions, not Named and not
+  Next. Do not execute. Do not change Status. Do not rewrite or
+  reprint the phased plan. Do not start `/plannify`. Do not
+  retitle. `Nimages` / `Npass` / `img=` are evidence. No new
+  `images` word.
 - `guide` is the second word on explain, tldr, or dummy. User-guide
   depth only when every target is blocked or partially blocked.
   Otherwise **Error:** and do not write a file. Mermaid. Web images,
@@ -513,7 +540,8 @@ print the **Pass (`Npass`)** section only.
   no Todo briefing; no fake implement).
 - Last printed section is the **Phased plan** table in the
   `phase_layout.txt` layout (execute recap / show). **Explain**,
-  **dummy**, a tldr phase tell, **guide**, **coach**, and exact
+  **dummy**, a tldr phase tell, a tldr question, a dummy question,
+  **ask**, **guide**, **coach**, and exact
   **tldr** do not print that table and do not rewrite the plan.
   Original ify Task
   text is the **Task** row (three columns, wrapped) — never a separate
