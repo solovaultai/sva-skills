@@ -5,6 +5,8 @@ basename (`pytch-fluent`) or component (`fluent`) selects one repo.
 Optional annotated tag, custom message, and link line. `dry-run`
 prints the action list and writes nothing. `forcemain` merges the
 checked-out branch into `main` and leaves the repo on `main`.
+`all` walks every git repo under the open folder, writes the
+commit from the tracking docs, and pushes `origin main`.
 After a successful commit, a live run executes
 `git push origin <current-branch>`. Detached `HEAD` aborts before
 `git add`. Does not amend, skip hooks, or change git config.
@@ -27,6 +29,7 @@ Window prefix `GIT:` (`docs/window_title.md`). No smart mode. Empty
 /gitify link:TEXT       — [multirepo-link=TEXT] on every commit
 /gitify dry-run         — print the action list; write nothing
 /gitify forcemain       — push this branch, merge it into main, finish on main
+/gitify all             — every git repo under the open folder; commit; push origin main
 /gitify help            — full reference (also --help / /?)
 /gitify tldr            — short form (stop)
 /gitify pass            — Pass (Npass) subsection only (also pass help)
@@ -47,6 +50,7 @@ Empty `/gitify` commits every dirty repo under the open folder.
 | `link:TEXT` / `link=TEXT` | Append `[multirepo-link=TEXT]` after `msg` | Brackets are part of the line. No link token means no line. `link:hello world` leaves leftover `world` |
 | `dry-run` | Print run notes and the action list, including `git push origin <branch>`. With `forcemain` off `main`, also the checkout, merge, push `main`, `git branch -d`, and `git push origin --delete` lines | Does not stage, commit, tag, push, checkout, merge, delete, edit git config, or write a notes file. Live run executes that same list |
 | `forcemain` | On `main`: commit, then `git push origin main`, stay on `main`. On any other branch: `git push origin <branch>`, `git checkout main`, `git merge <branch>`, `git push origin main`, `git branch -d <branch>`, `git push origin --delete <branch>`, finish on `main` | Bare token. Case-insensitive. One token. Two is **Error**. `forcemain:TEXT` and `forcemain=TEXT` are **Error**. Not a selector. No other merge. Failure stops the bunch |
+| `all` | Every git repo under the open folder. Without `forcemain`: branch must be `main`, message from the tracking docs, then `git push origin main` | Bare token. One token. Two is **Error**. `all:TEXT` is **Error**. A selector with `all` is **Error**. With `forcemain`, `forcemain` still owns the merge |
 | anything else | Stop. No add, no commit, no tag, no push | `status`, `push`, `log`, `diff`, `commit`, and `git` are stop words, not repo names |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Further words (`help me …`) stay on Help |
 | `tldr` | Print this short page and stop | Exact `tldr` is this page. `tldr help` is not Help |

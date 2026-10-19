@@ -61,7 +61,7 @@ ify and you have more text for that same run, use `/addify`.
 /ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
-/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain)
+/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain or all)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -108,7 +108,7 @@ they said “ify this”.
 | **saveify** | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. | `savify` |
 | **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. | `resumify` |
 | **optify** | Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.cursor/skills/optify/SKILL.md`. | — |
-| **gitify** | Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`. | — |
+| **gitify** | Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`. | — |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
 `phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify`.
@@ -257,4 +257,4 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/saveify` | Save the current ify context (auto-name if unnamed). Delete by name or # after yes/no. Empty `/saveify` is a real save. |
 | `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. |
 | `/optify` | Token policy, on by default. `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. |
-| `/gitify` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one. Optional tag, msg, link, and `forcemain`. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |
+| `/gitify` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one. Optional tag, msg, link, `forcemain`, and `all`. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |

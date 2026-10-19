@@ -10,7 +10,8 @@ description: >-
   stamps [multirepo-link=TEXT] on every commit in the bunch.
   dry-run prints that action list and writes nothing. forcemain
   merges the checked-out branch into main and leaves the repo on
-  main. status, push, log, diff, commit, and git are stop words,
+  main. all walks every git repo under the open folder and pushes
+  origin main. status, push, log, diff, commit, and git are stop words,
   not repo names. Any other unmatched token stops with no git
   write. /gitify help or /gitify --help (also /?) prints the full
   reference. /gitify tldr prints the short page. /gitify pass and
@@ -22,7 +23,7 @@ description: >-
   images / N-images and npass / Npass / N-pass / N pass per
   promptify Flag parse order (stripped before the directives;
   gitify does not run its own pass loop).
-argument-hint: "[repo|tag|msg|link|dry-run|forcemain|help|tldr|pass]"
+argument-hint: "[repo|tag|msg|link|dry-run|forcemain|all|help|tldr|pass]"
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -41,7 +42,9 @@ this repo or any later repo in the bunch. You may annotated-tag
 that commit before the push. `forcemain` is the only merge. On
 `main` it adds nothing. On any other branch it pushes that
 branch, merges it into `main`, pushes `main`, deletes the branch,
-and finishes on `main`. You do not amend, skip hooks, or change
+and finishes on `main`. `all` walks every git repo under the
+open folder. Without `forcemain`, the branch must be `main` and
+the push is `git push origin main`. You do not amend, skip hooks, or change
 git config. You do not push tags. You do not use `--force`. You
 do not pull.
 You do not plan, execute, debug, or answer. There is no `smart`
@@ -51,7 +54,7 @@ folder, not short usage.
 1. Strip `Nimages` / `Npass` on the typed line (Flag parse order).
 2. Help, tldr, and pass print only, then stop. They do not touch git.
 3. Splice `from=` / `from:` files. Strip a typed-line `docify`.
-4. Parse `tag`, `msg`, `link`, `dry-run`, and `forcemain`. One optional selector
+4. Parse `tag`, `msg`, `link`, `dry-run`, `forcemain`, and `all`. One optional selector
    names one repo. A stop word or any other unmatched token stops
    with no git write.
 5. Resolve the open folder and the bunch. Classify archived, clean,
@@ -111,6 +114,7 @@ Same exception shape as empty `/saveify` (a real save) and empty
 /gitify link:TEXT       — [multirepo-link=TEXT] on every commit
 /gitify dry-run         — print the action list; write nothing
 /gitify forcemain       — push this branch, merge it into main, finish on main
+/gitify all             — every git repo under the open folder; commit; push origin main
 /gitify help            — full reference (also --help, /?)
 /gitify tldr            — short form (stop)
 /gitify pass help       — Pass (Npass) subsection (also `pass`)
@@ -141,7 +145,7 @@ is a leftover. Stop with no git write.
 
 The typed line is the text after the verb. File bodies are
 literal. Do not scan them for `tag`, `msg`, `link`, `dry-run`,
-`forcemain`, `from=`, `docify`, or a selector.
+`forcemain`, `all`, `from=`, `docify`, or a selector.
 
 1. **Flags.** Already stripped.
 2. **Help, tldr, pass.** First token, above. Stop. Do not read
@@ -169,6 +173,7 @@ not syntax. `msg:hello world` is `msg:hello` plus leftover `world`.
 | `link:TEXT` / `link=TEXT` | End every commit message with `[multirepo-link=TEXT]`. |
 | `dry-run` | Bare token. Print the action list. Do not write. |
 | `forcemain` | Bare token. Case-insensitive. On `main`, adds nothing. On any other branch, push it, merge it into `main`, and finish on `main`. |
+| `all` | Bare token. Case-insensitive. Walk every git repo under the open folder. Without `forcemain`, the branch must be `main` and the push is `git push origin main`. |
 
 A `msg` value that starts with `+` and ends with `+` (`msg:+hello+`,
 `msg:+`) is **Error**. An empty value (`msg`, `msg:`, `msg=`,
@@ -186,6 +191,12 @@ Two of them is **Error** before any write. `forcemain:TEXT` and
 stop word. Typed `push` stays a stop word. That word is not this
 directive. It applies to every dirty repo in the bunch, the same
 way `tag` and `msg` do. A clean repo is still skipped.
+
+`all` is a bare token, case-insensitive, same shape as `dry-run`.
+One token. Two of them is **Error** before any write. `all:TEXT`
+and `all=TEXT` are **Error**. It is not a selector and not a stop
+word. A selector token together with `all` is **Error** before any
+write. The walk is the bunch.
 
 A token that is not a directive is a selector, unless it is a stop
 word. One selector is optional. Two selector tokens is **Error**
@@ -224,6 +235,28 @@ repo under `src` when the user did not name one.
 
 An empty candidate set (the open folder is not a git repo and no
 immediate child has `.git`) is **Error:** not a git repo. No write.
+With `all`, empty means no directory under the open folder contains
+`.git`. That is the same **Error:**.
+
+## All
+
+`all` replaces the one-level candidate list. The scan root is still
+the open folder. Do not walk up to `src`. Do not include siblings
+of the open folder.
+
+Walk every directory under the open folder. A directory that
+contains `.git` is a repo. Keep walking its children so a nested
+repo is found. Do not walk into a directory named `.git` or
+`node_modules`. Count each repo path once. Sort by full path.
+
+Without `forcemain`, every dirty repo in that walk must be on
+`main` before `git add`. Any other branch name, including
+`master`, is **Error** before `git add`. No add, no commit, no
+push, in that repo or any later repo. After the commit, the push
+is `git push origin main`.
+
+With `forcemain`, `all` only changes the bunch. `forcemain` still
+owns the merge and the push sequence.
 
 ## Selector
 
@@ -292,6 +325,8 @@ other branch, it prints these commands in this order and does not
 run them: `git push origin <branch>`, `git checkout main`,
 `git merge <branch>`, `git push origin main`,
 `git branch -d <branch>`, `git push origin --delete <branch>`.
+With `all` and no `forcemain`, that push line is
+`git push origin main` and nothing more.
 
 Live run (no `dry-run`) executes that same list in that same order,
 with those same messages and tag names. Build the list before the
@@ -319,6 +354,9 @@ that error and also writes nothing.
   repo, read the branch with `git rev-parse --abbrev-ref HEAD`.
   When that name is `HEAD`, no add, no commit, no push, in this
   repo or any later repo in the bunch.
+- `all` without `forcemain`: the branch must be `main`. Any other
+  name, including `master`, is **Error** before `git add`. No add,
+  no commit, no push, in this repo or any later repo.
 - Not a git repo, or an empty open-folder candidate set on a bare
   run: **Error:** not a git repo.
 - Selector: zero matches, or two non-archived matches, is
@@ -383,6 +421,15 @@ for that repo:
   there is no upstream.
 - Plans, docs, and other artifacts those changes touch. Read them.
   Do not stop at a diff stat.
+- When `all` is set, the generated message is as complete as the
+  internal tracking documentation allows. Read the tracking docs
+  in that repo that the diff touches, or that name the changed
+  behavior: `docs/` markdown, the README command rows for the
+  changed verb, and any `SKILL.md`, `HELP.md`, or `TLDR.md` in
+  the diff. Write the subject and body from those docs and from
+  the working tree. If they do not describe the change, say so
+  and describe the diff. Do not stop at a diff stat. A `msg`
+  replace still replaces this generated message.
 
 **Custom block.** Label it so the custom part is obvious. Replace
 uses the value as the message, with no generated body and no label.
@@ -431,9 +478,12 @@ Then push from that repository root. Do not use `--force`. Do
 not push tags. Do not pull. A clean repo still has no commit and
 no push. A rejected commit still does not push.
 
-No `forcemain`: run `git push origin <branch>` and stay on that
-branch. There is no merge and no branch to close. On `main` that
-command is `git push origin main`.
+No `forcemain` and no `all`: run `git push origin <branch>` and
+stay on that branch. There is no merge and no branch to close. On
+`main` that command is `git push origin main`.
+
+`all` without `forcemain`: the branch is already `main`. After the
+commit, run `git push origin main` and stay on `main`.
 
 When `forcemain` is set and the checked-out branch is `main`,
 `forcemain` adds nothing: commit, then `git push origin main`,
@@ -532,14 +582,15 @@ not retitle.
   the nearest ancestor named `src`. Exact basename wins. Zero
   matches, or two non-archived matches, is **Error** before any
   write. Two selector tokens is **Error**. No selector does not
-  walk every repo under `src`.
+  walk every repo under `src`. `all` walks the open folder at any
+  depth and still does not walk up to `src`.
 - Archived: a path segment `archive` (case-insensitive), or
   `gh repo view --json isArchived` true. Note it. Do not add,
   commit, or tag. A failed `gh` call is not archived. Clean:
   note it. No empty commit. Dirty: one landed gitify commit.
   Path sort is fixed.
 - One `tag` token. One `msg` token. One `link` token. One
-  `forcemain` token. `:` and `=` are the same. Keys are
+  `forcemain` token. One `all` token. `:` and `=` are the same. Keys are
   case-insensitive. A value has no spaces. `+` on both sides, an
   empty value, or two of either `tag` or `msg` is **Error** before
   `git add`. Two `link` tokens, or an empty `link` value, is
@@ -576,6 +627,21 @@ not retitle.
   Do not move it. A secret-like path is **Error** before `git add`.
   No upstream: say so, and build the message from the working tree
   and commits since the last tag, or the working tree only.
+- `all` is one bare token, case-insensitive, same shape as
+  `dry-run`. Two tokens is **Error** before any write.
+  `all:TEXT` and `all=TEXT` are **Error**. It is not a selector
+  and not a stop word. A selector token together with `all` is
+  **Error** before any write. The bunch is every git repo under
+  the open folder, at any depth. A directory that contains `.git`
+  is a repo. Keep walking its children so a nested repo is found.
+  Do not walk into `.git` or `node_modules`. Count each path once.
+  Do not walk up to `src`. Do not include siblings of the open
+  folder. Without `forcemain`, the branch must be `main` and the
+  push is `git push origin main`. With `forcemain`, `forcemain`
+  still owns the merge. The generated message is as complete as
+  that repo's tracking docs allow (`docs/` markdown, README
+  command rows, and `SKILL.md` / `HELP.md` / `TLDR.md` in the
+  diff). A `msg` replace still replaces it.
 - `forcemain` is one bare token, case-insensitive, same shape as
   `dry-run`. Two tokens is **Error** before any write.
   `forcemain:TEXT` and `forcemain=TEXT` are **Error**. It is not a

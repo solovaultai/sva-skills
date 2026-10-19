@@ -26,7 +26,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **saveify** | `/saveify`, `/savify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is an alias of `/saveify`, not a folder. See `.grok/saveify/SKILL.md`. |
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.grok/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.grok/optify/SKILL.md`. |
-| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. |
+| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
@@ -123,7 +123,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /optify now               — optimize this turn, then stop
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
-/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain; dry-run writes nothing)
+/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all; dry-run writes nothing)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -151,7 +151,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **saveify** | `/saveify`, `/savify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is an alias of `/saveify`, not a folder. See `.cursor/skills/saveify/SKILL.md`. |
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.cursor/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.cursor/skills/optify/SKILL.md`. |
-| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`. |
+| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`. |
 
 **Promptify family (Cursor):**
 
@@ -241,7 +241,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /optify now               — optimize this turn, then stop
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
-/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain; dry-run writes nothing)
+/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all; dry-run writes nothing)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -267,7 +267,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **saveify** | `/saveify`, `/savify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is an alias of `/saveify`, not a folder. See `.copilot/skills/saveify/SKILL.md`. |
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.copilot/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.copilot/skills/optify/SKILL.md`. |
-| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.copilot/skills/gitify/SKILL.md`. |
+| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.copilot/skills/gitify/SKILL.md`. |
 
 **Promptify family (Copilot):**
 
@@ -357,7 +357,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /optify now               — optimize this turn, then stop
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
-/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain; dry-run writes nothing)
+/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all; dry-run writes nothing)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).
@@ -388,7 +388,7 @@ debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify.
 | **saveify** | `/saveify`, `/savify`, `/saveify <name>`, `/saveify delete`, `/saveify help`, `/saveify tldr` | Save the current ify context (auto-name if unnamed). Delete by name or list number after yes/no. Empty `/saveify` is a real save. `savify` is an alias of `/saveify`, not a folder. See `.claude/skills/saveify/SKILL.md`. |
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.claude/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`. |
-| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`. |
+| **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`. |
 
 **Promptify family (Claude Code):**
 
@@ -478,7 +478,7 @@ debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify.
 /optify now               — optimize this turn, then stop
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
-/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain; dry-run writes nothing)
+/gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all; dry-run writes nothing)
 ```
 
 ### Web (`.grok-web/`, `.claude-web/`)

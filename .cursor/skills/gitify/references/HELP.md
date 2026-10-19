@@ -23,6 +23,10 @@ there. The message is extensive and comes from this iteration. It
 can annotated-tag that commit, splice a custom message, or stamp a
 link line on every commit in the bunch. `forcemain` merges the
 checked-out branch into `main` and leaves the repo on `main`.
+`all` walks every git repo under the open folder. Without
+`forcemain`, the branch must be `main` and the push is
+`git push origin main`. The commit message is as complete as
+that repo's tracking docs allow.
 After a successful commit it runs
 `git push origin <current-branch>`. Before any `git add` it reads
 the branch with `git rev-parse --abbrev-ref HEAD`. Name `main`
@@ -63,6 +67,7 @@ does, including empty `/gitify`.
 /gitify link:TEXT       — [multirepo-link=TEXT] on every commit
 /gitify dry-run         — print the action list; write nothing
 /gitify forcemain       — push this branch, merge it into main, finish on main
+/gitify all             — every git repo under the open folder; commit; push origin main
 /gitify help            — this reference (also --help, /?)
 /gitify tldr            — short form (stop)
 /gitify pass            — Pass (Npass) section only (also pass help)
@@ -83,6 +88,11 @@ and each immediate child directory that has `.git`. An open folder
 `pytch-fluent`, `pytch-api`, and the other child git repos. It does
 not include sibling products and it does not walk into a repo's
 subfolders.
+
+`all` is the exception. It walks every directory under the open
+folder. A directory that contains `.git` is a repo, and its
+children are still walked so a nested repo is found. Do not walk
+into `.git` or `node_modules`. Do not walk up to `src`.
 
 No selector uses only these candidates. Naming a repo also searches
 git repos one or two levels under the nearest ancestor named `src`.
@@ -107,6 +117,7 @@ leftover `world`.
 | `link:TEXT` / `link=TEXT` | End every commit message with `[multirepo-link=TEXT]`. |
 | `dry-run` | Print the run notes and the action list, including `git push origin <branch>`. Do not write. |
 | `forcemain` | Bare token. Case-insensitive. On `main`, adds nothing. On any other branch, push it, merge it into `main`, delete it, and finish on `main`. |
+| `all` | Bare token. Case-insensitive. Every git repo under the open folder. Without `forcemain`, branch `main`, then `git push origin main`. A selector with `all` is **Error**. |
 | one other token | Selector. Basename, or component (leading `<parent>-` removed). |
 
 One `tag` token. One `msg` token. One `link` token. One `dry-run`
