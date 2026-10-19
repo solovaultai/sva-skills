@@ -94,7 +94,15 @@ subfolders.
 `all` is the exception. It walks every directory under the open
 folder. A directory that contains `.git` is a repo, and its
 children are still walked so a nested repo is found. Do not walk
-into `.git` or `node_modules`. Do not walk up to `src`.
+into `.git` or `node_modules`. Do not walk up to `src`. Before
+preflight, if any ancestor git repo ignores that path, skip it.
+Test from that ancestor with `git check-ignore`. Exit 0 means
+ignored. Do not hardcode a directory name. Note it in path order.
+Do not add, commit, tag, push, checkout, merge, or reset it. Do
+not require `main`. Detached `HEAD`, a non-`main` branch, a dirty
+tree, a missing upstream, or a secret-like path inside it does
+not abort this repo or any other repo. Empty `/gitify` stays one
+level deep.
 
 No selector uses only these candidates. Naming a repo also searches
 git repos one or two levels under the nearest ancestor named `src`.
@@ -119,7 +127,7 @@ leftover `world`.
 | `link:TEXT` / `link=TEXT` | End every commit message with `[multirepo-link=TEXT]`. |
 | `dry-run` | Print the run notes and the action list, including `git push origin <branch>`. Do not write. |
 | `forcemain` | Bare token. Case-insensitive. On `main`, adds nothing. On any other branch, push it, merge it into `main`, delete it, and finish on `main`. |
-| `all` | Bare token. Case-insensitive. Every git repo under the open folder. Without `forcemain`, branch `main`, then `git push origin main`. A selector with `all` is **Error**. |
+| `all` | Bare token. Case-insensitive. Every git repo under the open folder. An ancestor-ignored nested repo is skipped before preflight (`git check-ignore` exit 0 from that ancestor). Without `forcemain`, a repo that is not ignored must be on `main`, then `git push origin main`. A selector with `all` is **Error**. A selector that resolves only to an ignored repo is noted and not committed. |
 | one other token | Selector. Basename, or component (leading `<parent>-` removed). |
 
 One `tag` token. One `msg` token. One `link` token. One `dry-run`
@@ -156,6 +164,11 @@ before any write.
 Before a checkin, classify each repo. Sort by full path so the order
 does not change between dry-run and live.
 
+- **Ignored.** Before preflight. Any ancestor git repo ignores
+  the path (`git check-ignore` exit 0 from that ancestor). Note it
+  in path order. Do not add, commit, tag, push, checkout, merge,
+  or reset it. Do not require `main`. `forcemain` does not commit
+  it. `dry-run` lists the skip and writes nothing.
 - **Archived.** A path segment `archive` (case-insensitive), or a
   GitHub `origin` whose `gh repo view --json isArchived` is true.
   Note it. Do not add, commit, or tag. A failed `gh` call does not

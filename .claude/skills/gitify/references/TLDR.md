@@ -50,7 +50,7 @@ Empty `/gitify` commits every dirty repo under the open folder.
 | `link:TEXT` / `link=TEXT` | Append `[multirepo-link=TEXT]` after `msg` | Brackets are part of the line. No link token means no line. `link:hello world` leaves leftover `world` |
 | `dry-run` | Print run notes and the action list, including `git push origin <branch>`. With `forcemain` off `main`, also the checkout, merge, push `main`, `git branch -d`, and `git push origin --delete` lines | Does not stage, commit, tag, push, checkout, merge, delete, edit git config, or write a notes file. Live run executes that same list |
 | `forcemain` | On `main`: commit, then `git push origin main`, stay on `main`. On any other branch: `git push origin <branch>`, `git checkout main`, `git merge <branch>`, `git push origin main`, `git branch -d <branch>`, `git push origin --delete <branch>`, finish on `main` | Bare token. Case-insensitive. One token. Two is **Error**. `forcemain:TEXT` and `forcemain=TEXT` are **Error**. Not a selector. No other merge. Failure stops the bunch |
-| `all` | Every git repo under the open folder. Without `forcemain`: branch must be `main`, message from the tracking docs, then `git push origin main` | Bare token. One token. Two is **Error**. `all:TEXT` is **Error**. A selector with `all` is **Error**. With `forcemain`, `forcemain` still owns the merge |
+| `all` | Every git repo under the open folder. An ancestor-ignored nested repo is skipped before preflight (`git check-ignore` exit 0). Without `forcemain`: a repo that is not ignored must be on `main`, message from the tracking docs, then `git push origin main` | Bare token. One token. Two is **Error**. `all:TEXT` is **Error**. A selector with `all` is **Error**. A selector that finds only an ignored repo notes it and does not commit. With `forcemain`, `forcemain` still owns the merge and does not commit an ignored repo |
 | anything else | Stop. No add, no commit, no tag, no push | `status`, `push`, `log`, `diff`, `commit`, and `git` are stop words, not repo names |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Further words (`help me …`) stay on Help |
 | `tldr` | Print this short page and stop | Exact `tldr` is this page. `tldr help` is not Help |
@@ -58,7 +58,9 @@ Empty `/gitify` commits every dirty repo under the open folder.
 
 `msg:hello world` is `msg:hello` plus leftover `world`, which stops
 the turn. Archived (path segment `archive`, or
-`gh repo view --json isArchived`) is noted and skipped. A failed
+`gh repo view --json isArchived`) is noted and skipped. An
+ancestor-ignored nested repo is noted and skipped before preflight.
+A failed
 `gh` call is not archived. Clean repos are noted. No empty commit.
 A secret-like path (`.env`, `credentials.json`, a private key) or
 an existing tag in any dirty repo aborts the bunch before any write.

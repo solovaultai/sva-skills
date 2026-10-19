@@ -170,7 +170,7 @@ not syntax. `msg:hello world` is `msg:hello` plus leftover `world`.
 | `link:TEXT` / `link=TEXT` | End every commit message with `[multirepo-link=TEXT]`. |
 | `dry-run` | Bare token. Print the action list. Do not write. |
 | `forcemain` | Bare token. Case-insensitive. On `main`, adds nothing. On any other branch, push it, merge it into `main`, and finish on `main`. |
-| `all` | Bare token. Case-insensitive. Walk every git repo under the open folder. Without `forcemain`, the branch must be `main` and the push is `git push origin main`. |
+| `all` | Bare token. Case-insensitive. Walk every git repo under the open folder. An ancestor-ignored nested repo is skipped before preflight. Without `forcemain`, a repo that is not ignored must be on `main`, and the push is `git push origin main`. |
 
 A `msg` value that starts with `+` and ends with `+` (`msg:+hello+`,
 `msg:+`) is **Error**. An empty value (`msg`, `msg:`, `msg=`,
@@ -246,8 +246,20 @@ contains `.git` is a repo. Keep walking its children so a nested
 repo is found. Do not walk into a directory named `.git` or
 `node_modules`. Count each repo path once. Sort by full path.
 
-Without `forcemain`, every dirty repo in that walk must be on
-`main` before `git add`. Any other branch name, including
+Before preflight, classify a nested repo **ignored** when any
+ancestor git repo ignores that path. Do not hardcode a directory
+name. From that ancestor, `git check-ignore` exit 0 means ignored.
+A path no ancestor ignores stays in the walk. An ignored repo is
+skipped like an archived repo. Print it in the run notes, in path
+order. Do not add, commit, tag, push, checkout, merge, or reset
+it. Do not require `main`. Exclude it before detached `HEAD`,
+non-`main`, a dirty tree, a missing upstream, and secret-like
+checks. Those facts do not abort this repo or any other repo.
+`forcemain` does not commit it. `dry-run` lists the skip and
+writes nothing.
+
+Without `forcemain`, every dirty repo in that walk that is not
+ignored must be on `main` before `git add`. Any other branch name, including
 `master`, is **Error** before `git add`. No add, no commit, no
 push, in that repo or any later repo. After the commit, the push
 is `git push origin main`.
@@ -269,20 +281,29 @@ one or two levels under the nearest ancestor named `src`. That is
 how `fluent` resolves from `/home/ami/src/sva/sva-skills`. Count
 each repo path once. Exact basename wins over a component match:
 if any exact basename match exists, drop component-only matches.
-Zero matches, or two non-archived matches, is **Error** before
-any write. Two selector tokens is **Error**. One non-archived
-match is the bunch. Archived name-twins are not a second match.
-If the only matches are archived, note each and do not add,
-commit, or tag.
+Zero matches, or two matches that are neither archived nor
+ignored, is **Error** before any write. Two selector tokens is
+**Error**. One match that is neither archived nor ignored is the
+bunch. Archived and ignored name-twins are not a second match.
+If the only matches are archived or ignored, note each and do not
+add, commit, tag, or push.
 
 ## Archived and dirty
 
 Before a checkin, classify each repo in the bunch. With no
 selector the bunch is the open-folder candidates. With a selector
-the bunch is the one resolved repo, or the archived matches when
-those are the only matches. Sort by full path so the order does
+the bunch is the one resolved repo, or the archived or ignored
+matches when those are the only matches. Sort by full path so the order does
 not change between dry-run and live.
 
+- **Ignored.** A nested repo whose path any ancestor git repo
+  ignores. Test from that ancestor with `git check-ignore`. Exit 0
+  means ignored. Do not hardcode a directory name. Note it in the
+  printed run notes, in path order. Do not add, commit, tag, push,
+  checkout, merge, or reset it. Do not require `main`. This class
+  is decided before preflight. Detached `HEAD`, a non-`main`
+  branch, a dirty tree, a missing upstream, or a secret-like path
+  inside it does not abort this repo or any other repo.
 - **Archived.** A path segment `archive` (case-insensitive), or a
   GitHub `origin` whose `gh repo view --json isArchived` is true.
   Note it in the printed run notes. Do not add, commit, or tag.
@@ -323,7 +344,8 @@ run them: `git push origin <branch>`, `git checkout main`,
 `git merge <branch>`, `git push origin main`,
 `git branch -d <branch>`, `git push origin --delete <branch>`.
 With `all` and no `forcemain`, that push line is
-`git push origin main` and nothing more.
+`git push origin main` and nothing more. An ancestor-ignored
+nested repo is a skip in the run notes, not an action.
 
 Live run (no `dry-run`) executes that same list in that same order,
 with those same messages and tag names. Build the list before the
@@ -347,8 +369,10 @@ and `git tag` are not. A secret-like path or an existing tag in
 any dirty repo aborts the whole bunch with no write. Dry-run prints
 that error and also writes nothing.
 
+- **Ignored** repos are already excluded. Do not run the checks
+  below on them.
 - Detached `HEAD`: **Error** before `git add`. In every dirty
-  repo, read the branch with `git rev-parse --abbrev-ref HEAD`.
+  repo that is not ignored, read the branch with `git rev-parse --abbrev-ref HEAD`.
   When that name is `HEAD`, no add, no commit, no push, in this
   repo or any later repo in the bunch.
 - `all` without `forcemain`: the branch must be `main`. Any other
@@ -633,7 +657,13 @@ not retitle.
   is a repo. Keep walking its children so a nested repo is found.
   Do not walk into `.git` or `node_modules`. Count each path once.
   Do not walk up to `src`. Do not include siblings of the open
-  folder. Without `forcemain`, the branch must be `main` and the
+  folder. Before preflight, a nested repo any ancestor ignores
+  (`git check-ignore` exit 0 from that ancestor) is skipped like
+  an archived repo. Note it. Do not add, commit, tag, push,
+  checkout, merge, or reset it. Do not require `main`. Those
+  checks do not abort the bunch. Empty `/gitify` stays one level
+  deep. A selector that resolves only to an ignored repo notes it
+  and does not commit it. Without `forcemain`, the branch must be `main` and the
   push is `git push origin main`. With `forcemain`, `forcemain`
   still owns the merge. The generated message is as complete as
   that repo's tracking docs allow (`docs/` markdown, README
