@@ -62,8 +62,9 @@ the turn. Archived (path segment `archive`, or
 ancestor-ignored nested repo is noted and skipped before preflight.
 A failed
 `gh` call is not archived. Clean repos are noted. No empty commit.
-A secret-like path (`.env`, `credentials.json`, a private key) or
-an existing tag in any dirty repo aborts the bunch before any write.
+A secret-like path (`.env`, `credentials.json`, a private key)
+aborts the bunch before any write unless `git check-attr filter`
+from that repo is `git-crypt`. An existing tag still aborts.
 Dry-run prints that error and also writes nothing. Detached `HEAD`
 is **Error** before `git add`. No upstream: say so. A rejected
 hook is printed. Do not tag that commit. Do not push. Do not

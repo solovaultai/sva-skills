@@ -352,9 +352,10 @@ nested repo is a skip in the run notes, not an action.
 
 Live run (no `dry-run`) executes that same list in that same order,
 with those same messages and tag names. Build the list before the
-first `git add`. A secret-like path or an existing tag in any dirty
-repo aborts the whole bunch with no write; dry-run prints that
-error and also writes nothing. A commit hook that rejects a live
+first `git add`. A secret-like path aborts the whole bunch unless
+`git check-attr filter` from that repo is `git-crypt`. An existing
+tag still aborts the bunch. Dry-run prints that error and also
+writes nothing. A commit hook that rejects a live
 commit prints the hook output, does not tag that commit, and does
 not continue to later repos. Dry-run cannot simulate hooks.
 
@@ -368,9 +369,10 @@ that token is already that short.
 ## Preflight
 
 Do this before any write. Reads are fine. `git add`, `git commit`,
-and `git tag` are not. A secret-like path or an existing tag in
-any dirty repo aborts the whole bunch with no write. Dry-run prints
-that error and also writes nothing.
+and `git tag` are not. A secret-like path whose git-crypt filter
+is not `git-crypt`, or an existing tag, in any dirty repo aborts
+the whole bunch with no write. Dry-run prints that error and also
+writes nothing.
 
 - **Ignored** repos are already excluded. Do not run the checks
   below on them.
@@ -394,6 +396,14 @@ that error and also writes nothing.
   or the basename is `credentials.json`, or it is a private key
   (`id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`, or a basename
   ending in `.pem` or `.key`, and not a name ending in `.pub`).
+  Git-crypt ciphertext is not that error. From that repo, run
+  `git check-attr filter -- <path>`. When the value is `git-crypt`,
+  the clean filter will store ciphertext, so that path does not
+  abort the bunch. Do not unlock, decrypt, or read plaintext to
+  decide. A secret-like path whose filter is unset, or any other
+  value, is still **Error** and aborts the whole bunch before
+  `git add`. Note a ciphertext path in the run notes. Dry-run
+  lists it and writes nothing.
 - Requested tag already exists, or the derived name already
   exists: **Error:** tag exists: `<name>`. No add, no commit, in
   this repo or any other repo in the bunch. Do not move an
@@ -641,14 +651,16 @@ not retitle.
   git write. A typed `push` is a stop word, not the post-commit
   push, and not `forcemain`. After a successful commit, gitify
   runs `git push origin <current-branch>`. It is not a git engine.
-- A secret-like path or an existing tag in any dirty repo aborts
-  the whole bunch with no write. Dry-run prints that error and
-  also writes nothing.
+- A secret-like path aborts the whole bunch unless
+  `git check-attr filter` from that repo is `git-crypt`. An
+  existing tag still aborts the bunch with no write. Dry-run
+  prints that error and also writes nothing.
 - Help, tldr, and pass print their page and stop. Exact `tldr`
   is the short page. They do not touch git and do not retitle.
 - Preflight before any write. Nothing to commit: say so. No empty
   commit. No tag. An existing tag is **Error** before `git add`.
-  Do not move it. A secret-like path is **Error** before `git add`.
+  Do not move it. A secret-like path is **Error** before `git add`,
+  unless `git check-attr filter` from that repo is `git-crypt`.
   No upstream: say so, and build the message from the working tree
   and commits since the last tag, or the working tree only.
 - `all` is one bare token, case-insensitive, same shape as

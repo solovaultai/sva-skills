@@ -200,9 +200,10 @@ merge, delete, or edit git config. It does not pull.
 
 A live run executes that same list in that same order, with those
 same messages and tag names. Build the list before the first
-`git add`. A secret-like path or an existing tag in any dirty repo
-aborts the whole bunch with no write. Dry-run prints that error and
-also writes nothing. A commit hook that rejects a live commit prints
+`git add`. A secret-like path aborts the whole bunch unless
+`git check-attr filter` from that repo is `git-crypt`. An existing
+tag still aborts the bunch with no write. Dry-run prints that error
+and also writes nothing. A commit hook that rejects a live commit prints
 the hook output, does not tag that commit, and does not continue to
 later repos. Dry-run cannot simulate hooks.
 
@@ -216,8 +217,10 @@ already that short.
 
 Before any write: not a repo, a selector error, an existing tag, or
 a secret-like path (`.env`, `credentials.json`, a private key) is
-**Error** or a stop. A secret or an existing tag in any dirty repo
-aborts the whole bunch. No empty commit. No tag on a stop. No
+**Error** or a stop, unless `git check-attr filter` from that repo
+is `git-crypt` (ciphertext, not plaintext). A secret that is not
+git-crypt, or an existing tag, in any dirty repo aborts the whole
+bunch. No empty commit. No tag on a stop. No
 upstream is said in the reply. The message then uses the working
 tree and commits since the last tag, or the working tree only when
 there is no tag either.
