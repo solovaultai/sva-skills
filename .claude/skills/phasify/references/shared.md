@@ -39,7 +39,10 @@ spanning cell.
 **Description** = the verbatim original ify Task text (the words the
 user typed for promptify / askify / runnify / plannify / debugify /
 addify). When the plan came from `/addify`, this is the **combined**
-text (ancestor body + addify bodies). When the plan is a resumeify
+text (ancestor body + addify bodies). A later phasify table must
+reprint a plannify Task Description that is a labeled chain
+(`Original:` then each `Add:`) as stored. Do not collapse it and do
+not drop the labels. When the plan is a resumeify
 restore, the Task is the reprinted Task. Not `## Plan`, not Intent
 Analysis, not the Kickoff/Optimized Prompt, not scores, not any
 interpreted / projected / updated text an ify generated. Do not

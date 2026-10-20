@@ -43,8 +43,10 @@ content after the leading space). Word-wrap; never overflow a cell.
 
 - **Task** (verbatim original ify text): Status `Planned` on the **first**
   Task line only; blank after. First Task line has a blank Phase; label
-  `Task` on the next line; further wraps blank Phase. See **Capture Task
-  and Flags**.
+  `Task` on the next line; further wraps blank Phase. A later phasify
+  table must reprint a plannify Task Description that is a labeled chain
+  (`Original:` then each `Add:`) as stored. Do not collapse it and do not
+  drop the labels. See **Capture Task and Flags**.
 - **Flags** (both / one / none — see **Capture Task and Flags**): one
   Description line per present flag (`Caught and correctly interpreted
   <token>. On pass k of N.`). Phase `Flags` and Status `Understood` on

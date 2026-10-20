@@ -179,12 +179,16 @@ That text does not add, remove, or change a feature. Keeping
 the current plan.
 ```
 
-Reprint the current table last. Do **not** rewrite Task. Do not
+Reprint the current table last. A no-op add reprints the chain
+and does not append. Do **not** rewrite Task. Do not
 call `AskUserQuestion`.
 
 **Otherwise** — redo **only** what the feature requires:
 
-1. Task = original Task + newline + add body (**verbatim**).
+1. Printed Task Description is the labeled request chain
+   (`Original:` / `Add:` / `Add:`), not an unlabeled blob.
+   Keep every earlier block and append `Add:` plus that add body
+   verbatim. Further adds keep appending.
    Flags = existing plus add-line flags (add-line wins the same
    family). Strip `Nimages` / `Npass` from the add body after
    parse.
@@ -269,8 +273,8 @@ Required columns:
 | Column | Content |
 |--------|---------|
 | **Phase** | Short id + title (e.g. `P0 — Spec`, `Phase 1 — API list/detail`) |
-| **Description** | One-line what ships / exit criteria (keep scannable) |
-| **Status** | `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. Status `Deferred` is allowed on new plans for future-consideration slices. `Unblocked` is like `Left` (ready to run, not complete). `Def-Blocked` is the table spelling of canonical Deferred-Blocked (fits the 12-wide Status column). |
+| **Description** | Task: the request chain (not a summary, not the kickoff prompt). Work phases: one-line exit criteria (keep scannable) |
+| **Status** | Task row: `Planned`. Work phases: `Not started` for new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. Status `Deferred` is allowed on new plans for future-consideration slices. `Unblocked` is like `Left` (ready to run, not complete). `Def-Blocked` is the table spelling of canonical Deferred-Blocked (fits the 12-wide Status column). |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add a Reason note on that row so it matches phasify deferrals. |
 
 Example (last thing in the response):
@@ -280,6 +284,7 @@ Example (last thing in the response):
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Task | Original: Plan the spec, list/detail API, and SPA shell | Planned |
 | Flags | Caught and correctly interpreted `2pass`. On pass 2 of 2. | Understood |
 | P0 — Spec | Freeze decisions + write design note | Not started |
 | P1 — API | List/detail endpoints + tests | Not started |
@@ -288,17 +293,24 @@ Example (last thing in the response):
 
 Rules:
 
-- When `Nimages` and/or `Npass` is present, **first row is Flags** (see
-  promptify Trailing phase status): caught-and-understood tokens +
-  **On pass k of N**. Not a work phase.
-- After the optional Flags row, one row per phase/todo the plan expects an executor to run.
+- Every table, including the first, starts with a **Task** row before
+  Flags. Description is the request chain, not a summary and not the
+  kickoff prompt. First plan: `Original:` plus the typed prompt after
+  flag strip. Each applied `/plannify add` keeps every earlier block
+  and appends `Add:` plus that add body verbatim. Further adds keep
+  appending. A no-op add reprints the chain and does not append.
+  Status `Planned`. It is not a work phase. Never drop it.
+- When `Nimages`, `Npass`, or `img` is present, Flags stay their own
+  row after Task (see promptify Trailing phase status):
+  caught-and-understood tokens + **On pass k of N**. Not a work phase.
+- After Task and the optional Flags row, one row per phase/todo the plan expects an executor to run. Work-phase Descriptions stay one-line exit criteria.
 - Status defaults to **Not started** on a fresh plan unless the workspace already
   shows partial delivery (then mark accurately; remaining work is **Left**).
   Status may be **`Deferred`** with an optional reason note so new plans can
   mark future-consideration slices the same way.
 - Do not omit the table when the plan body already has a long phase section —
   the trailing table is the scannable index; the body may elaborate above it.
-- If the plan has no phases (rare: single-step), still emit a one-row table.
+- If the plan has no phases (rare: single-step), still emit the Task row, Flags when present, and that one work-phase row.
 
 ## Override step 6 — Planning execution (read-only)
 
@@ -410,6 +422,7 @@ Confidence: XX
 
 | Phase | Description | Status |
 |-------|-------------|--------|
+| Task | Original: <typed prompt after flag strip> | Planned |
 | Flags | Caught and correctly interpreted `<tokens>`. On pass k of N. | Understood |
 | … | … | Not started |
 
@@ -444,8 +457,10 @@ Help, tldr, pass, and empty usage do not retitle.
   resolve it via questions or make the plan's first phase close those gaps.
 - **Trailing phase table is mandatory:** end every plan with
   `## Phased plan` as a markdown table (Phase | Description | Status) so the
-  user can read completed vs left-to-do without scrolling up. Default Status:
-  `Not started`. Status `Deferred` and an optional reason note are allowed
+  user can read completed vs left-to-do without scrolling up. The table
+  starts with a Task row before Flags (Status `Planned`; Description is
+  the labeled request chain). Default work-phase Status: `Not started`.
+  Status `Deferred` and an optional reason note are allowed
   so new plans can mark future-consideration slices the same way.
 - `/plannify fromhere` (alias `planify fromhere`): read-only replan from
   current statuses. Same Task and Flags. Keep Done/Deferred/Def-Blocked
@@ -458,8 +473,10 @@ Help, tldr, pass, and empty usage do not retitle.
 - `/plannify add <feature>`: first token `add` after flag strip.
   Last ify must be **plannify** or **phasify** (addify Recover);
   else **Error:**. Empty add: **Error:** needs a feature. Surgical:
-  if the text does not add, remove, or change a feature, keep the
-  plan as-is. Else redo only affected phases; keep the rest
+  if the text does not add, remove, or change a feature, reprint
+  the chain and do not append. Else keep every earlier block and
+  append `Add:` plus the add body verbatim, and redo only affected
+  phases; keep the rest
   (including Done / Deferred / reasons). Not fromhere. Not addify
   from-scratch. No `AskUserQuestion`.
 - `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`

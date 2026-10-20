@@ -113,9 +113,12 @@ Name the last ify if one exists. No current plan: **Error:**
 a feature.
 
 **Surgical:** if the text does **not** add, remove, or change a
-feature, keep the plan as-is and reprint the table. Else redo
-only the affected phases; keep the rest (including Done /
-Deferred / reasons). New work gets new phase row(s). Do not
+feature, reprint the chain and do not append. Else keep every
+earlier block and append `Add:` plus that add body verbatim, then
+redo only the affected phases; keep the rest (including Done /
+Deferred / reasons). New work gets new phase row(s). The printed
+Task Description is that labeled chain (`Original:` / `Add:` /
+`Add:`), not an unlabeled blob. Do not
 AskQuestion.
 
 ```text
@@ -222,20 +225,30 @@ GitHub markdown. Users scroll to the bottom for completed vs left.
 | Column | Content |
 |--------|---------|
 | **Phase** | Short id + title (`P0 — Spec`) |
-| **Description** | One-line what ships / exit criteria |
-| **Status** | `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress`. Do not invent statuses. |
+| **Description** | Task: the labeled request chain. Work phases: one-line exit criteria |
+| **Status** | Task row: `Planned`. Work phases: `Not started` on new plans; or `Done` / `In progress` / `Left` / `Blocked` / `Unblocked` / `Deferred` / `Def-Blocked` when known. `Unblocked` is like `Left`. `Def-Blocked` = canonical Deferred-Blocked (12-wide Status fit). Canonical definitions + transitions: phasify HELP **Concepts**. Aligned recap spelling of in-progress is `Progress`. Do not invent statuses. |
 | **Reason** | Optional. If a deferral (or future-consideration slice) has a reason, add it so it matches phasify deferrals |
 
-**Flags row** first when `Nimages`, `Npass`, or `img` is present:
-`Caught and correctly interpreted <tokens>. On pass k of N.` Status
-`Understood`. Not a work phase. An `img` token alone still gets the row.
-Cite promptify **Named images**.
+**Task row** first on every table, including the first, before Flags.
+Description is the request chain, not a summary and not the kickoff
+prompt. First plan: `Original:` plus the typed prompt after flag
+strip. Each applied `/plannify add` keeps every earlier block and
+appends `Add:` plus that add body verbatim. Further adds keep
+appending. A no-op add reprints the chain and does not append.
+Status `Planned`. It is not a work phase. Never drop it.
 
-After Flags, one row per phase an executor should run. Status
-`Deferred` + optional reason is allowed on new plans for
+**Flags row** after Task when `Nimages`, `Npass`, or `img` is present:
+`Caught and correctly interpreted <tokens>. On pass k of N.` Status
+`Understood`. Not a work phase. Flags stay their own row. An `img`
+token alone still gets the row. Cite promptify **Named images**.
+
+After Task and the optional Flags row, one row per phase an executor
+should run. Work-phase Descriptions stay one-line exit criteria.
+Status `Deferred` + optional reason is allowed on new plans for
 future-consideration slices. If the plan has no phases (rare
-single-step), still emit a one-row table. Do not omit the table
-when the body already has a long phase section.
+single-step), still emit the Task row, Flags when present, and that
+one work-phase row. Do not omit the table when the body already has
+a long phase section.
 
 ---
 
@@ -252,14 +265,16 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
 - Never invent workspace resources.
 - Planning pass must not modify the system.
 - Kickoff prompt is copy-pasteable and says “plan, do not implement.”
-- Trailing `## Phased plan` table is mandatory and last.
+- Trailing `## Phased plan` table is mandatory and last. It starts
+  with a Task row before Flags.
 - Status `Deferred` + optional reason is allowed.
 - `fromhere`: same Task and Flags; keep Done/Deferred/Def-Blocked; then
   AskQuestion Keep vs Continue.
 - `add <feature>`: last ify must be plannify or phasify, else
-  **Error:**. No-op if the text does not add, remove, or change a
-  feature; otherwise redo only affected phases. Not fromhere. Not
-  addify from-scratch.
+  **Error:**. No-op reprints the chain and does not append.
+  Otherwise keep every earlier block and append `Add:` plus the
+  add body verbatim, and redo only affected phases. Not fromhere.
+  Not addify from-scratch.
 - `Nimages` / `Npass`: strip first; acknowledge; N > 1 ⇒ pass 1
   is pre-plan only.
 - Exact `help` / `--help` / `/?` after flag strip: print this
