@@ -177,7 +177,7 @@ verb’s HELP.md.
 
 **optify.** Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.cursor/skills/optify/SKILL.md`.
 
-**gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`.
+**gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -216,7 +216,7 @@ Print this and **stop**. Not Help. Not Next.
 /ify <prompt>        — implicit smart
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
-/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain or all)
+/gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```

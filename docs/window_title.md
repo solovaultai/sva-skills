@@ -69,7 +69,7 @@ Gitify `<summary>` is three to six words of the commit. One repo
 keeps that. Several repos use three to six words, the link token
 when that token is already that short. Help, tldr, pass, and
 dry-run do not retitle. A live bunch that commits does, including
-empty `/gitify`.
+empty `/gitify`. Live `get`, live `put`, and live `unarchive` set `GIT:`.
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
 `ASK`, `IFY`, `FROM`, `DOC`). `<summary>` is a few words of the recovered Task, not
