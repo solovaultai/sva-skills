@@ -214,7 +214,7 @@ empty plannify run.
 | `saveify`, `savify` | saveify |
 | `resumeify`, `resumify` | resumeify |
 | `gitify` | gitify |
-| `imagify` | imagify |
+| `imagify`, `imgfy`, `imageify` | imagify |
 
 `which` and `delete` are mode aliases, not verbs. They
 stay prose. These are not verbs either: `image`,

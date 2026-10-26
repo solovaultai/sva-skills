@@ -665,6 +665,7 @@ function Get-SkillAliasClause {
         'runnify' { 'runify, promptify-run' }
         'saveify' { 'savify' }
         'resumeify' { 'resumify' }
+        'imagify' { 'imgfy, imageify' }
         'askify' { 'promptify-ask' }
         default { '' }
     }

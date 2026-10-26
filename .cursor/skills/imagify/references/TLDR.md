@@ -3,8 +3,9 @@
 Print only the text in the newest scratch image, or in N images.
 An image embedded in the agent message is the source on Cursor,
 Grok, Claude, and GitHub Copilot, and the image directive does not
-change that. Paste that text
-into another app. The reply is the text and nothing else.
+change that. `imgfy` and `imageify` are aliases. Paste that text
+into another app. The reply is the text and nothing else, and that
+same text is copied to the clipboard.
 
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
 `docify` / `docpathify` write the transcribed text (`the docify skill's references/docify_contract.md`). The chat reply stays that text only.
@@ -13,7 +14,9 @@ Window prefix `IMG:` (`docs/window_title.md`).
 Empty `/imagify` is a real transcription, not short usage.
 
 ```text
-/imagify                 — text from the newest scratch image (1image)
+/imagify                 — text from the newest scratch image (1image), then copy it
+/imgfy                   — alias of /imagify
+/imageify                — alias of /imagify
 /imagify 2images         — text from the 2 newest
 /imagify image2          — same count, glued
 /imagify images          — blank n, same as 1image

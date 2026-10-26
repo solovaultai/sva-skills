@@ -104,7 +104,7 @@ The leading `/fromify` that invoked this skill is the front end, not
 a pick.
 
 **Ify verbs:** `addify` · `askify` · `debugify` · `docify` · `ify` · `phasify` ·
-`plannify` · `promptify` · `resumeify` · `runnify` · `saveify`.
+`plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `imagify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 
@@ -120,6 +120,7 @@ a pick.
 | `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
+| `imgfy`, `imageify` | imagify |
 
 Exact equivalent when no verb token is present:
 

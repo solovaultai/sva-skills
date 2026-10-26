@@ -133,6 +133,7 @@ store. Chat only.
 | `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
+| `imgfy`, `imageify` | imagify |
 
 **Not ify** (do not treat as last ify): tokens outside this tree’s
 family. This tree does not ship `/image` `/imagine` `/help`

@@ -139,6 +139,7 @@ store. Chat only.
 | `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
+| `imgfy`, `imageify` | imagify |
 
 **Not ify** (do not treat as last ify): `/image`, `/imagine`, `/help`,
 `/create-skill`, `/check-work`, `/code-review`, `/debug-kickoff`.

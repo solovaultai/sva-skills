@@ -8,7 +8,8 @@ description: >-
   /imagify, imagify, <n>image, <n>images, image<n>, images<n>, text,
   totext, or 2text. No image directive means 1image. text, totext,
   2text, no other directive, or no directive at all means text mode.
-  The reply is that text and nothing else. /imagify help (also --help,
+  `imgfy` and `imageify` are aliases. The reply is that text, and
+  that same text is copied to the clipboard. /imagify help (also --help,
   /?) prints the reference. /imagify tldr prints the short page.
 argument-hint: "[1image|2images|image2|images2|text|totext|2text|help|tldr]"
 user-invocable: true
@@ -20,7 +21,9 @@ You are running **Imagify** (`/imagify`). Read images from the
 standard ify scratch area and print only the text in them.
 
 `imagify` with no slash is the same command. Canonical slash is
-`/imagify`. No alias folder. This is not `/image` and not `/imagine`.
+`/imagify`. `imgfy` and `imageify` are aliases of `imagify`. They
+are not folders. `/imgfy` and `/imageify` run this same skill.
+This is not `/image` and not `/imagine`.
 Leave `.grok/image` unchanged. Do not answer a question about the
 picture. Do not generate or edit an image.
 
@@ -137,6 +140,27 @@ paste into another app.
   image has no text, the reply is empty.
 - The reply is that text and nothing else.
 
+## Clipboard
+
+After a transcription, copy the same text that is printed. Do not
+print that it was copied. Do not add a heading. Help, tldr, pass,
+and an error line are not copied. An empty transcription is not
+copied.
+
+Write the text with no extra newline. Use the first tool that
+applies:
+
+1. `WAYLAND_DISPLAY` is set and `wl-copy` is on `PATH`:
+   `printf '%s' "$text" | wl-copy`
+2. `DISPLAY` is set and `xclip` is on `PATH`:
+   `printf '%s' "$text" | xclip -selection clipboard`
+3. `xsel` is on `PATH`:
+   `printf '%s' "$text" | xsel --clipboard --input`
+4. Windows PowerShell: `Set-Clipboard -Value $text`
+5. macOS: `printf '%s' "$text" | pbcopy`
+
+If none of those is available, still print only the text.
+
 ## From files
 
 Cite `docs/from_contract.md`. A `from=` / `from:` splice does not
@@ -178,3 +202,7 @@ Help, tldr, pass, and `Error: no image` do not retitle. Empty
 - Do not print the scratch acknowledgment.
 - Empty `/imagify` with no embedded agent image transcribes
   the newest scratch image.
+- After a transcription, copy that same text to the clipboard.
+  Do not mention the copy.
+- `imgfy` and `imageify` are aliases of `imagify`. They are not
+  folders.

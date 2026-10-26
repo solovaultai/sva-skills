@@ -27,6 +27,13 @@ This is not `/image` and not `/imagine`. `/image` answers a
 question about the pictures. Imagify prints the text and nothing
 else.
 
+`imgfy` and `imageify` are aliases of `imagify`. They are not
+folders. `/imgfy` and `/imageify` run this same command.
+
+After a transcription, that same text is copied to the clipboard.
+The reply does not say that it was copied. Help, tldr, pass, and
+an error are not copied.
+
 `from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). The reply is still only the transcribed text.
 
 A typed-line `docify` / `docpathify` writes that text (see `the docify skill's references/docify_contract.md`). The chat reply stays that text only. Help, tldr, and pass do not write.
@@ -36,7 +43,9 @@ Help, tldr, pass, and a missing image do not retitle. Empty
 `/imagify` does.
 
 ```text
-/imagify                 — text from the newest scratch image (1image)
+/imagify                 — text from the newest scratch image (1image), then copy it
+/imgfy                   — alias of /imagify
+/imageify                — alias of /imagify
 /imagify 2images         — text from the 2 newest (<n>images)
 /imagify 2image          — same count (<n>image)
 /imagify 2 image         — same count, two tokens

@@ -607,6 +607,7 @@ skill_alias_clause() {
     runnify) aliases="runify, promptify-run" ;;
     saveify) aliases="savify" ;;
     resumeify) aliases="resumify" ;;
+    imagify) aliases="imgfy, imageify" ;;
     askify) aliases="promptify-ask" ;;
   esac
   if [[ -n "$aliases" ]]; then

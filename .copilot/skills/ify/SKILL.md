@@ -171,7 +171,7 @@ verb’s HELP.md.
 
 **gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.copilot/skills/gitify/SKILL.md`.
 
-**imagify.** Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.copilot/skills/imagify/SKILL.md`.
+**imagify.** Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. The transcribed text is copied to the clipboard. `imgfy` and `imageify` are aliases. See `.copilot/skills/imagify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -185,6 +185,7 @@ verb’s HELP.md.
 | `prify` | promptify |
 | `savify` | saveify |
 | `resumify` | resumeify |
+| `imgfy`, `imageify` | imagify |
 | `ify` | ify (own HELP / own tldr) |
 
 **Not ify** (never a `<verb>`): anything outside this tree’s family
@@ -214,7 +215,7 @@ Print this and **stop**. Not Help. Not Next.
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
 /gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
-/imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win)
+/imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win; aliases imgfy, imageify; copies the text)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```

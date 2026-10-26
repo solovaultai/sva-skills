@@ -85,7 +85,7 @@ Scan **this conversation** newest-first. Chat only — no disk store.
 `/promptify-run` / `runify` → runnify; `/promptify-ask` → askify;
 `/promptify-debug` / `dbgify` / `debify` → debugify; `phaseify` / `phify` → phasify;
 `prify` → promptify; `savify` → saveify;
-`resumify` → resumeify.
+`resumify` → resumeify; `imgfy` / `imageify` → imagify.
 
 **Skip:** help-only turns; exact `tldr` on any ify verb (same as
 help); empty-usage turns (not a task);
