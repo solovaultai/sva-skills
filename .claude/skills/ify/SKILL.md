@@ -2,7 +2,7 @@
 name: ify
 description: >-
   Ify — catalog, help, and router for the Promptify family (plannify,
-  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, saveify, resumeify, optify, gitify, ify). Does not
+  runnify, promptify, phasify, debugify, askify, addify, fromify, docify, saveify, resumeify, optify, gitify, imagify, ify). Does not
   plan, execute, debug, or answer domain questions. Use when the user
   runs /ify, /ify help, /ify help <verb>, /ify tldr, /ify smart, or
   /ify which. smart (alias which) recommends a verb and does not
@@ -164,13 +164,15 @@ verb’s HELP.md.
 ### Ify set (known verbs)
 
 `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
-· `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify`
+· `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify` · `imagify`
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.claude/skills/docify/SKILL.md`.
 
 **optify.** Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`.
 
 **gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`.
+
+**imagify.** Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.claude/skills/imagify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -213,6 +215,7 @@ Print this and **stop**. Not Help. Not Next.
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
 /gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
+/imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -238,7 +241,7 @@ ify help — <canonical-verb> (this tree: Claude Code)
 2. Print that verb’s **user-facing help in full**:
    `references/HELP.md` if that file exists in the verb’s folder
    (promptify, plannify, phasify, addify, runnify, askify,
-   debugify, docify, saveify, resumeify, optify, gitify, ify). Else the `## User help` section of that verb’s
+   debugify, docify, saveify, resumeify, optify, gitify, imagify, ify). Else the `## User help` section of that verb’s
    `SKILL.md`.
 3. Then print the **rest** of that verb’s `SKILL.md` under a
    heading **Agent instructions**. Skip re-printing `## User help`

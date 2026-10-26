@@ -14,7 +14,7 @@ token, not a verb and not a skill.
 
 ## Scope
 
-Ify set: addify, askify, debugify, docify, fromify, gitify,
+Ify set: addify, askify, debugify, docify, fromify, gitify, imagify,
 ify, phasify, plannify, promptify, resumeify, runnify, saveify.
 
 Not ify utilities. They do not detect docify: `image`,
@@ -218,6 +218,7 @@ the normal reply.
 | resumeify | The reprinted saved body |
 | saveify | Snapshot `plan.md`, or `task.txt` then kickoff and notes |
 | gitify | Each commit message in the bunch, and each tag name when one was made |
+| imagify | The transcribed text. The chat reply is that text only. Do not add the wrote line. |
 
 If the typed line names one heading that appears in
 that deliverable (the heading words, with or without

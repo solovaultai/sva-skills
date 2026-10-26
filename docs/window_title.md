@@ -34,6 +34,7 @@ cycle was already on.
 Empty `/saveify` is a real save, so it does set the name. Empty
 `/resumeify` lists and leaves the name. Empty `/optify` prints
 status and leaves the name. Empty `/gitify` is a real commit, so
+it does set the name. Empty `/imagify` is a real transcription, so
 it does set the name.
 
 ---
@@ -60,6 +61,7 @@ from the end of the summary until it fits. Never cut the prefix.
 | resumeify | `RESUME: <summary>` |
 | optify | `OPT: <summary>` |
 | gitify | `GIT: <summary>` |
+| imagify | `IMG: <summary>` |
 
 Optify `<summary>` is the single subcommand word: `on`, `off`,
 `now`, `before`, or `after` (example `OPT: now`). Help, tldr, pass,
@@ -71,8 +73,10 @@ when that token is already that short. Help, tldr, pass, and
 dry-run do not retitle. A live bunch that commits does, including
 empty `/gitify`. Live `get`, live `put`, and live `unarchive` set `GIT:`.
 
+Imagify `<summary>` is three to six words of the transcription. Help, tldr, and pass do not retitle. Empty `/imagify` sets `IMG:`. A missing image does not.
+
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
-`ASK`, `IFY`, `FROM`, `DOC`). `<summary>` is a few words of the recovered Task, not
+`ASK`, `IFY`, `FROM`, `DOC`, `IMG`). `<summary>` is a few words of the recovered Task, not
 a new sentence. If this window already shows `<PREFIX>: <summary>`,
 keep that summary text.
 
@@ -91,6 +95,7 @@ DBG: inbound route mismatch
 PHASE:P1/4:PLAN: ify window titles
 OPT: now
 GIT: add gitify verb
+IMG: image text
 ```
 
 ---

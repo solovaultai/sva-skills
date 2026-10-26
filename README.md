@@ -9,7 +9,7 @@ Pre-written SVA skills for Cursor agents, Grok agents, GitHub Copilot
 
 Installed to `~/.grok/skills/<name>/`. Invoke with `/<name>` (or the aliases noted below).
 
-A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`, `DOC:`, `SAVE:`, `RESUME:`, `OPT:`, `GIT:`. `OPT:` summary is the subcommand word (`on`, `off`, `now`, `before`, `after`). `GIT:` summary is three to six words of the commit. Empty `/gitify` sets the name. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
+A real ify task sets the tmux window name so a row of Grok windows can be told apart. The contract is `docs/window_title.md`. Prefixes: `PLAN:`, `DBG:`, `RUN:`, `PROMPT:`, `ASK:`, `IFY:`, `FROM:`, `DOC:`, `SAVE:`, `RESUME:`, `OPT:`, `GIT:`, `IMG:`. `OPT:` summary is the subcommand word (`on`, `off`, `now`, `before`, `after`). `GIT:` summary is three to six words of the commit. Empty `/gitify` sets the name. Empty `/imagify` sets the name. Addify reuses the ancestor's prefix. Phasify is `PHASE:P<n>/<total>:<PREFIX>: <summary>`. Help, tldr, pass, and empty usage do not retitle. `./scripts/cli.sh install` also ensures `set -g set-titles on` and `set-titles-string "#{window_name}"` in `~/.tmux.conf`. `./scripts/cli.sh install tmux` (or `./scripts/cli.sh tmux`) does only that, and a repeat does not duplicate the lines.
 
 | Skill | Command | Description |
 |-------|---------|-------------|
@@ -27,6 +27,7 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.grok/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.grok/optify/SKILL.md`. |
 | **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify get pytch-`, `/gitify put pytch-fluent`, `/gitify unarchive pytch-iam`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.grok/gitify/SKILL.md`. |
+| **imagify** | `/imagify`, `/imagify 2images`, `/imagify image2`, `/imagify text`, `/imagify totext`, `/imagify 2text`, `/imagify help`, `/imagify tldr` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.grok/imagify/SKILL.md`. |
 | **debug-kickoff** | `/debug-kickoff`, `/promptify-debug` | Read-only debug prep: code analysis, hypotheses, suspect paths, and a copy-pasteable Debug-Kickoff Prompt for `/debugify`. No instrument/fix. |
 | **check-work** | `/check-work`, `/check`, `/verify` | Spawn a verifier subagent on session work (diff, build/test, correctness); fix and re-check until PASS. |
 | **code-review** | `/code-review` | Strict maintainability audit: abstractions, giant files, spaghetti growth, ambitious restructure ideas. Model invocation disabled by default (slash only). |
@@ -124,6 +125,9 @@ A real ify task sets the tmux window name so a row of Grok windows can be told a
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
 /gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all, get, put, unarchive; dry-run writes nothing)
+/imagify                  — text from the newest scratch image (empty is 1image; 2images, image2, text, totext, 2text; embedded agent images win)
+/imagify help             — full imagify reference (also --help, /?)
+/imagify tldr             — short form (stop)
 /debug-kickoff <bug>      — debug brief only (read-only)
 /image <question>         — newest scratch-source image (N = 1) + answer
 /image 2 <question>       — 2 newest scratch-source images + answer (same as 2image)
@@ -152,6 +156,7 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.cursor/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.cursor/skills/optify/SKILL.md`. |
 | **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify get pytch-`, `/gitify put pytch-fluent`, `/gitify unarchive pytch-iam`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.cursor/skills/gitify/SKILL.md`. |
+| **imagify** | `/imagify`, `/imagify 2images`, `/imagify image2`, `/imagify text`, `/imagify totext`, `/imagify 2text`, `/imagify help`, `/imagify tldr` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.cursor/skills/imagify/SKILL.md`. |
 
 **Promptify family (Cursor):**
 
@@ -242,6 +247,9 @@ Installed to `~/.cursor/skills/<name>/`. Same Promptify family, tuned for Cursor
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
 /gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all, get, put, unarchive; dry-run writes nothing)
+/imagify                  — text from the newest scratch image (empty is 1image; 2images, image2, text, totext, 2text; embedded agent images win)
+/imagify help             — full imagify reference (also --help, /?)
+/imagify tldr             — short form (stop)
 ```
 
 ### Copilot (`.copilot/skills/`)
@@ -268,6 +276,7 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.copilot/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.copilot/skills/optify/SKILL.md`. |
 | **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify get pytch-`, `/gitify put pytch-fluent`, `/gitify unarchive pytch-iam`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.copilot/skills/gitify/SKILL.md`. |
+| **imagify** | `/imagify`, `/imagify 2images`, `/imagify image2`, `/imagify text`, `/imagify totext`, `/imagify 2text`, `/imagify help`, `/imagify tldr` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.copilot/skills/imagify/SKILL.md`. |
 
 **Promptify family (Copilot):**
 
@@ -358,6 +367,9 @@ sees a **consumer** copy under `<repo>/.github/skills/` — see
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
 /gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all, get, put, unarchive; dry-run writes nothing)
+/imagify                  — text from the newest scratch image (empty is 1image; 2images, image2, text, totext, 2text; embedded agent images win)
+/imagify help             — full imagify reference (also --help, /?)
+/imagify tldr             — short form (stop)
 ```
 
 After a copy, Copilot CLI: `/skills reload` (or `copilot skill add`).
@@ -366,9 +378,9 @@ Chat: `/<name>`.
 ### Claude Code (`.claude/skills/`)
 
 Installed to `~/.claude/skills/<name>/` (Windows:
-`%USERPROFILE%\.claude\skills\<name>\`). Same fourteen-verb Promptify
+`%USERPROFILE%\.claude\skills\<name>\`). Same fifteen-verb Promptify
 family as Copilot: promptify, runnify, askify, plannify, phasify,
-debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify.
+debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify, imagify.
 `debugify` is the full in-agent loop. The command is `/debugify`
 (also `/dbgify`, `/debify`). Not `/debug`: Claude Code has a bundled
 `/debug`.
@@ -389,6 +401,7 @@ debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify.
 | **resumeify** | `/resumeify`, `/resumify`, `/resumeify <name>`, `/resumeify <#>`, `/resumeify help`, `/resumeify tldr` | List saved contexts newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. `resumify` is an alias of `/resumeify`, not a folder. See `.claude/skills/resumeify/SKILL.md`. |
 | **optify** | `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after` | Token policy, on by default. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`. |
 | **gitify** | `/gitify`, `/gitify pytch-fluent`, `/gitify fluent`, `/gitify tag`, `/gitify tag:NAME`, `/gitify msg:TEXT`, `/gitify link:TEXT`, `/gitify dry-run`, `/gitify forcemain`, `/gitify all`, `/gitify get pytch-`, `/gitify put pytch-fluent`, `/gitify unarchive pytch-iam`, `/gitify help`, `/gitify tldr` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional annotated tag, custom message, link, and `forcemain`. `all` walks every nested git repo under the open folder, commits from the tracking docs, and pushes `origin main`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`. |
+| **imagify** | `/imagify`, `/imagify 2images`, `/imagify image2`, `/imagify text`, `/imagify totext`, `/imagify 2text`, `/imagify help`, `/imagify tldr` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.claude/skills/imagify/SKILL.md`. |
 
 **Promptify family (Claude Code):**
 
@@ -479,6 +492,9 @@ debugify, addify, ify, fromify, docify, saveify, resumeify, optify, gitify.
 /optify before            — arm optimize at the start of the next phasify phase
 /optify after             — arm optimize at the end of the current phase, or the next if none is running
 /gitify                   — every dirty repo under the open folder (empty is a real commit; then push; optional tag, msg, link, forcemain, all, get, put, unarchive; dry-run writes nothing)
+/imagify                  — text from the newest scratch image (empty is 1image; 2images, image2, text, totext, 2text; embedded agent images win)
+/imagify help             — full imagify reference (also --help, /?)
+/imagify tldr             — short form (stop)
 ```
 
 ### Web (`.grok-web/`, `.claude-web/`)

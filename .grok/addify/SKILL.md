@@ -123,7 +123,7 @@ store. Chat only.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
 `debugify` · `askify` · `ify` · `addify` · `fromify` · `docify` ·
-`saveify` · `resumeify`.
+`saveify` · `resumeify` · `imagify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 
@@ -220,6 +220,7 @@ table when that skill requires one).
 | **ify** | Restart `/ify` on the combined text **from scratch** (same shape as askify / promptify). **Not** fromhere. |
 | **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
 | **docify** | Restart `/docify` on the original invocation plus the appended text. Flags re-parse. Default verb remains askify unless a verb token is present. |
+| **imagify** | Restart `/imagify` on the combined text. The reply is still only the transcribed text. |
 
 **fromhere + addify (phasify last):** same outcome as a user who ran
 `/plannify fromhere` but whose Task is the old Task plus the new

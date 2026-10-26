@@ -62,6 +62,7 @@ ify and you have more text for that same run, use `/addify`.
 /ify pass help       — Pass (Npass) subsection (also `pass`)
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
 /gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
+/imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -109,9 +110,10 @@ they said “ify this”.
 | **resumeify** | List newest-first with dates. Restore by name or number so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. | `resumify` |
 | **optify** | Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`. | — |
 | **gitify** | Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`. | — |
+| **imagify** | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. See `.claude/skills/imagify/SKILL.md`. | — |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
-`phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify`.
+`phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify` · `imagify`.
 
 ---
 
@@ -258,3 +260,4 @@ verify → clean). Install dest: `~/.claude/skills/`.
 | `/resumeify` | List newest-first with dates. Restore by name or # so `/phasify` can continue. Empty `/resumeify` is a selection list. `Choose none` stops. A saved context restores. |
 | `/optify` | Token policy, on by default. `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. |
 | `/gitify` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one. Optional tag, msg, link, `forcemain`, and `all`. `get` pulls or clones a literal prefix, `put` checks in to `origin main` or creates with git-crypt, and `unarchive` restores one archived repo. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |
+| `/imagify` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and no image directive are `1image`. `text`, `totext`, and `2text` are text mode, which is also the default. The reply is that text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. |
