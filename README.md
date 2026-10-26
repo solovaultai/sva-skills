@@ -664,3 +664,5 @@ Detect prefers a directory that **exists and has images** (`png/jpg/jpeg/webp/gi
 **Last-N:** `scratch ls N` prints absolute paths (default N = 5). Local: newest mtime in `SCRATCH_DIR`. Remote: `ssh` lists image mtimes in the resolved remote dir, then `scp` **only those N files** into `${XDG_CACHE_HOME:-~/.cache}/sva-skills/scratch/` (PowerShell: `%LOCALAPPDATA%\sva-skills\cache\scratch`) and prints the cache paths. Never `scp -r` the whole folder.
 
 Skills: if `scratch.env` exists, run `scratch ls N` and **read those paths**; else workspace `scratch/`. The ack names the source (`local ~/Pictures/Screenshots` or `remote cas3:scratch`).
+
+**Shell `imagify`:** `scripts/imagify.sh` is a standalone copy of the `/imagify` skill for the terminal. It OCRs the newest N scratch images (tesseract by default, `IMAGIFY_OCR=claude` for `claude -p` vision), prints only the text, and copies it to the clipboard (`wl-copy`, `xclip`, `xsel`, or `pbcopy`). Same directives: `2images`, `image2`, `2 images`, `text`, `help`, `tldr`, `pass`. Symlink it: `ln -s "$PWD/scripts/imagify.sh" ~/.local/bin/imagify` (plus `imgfy` / `imageify` aliases).
