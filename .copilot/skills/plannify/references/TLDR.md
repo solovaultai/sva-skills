@@ -31,6 +31,6 @@ Window prefix `PLAN:` (`docs/window_title.md`).
 | `planify` | Alias of `/plannify` | Short name |
 | `plify` | Alias of `/plannify` | Short name |
 | `promptify-plan` | Alias of `/plannify` | Same planning pipeline under the older name |
-| `Nimages` | N newest images from the scratch source or workspace `scratch/` | Carry what they show into the Planning-Kickoff Prompt and the plan |
+| `Nimages` | Union of every numbered image directive (positive N = N newest; `-K` = one file `|K|` back) from the scratch source or workspace `scratch/` | Carry what they show into the Planning-Kickoff Prompt and the plan |
 | `img` | Specific files, not newest-N. Cite promptify **Named images** | The plan includes each resolved image |
 | `Npass` | N passes before producing the plan | If N > 1, pass 1 is pre-plan only; last pass produces the kickoff and Plan |

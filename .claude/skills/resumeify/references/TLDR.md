@@ -26,9 +26,9 @@ the deliverable (`the docify skill's references/docify_contract.md`). Window pre
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
-| `Nimages` | Flag on the typed line; stripped | Not a snapshot name. No scratch read |
+| `Nimages` | Every numbered image directive is stripped, including negatives and zero | Not a snapshot name. No scratch read. No imagify zero error |
 | `img` | Specific files for this restore, plus snapshot `images.txt` | Paths print after the plan path. Cite promptify **Named images** |
-| `Npass` | Flag on the typed line; stripped | Resumeify does not run its own second pass loop |
+| `Npass` | First numbered instance is stripped | Resumeify does not run its own second pass loop |
 
 `/resumeify` shows the selection. `Choose none` stops. `/resumeify 1` restores the newest.
 `/resumeify my saved plan` restores that name. A different workspace

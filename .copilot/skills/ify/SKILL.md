@@ -74,13 +74,16 @@ Cite promptify **Flag parse order** — do not fork. Strip numbered
 `Nimages` / `Npass` **first**, then dispatch. Flags are **not**
 subcommand text or `smart` prompt wording.
 
-Read left to right. Each family independently. **First numbered
-instance** wins.
+Read left to right. The image family and the pass family are independent.
 
-- Numbered tokens count: `1image`, `2pass`, `2-pass`, `1images`,
-  `N images`, `N-images` (also `Nimage` / `N-image` / `N pass`).
-- Skip unnumbered `image` / `images` / `pass` / `passes`. Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped.
-- Several numbered → first only (not the largest N).
+- **Image family:** every numbered directive counts. Positive N is the N newest (newest mtime first). Negative `-K` is one file, `|K|` steps back from the newest (`-1` is the second newest). Union, each path once, newest mtime first. Not the first only, and not the largest N alone.
+- Do not pass a negative to `scratch ls`. List positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice. `1image -3image` calls `scratch ls 4` and keeps index 0 and index 3. An offset past the end adds no file.
+- `0image`, `image0`, and `-0image` are an error before any read: `Error: image count starts at 1`. `image -3` stays blank n (N = 1); the `-3` is not part of that directive.
+- Accepted image shapes include `-3image`, `-3images`, `-3-image`, `-3-images`, `-3 image`, `-3 images`, `image-3`, and `images-3`.
+- The scratch ack names every image token, not only the first.
+- Numbered pass tokens count: `2pass`, `2-pass`, `2 pass` (also `Npass` / `N-pass`).
+- Skip unnumbered `image` / `images` / `pass` / `passes`. Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped. A later numbered image directive is included in the union.
+- **Pass family:** several numbered → first only (not the largest N).
 - No numbered instance → that flag is absent.
 - **`-2pass` is Npass**, not a subcommand.
 
@@ -90,7 +93,7 @@ still honor the family contract.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 

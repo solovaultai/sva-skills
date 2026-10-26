@@ -10,9 +10,7 @@ description: >
   before (or while) executing it. Print a complete reference with
   `/promptify help` or `/promptify --help` (also `/?`). `/promptify tldr`
   prints the short page. `/promptify pass
-  help` (or `pass`) prints the Pass (`Npass`) section. Recognizes Nimages /
-  N images / N-images as
-  a pointer to the newest N images from the configured scratch source (or workspace scratch/).
+  help` (or `pass`) prints the Pass (`Npass`) section. Recognizes every numbered image directive (positive N newest, negative one file |K| back, union) from the configured scratch source (or workspace scratch/).
   Recognizes Npass / N-pass / N pass as a request to take N pipeline passes
   (pass 1 is a documented pre-plan when N > 1).
 metadata:
@@ -70,89 +68,155 @@ when they said "promptify this" / "runnify this" / "optimize this prompt".
 
 ## Flag parse order (`Nimages` / `Npass`)
 
-Read the user text **left to right**. For the **image** family and the
-**pass** family independently, use **only the first instance that counts**.
+Read the user text **left to right**. The **image** family and the
+**pass** family are split. Do not apply one family's rule to the other.
 
-- A **numbered** instance counts: `1image`, `1 image`, `1-image`,
-  `2images`, `3pass`, `2-pass`, `2 pass`, …
-- An **unnumbered** word does **not** count: `image`, `images`, `pass`,
-  `passes`. Skip it and keep scanning.
+**Image family — every numbered directive counts.** Collect every
+numbered image directive on the typed line. The files are the
+**union**, each path once, newest mtime first. Do not keep only the
+first. Do not take the largest N.
+
+- A **numbered** instance counts. Positive shapes: `Nimage`,
+  `Nimages`, `N-image`, `N-images`, `N image`, `N images`, `imageN`,
+  `imagesN` (`2image`, `2 images`, `2-images`, `image2`). Negative
+  shapes, minus included: `-3image`, `-3images`, `-3-image`,
+  `-3-images`, `-3 image`, `-3 images`, `image-3`, `images-3`.
+- An **unnumbered** word does **not** count: `image`, `images`. Skip
+  it and keep scanning. Ordinary English "image" is not a marker.
 - Exception: the first token of the typed line, exactly `image` (any
-  case), counts as numbered `1image` (N=1) and is stripped. A later
-  numbered image token does not override it. `images` and a
-  non-leading `image` stay unnumbered. `phasify image` = `phasify
-  1image`. File bodies are not scanned.
-- If the first hit is unnumbered and a later hit **is numbered**, use
-  that numbered instance (the first numbered one). Example: `create an
-  image of the run. 1image` → use `1image` (the leading "image" has no
-  number).
-- If several numbered tokens appear, use only the **first** numbered one
-  left to right. Do **not** take the largest N.
-- If there is no numbered instance, the flag is **absent**. Ordinary
-  English "image" / "pass" is not a marker.
+  case), counts as numbered `1image` (N=1) and is stripped. `images`
+  and a non-leading `image` stay unnumbered. `phasify image` =
+  `phasify 1image`. File bodies are not scanned. Later numbered
+  image directives still count. `image -3image` is `1image` and
+  `-3image`.
+- `image -3` stays blank n (N=1 when that `image` counts). The `-3`
+  is not part of that directive. Use `-3image` or `image-3`.
+- Integer **0** is an error before any scratch read. `0image`,
+  `0images`, `image0`, `images0`, and `-0image` are the same zero,
+  in any accepted shape (`0-image`, `0 image`, `image-0`,
+  `-0 images`, …). On the scratch path, stop. The only line is
+  `Error: image count starts at 1`. When embedded agent images are
+  the source, the count is not used and this is not an error (see
+  **Scratch images**).
+- If there is no numbered image instance, the image flag is
+  **absent**.
 
-`img=` / `img:` is a third family. Every such token counts, left to right. It names specific files. It is not the newest-N marker. See **Named images**.
+**Pass family — first numbered instance only.** Do not make `Npass`
+aggregate.
+
+- A **numbered** instance counts: `3pass`, `2-pass`, `2 pass`, …
+- An **unnumbered** word does **not** count: `pass`, `passes`. Skip
+  it and keep scanning.
+- If the first hit is unnumbered and a later hit **is numbered**, use
+  that numbered instance (the first numbered one). Example: `please
+  pass this. 2pass` → `2pass`.
+- If several numbered pass tokens appear, use only the **first**
+  numbered one left to right. Do not take the largest N.
+- If there is no numbered instance, the pass flag is **absent**.
+  Ordinary English "pass" is not a marker.
+
+`img=` / `img:` is a third family. Every such token counts, left to right. It names specific files. It is not an image-count marker. See **Named images**.
 
 `from=` / `from:` slots are not flags. After flag strip, follow `docs/from_contract.md`.
 
 ## Scratch images (`Nimages`)
 
-When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
-(case-insensitive; also `Nimage` / `N image` / `N-image`), that token is an
-**attachment marker**, not part of the task wording. Examples: `1images`,
-`1 images`, `1-images`.
+Every numbered image directive is an **attachment marker**, not part
+of the task wording. Case-insensitive. Shapes and the zero error are
+in **Flag parse order**. Every numbered image directive on the typed
+line counts.
 
-**Meaning:** the **N most recent image files** from the configured scratch
-source (or workspace **`scratch/`** if unset) provide extra visual detail
-for the issue under review.
+**Meaning.** Order is newest mtime first. Filename order is not used.
+With oldest-to-newest `1.jpg` … `5.jpg`, the list is `5.jpg`,
+`4.jpg`, `3.jpg`, `2.jpg`, `1.jpg` (indexes 0…4).
 
-Do this before finishing intent / workspace work:
+- A **positive** `N` is the N newest files. `2image` is `5.jpg` and
+  `4.jpg` (indexes 0 and 1). Fewer files than N: take those that
+  exist.
+- A **negative** `-K` is exactly one file, `|K|` steps back from the
+  newest: index `|K|` only. `-1` is the second newest (`4.jpg`).
+  `-3` is three back (`2.jpg`, index 3).
+- **Union**, each path once, newest mtime first. `1image -3image`
+  is `5.jpg` and `2.jpg`. `2image -1image` is `5.jpg` and `4.jpg`
+  (the overlap is one file).
+- An offset past the end adds no file. Do not invent a path. If the
+  union is empty, imagify still prints `Error: no image`. Other
+  skills list the miss under Missing Assets.
 
-1. If the scratch source config exists, run the sva-skills resolver and
-   **read those paths**:
+**Embedded agent images.** An image embedded in the current agent
+message stays the source, in message order. The directive does not
+drop or add those images. Do not run `scratch ls`. Do not read
+workspace `scratch/` for that set. A zero token is not an error
+here, because the count is not used. Negatives and unions apply to
+the scratch source and to workspace `scratch/` only.
+
+**Resolve** (scratch source, or workspace `scratch/` when there is
+no embedded image). A zero directive stops first: `Error: image count starts at 1` before any read.
+
+Do **not** pass a negative count to `scratch ls`. `scratch ls` stays
+a positive last-N listing. List **once** with positive `M`, then
+slice by index. `M` is the largest positive count and the largest `|K| + 1`
+among the negatives. Example: `1image -3image` calls `scratch ls 4`,
+keeps index 0 and index 3.
+
+Do this before finishing intent / workspace work when the source is
+scratch or workspace `scratch/`:
+
+1. If any image directive is zero, stop with `Error: image count starts at 1`. Do not read. Do not continue.
+2. If the scratch source config exists, run the resolver for `M`
+   and **read the sliced paths**:
    - Config: `~/.local/share/sva-skills/scratch.env` (Linux / Git Bash)
      or `%LOCALAPPDATA%\sva-skills\scratch.env` (Windows PowerShell).
      `scratch show` prints the file it used.
-   - Resolve: `scripts/cli.sh scratch ls N` or `scripts\cli.ps1 scratch ls N`
-     (from the sva-skills repo). Prints one absolute path per line (local
-     files, or a cache of the N newest remote files). Read those files.
+   - Resolve: `scripts/cli.sh scratch ls M` or `scripts\cli.ps1 scratch ls M`
+     (from the sva-skills repo). One absolute path per line, newest
+     first (local files, or a cache of the M newest remote files).
+     Slice that list. Read the kept files.
    - Mention the source in the ack (`local ~/Pictures/Screenshots` or
      `remote cas3:scratch` — from `scratch show`).
-2. Else (no config, or the resolver prints nothing / fails): workspace
+3. Else (no config, or the resolver prints nothing / fails): workspace
    `scratch/` at the repo root (or the project's existing `scratch` dir).
    Do not create one. List image files (`*.png`, `*.jpg`, `*.jpeg`,
-   `*.webp`, `*.gif`, `*.bmp`), newest mtime first; take **N** (or all
-   if fewer).
-3. **Read** those images. Use what they show as evidence for the issue.
-4. Put the paths (and a one-line what-they-show) in Validated Assets. If the
-   folder or enough images are missing, list them under Missing Assets — do
-   not invent pixels.
-5. Carry the paths and visual facts into the optimized / kickoff prompt.
-6. Restate the goal **without** the marker; keep N and the file paths.
+   `*.webp`, `*.gif`, `*.bmp`), newest mtime first, up to **M** (or
+   all if fewer). Slice by the same indexes.
+4. **Read** the kept images. Use what they show as evidence for the issue.
+5. Put the paths (and a one-line what-they-show) in Validated Assets. A
+   missing folder, or a selector that matched nothing, goes under
+   Missing Assets. Do not invent pixels or paths.
+6. Carry the paths and visual facts into the optimized / kickoff prompt.
+7. Restate the goal **without** the markers. Keep every image token and
+   the file paths.
 
-Parse per **Flag parse order** above (first numbered instance only).
+When embedded agent images are the source, skip the list above. Read
+those images. The same ack still names every image token.
 
 **Tell the user (mandatory, first printed content):** As soon as the
-marker is recognized, print this acknowledgment so it is obvious the
-token was **caught and correctly interpreted**. Do not skip it. Do not
-bury it under later headings. Name the source (`local ~/Pictures/Screenshots`,
-`remote cas3:scratch`, or workspace `scratch/`).
+markers are recognized, print this acknowledgment so it is obvious the
+tokens were **caught and correctly interpreted**. Do not skip it. Do not
+bury it under later headings. Name **every** image token, not only the
+first. Name the source (`local ~/Pictures/Screenshots`,
+`remote cas3:scratch`, workspace `scratch/`, or embedded agent images).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
-image(s) from <source> for extra detail on the issue under review.
+Recognized `<token>[, <token>…]` as attachment marker(s). Looking at the selected image(s) from <source> for extra detail on the issue under review.
+```
+
+Example: user wrote `1image -3image` →
+
+```markdown
+**Scratch images — caught and correctly interpreted.**
+Recognized `1image` and `-3image` as attachment markers. Looking at the newest image and the image 3 back from <source> for extra detail on the issue under review.
 ```
 
 Example: user wrote `2images` →
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `2images` as an attachment marker. Looking at the 2 most recent
-images from <source> for extra detail on the issue under review.
+Recognized `2images` as an attachment marker. Looking at the 2 most recent images from <source> for extra detail on the issue under review.
 ```
 
-If the source or enough images are missing, still print this, then say
+If the source or a selected image is missing, still print this, then say
 what was missing.
 
 ## Named images (`img`)
@@ -383,8 +447,8 @@ If any answer is no, revise before responding.
 ### `/promptify` (analysis mode)
 
 ```markdown
-**Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
+**Scratch images — caught and correctly interpreted.**   ← first, when a numbered image directive is present
+Recognized `<token>[, <token>…]` as attachment marker(s). Looking at the selected image(s) from <source> for extra detail on the issue under review.
 
 **Npass — caught and correctly interpreted.**   ← when an Npass marker is present
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final deliverable.
@@ -534,11 +598,7 @@ Rules:
   (done vs left). When `Nimages` and/or `Npass` is present, that table's
   **first row is Flags** (caught-and-understood tokens + On pass k of N).
 - `img=<file>`, `img:<file>`, `img=[a,b]`, `img:[a,b]`: specific images, not the newest N. Cite **Named images**. Read them. Lead with that ack after the scratch ack.
-- `Nimages` / `N images` / `N-images`: read the N newest images from the
-  configured scratch source (`scratch ls N`) or workspace `scratch/`
-  (see **Scratch images**). Lead the response with the **caught and
-  correctly interpreted** acknowledgment so the user can see the marker
-  was recognized. Name the source in the ack.
+- Image directives: every numbered token counts (positive N newest; negative `-K` is one file, index `|K|`; union, newest mtime first). List once with positive `scratch ls M`, then slice. Do not pass a negative count to `scratch ls`. Zero on the scratch path is `Error: image count starts at 1` before any read (see **Scratch images**). Lead with the ack. Name every image token and the source.
 - `Npass` / `N-pass` / `N pass`: take N pipeline passes (see **Multi-pass**).
   When N > 1, pass 1 is a documented pre-plan only; later passes use that
   base; the last pass emits the final prompt / plan / answer. Acknowledge

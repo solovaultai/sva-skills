@@ -34,7 +34,8 @@ Empty `/saveify` is a real auto-name save, not short usage.
 | `help` / `--help` / `/?` | Print the full user reference and stop | Further words (`help me …`) stay on Help |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
-| `Nimages` / `Npass` | Stripped before the name | Saveify does not run its own pass loop |
+| `Nimages` | Every numbered image directive is stripped before the name, including negatives and zero | Does not open scratch. Does not print the imagify zero error |
+| `Npass` | First numbered instance is stripped before the name | Saveify does not run its own pass loop |
 | `img` | Specific files copied into `images/` and `images.txt` | Cite promptify **Named images** and `docs/saveify_contract.md` |
 
 `/saveify testme` saves that name. `/saveify 2` stores the name `2`.

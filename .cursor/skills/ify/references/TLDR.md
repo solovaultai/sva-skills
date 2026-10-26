@@ -32,6 +32,6 @@ Already know the verb? Run it directly. Append to last ify? /addify
 | `which <prompt>` | Alias of `smart` | Same recommendation without a second command |
 | `<prompt>` | Implicit `smart` | Bare prompt still recommends |
 | `pass` / `pass help` / `help pass` | Print the Pass (`Npass`) section; stop | Flag reference without the full catalog |
-| `Nimages` | Newest N scratch images (first numbered instance) | Family flag; strip before dispatch |
+| `Nimages` | Union of every numbered image directive (positive N = N newest; `-K` = one file `|K|` back). `Npass` stays the first numbered instance | Family flag; strip before dispatch |
 | `img` | Specific files handed to the verb this router runs | Cite promptify **Named images**. Strip before the mode word |
 | `Npass` | N pipeline passes of this ify mode’s work | Family flag; strip before dispatch |

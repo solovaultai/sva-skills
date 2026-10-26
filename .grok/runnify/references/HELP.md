@@ -52,17 +52,17 @@ task.
 
 ## Flags (`Nimages` / `Npass`)
 
-Follow promptify **Flag parse order**: first numbered instance left to
-right; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip before deciding Help vs
+Follow promptify **Flag parse order**. Image family: every numbered directive counts (union, each path once, newest mtime first). Positive N is the N newest. Negative `-K` is one file, `|K|` steps back from the newest. Do not pass a negative to `scratch ls`; list positive `M` = max(positive counts, `|negative|+1`), then slice. The ack names every image token. Pass family: first numbered instance left to right only.
+Skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip before deciding Help vs
 task. Not part of the task wording.
 
-**`Nimages`:** N newest images from the scratch source (`scratch ls N`)
+**`Nimages`:** the image-directive union from the scratch source (positive `scratch ls M`, then slice)
 or workspace `scratch/`. Read them; use what they show. **First printed
 content** when present (name the source):
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 

@@ -17,9 +17,10 @@ description: >-
   prints the short page. /saveify pass and pass help print the Pass
   (Npass) subsection. savify is an alias of /saveify, not a
   folder. Canonical slash is /saveify. No smart mode.
-  Recognizes nimages / Nimages / N images / N-images and npass /
-  Npass / N-pass / N pass per promptify Flag parse order (stripped
-  before the name; saveify does not run its own pass loop).
+  Strips every numbered image directive before the name, including
+  negatives, multiples, and zero. Does not open scratch and does not
+  print the imagify zero error. Npass stays the first numbered
+  instance (saveify does not run its own pass loop).
 argument-hint: "[<name>|list|delete]"
 user-invocable: true
 disable-model-invocation: true
@@ -95,14 +96,41 @@ Same exception shape as empty `/phasify` = Next.
 
 ## Flag parse order (`Nimages` / `Npass`)
 
-On the **typed line only**, follow promptify **Flag parse order**
-(first numbered `Nimages` / `Npass` only). Strip them before the
-mode or the name. They are not body text and not part of the
-display name. Do not fork that parse.
+On the **typed line only**. A stripped token is not body text and
+not part of the display name.
 
-Saveify does not loop, does not open scratch for `Nimages`, and does not print
-the scratch or Npass acknowledgements. One save. A line that is
-only flags is an auto-name save.
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
+
+Accepted shapes (case-insensitive). N is digits, including 0:
+
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Strip every image directive and that first numbered pass before the
+mode or the name. Saveify does not loop, does not open scratch, and
+does not print the scratch or Npass acknowledgements. One save. A
+line that is only flags is an auto-name save.
 
 ## Named images (`img`)
 
@@ -414,7 +442,9 @@ Help, tldr, pass, list, delete, `--help`, and `/?` do not retitle.
 - Reserved first tokens are modes, not names, including `list`.
   Help, tldr, and pass print their page and stop. `savify` is
   an alias of `/saveify`. Empty `/saveify` is still an auto-name save.
-- `Nimages` / `Npass`: promptify Flag parse order. Do not fork. Do
-  not loop.
+- Image directives: strip every numbered one before the name,
+  including negatives and zero. Pass stays the first numbered
+  instance. Do not open scratch. Do not loop. Do not print
+  `Error: image count starts at 1`.
 - Cite `docs/from_contract.md`, `the docify skill's references/docify_contract.md`, and
   `docs/window_title.md`. Prefix `SAVE:`.

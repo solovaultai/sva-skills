@@ -152,18 +152,44 @@ changed. Nothing is restored.
 
 ## Flags (`Nimages` / `Npass`)
 
-Same parse order as promptify: first numbered instance left to
-right on the **typed line only**; skip unnumbered `image` / `pass`
-(first typed token `image` counts as `1image`).
-Strip **before** deciding Help vs list vs restore. Cite promptify
-**Flag parse order** — do not fork.
+On the **typed line only**.
 
-Flags are not a snapshot name. Resumeify does not read scratch
-images and does not run a pass loop.
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
 
-`/resumeify 2pass` and `/resumeify 1image` list. A name elsewhere
-on the line is still the target: `/resumeify 2pass my saved plan`
-restores `my saved plan`.
+Accepted shapes (case-insensitive). N is digits, including 0:
+
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Strip every image directive and that first numbered pass **before**
+deciding Help vs list vs restore. Flags are not a snapshot name.
+Resumeify does not read scratch images and does not run a pass loop.
+
+`/resumeify 2pass` and `/resumeify 1image -3image` list. A name
+elsewhere on the line is still the target:
+`/resumeify 2pass my saved plan` restores `my saved plan`.
+`/resumeify -3image my saved plan` restores `my saved plan`.
 
 ---
 

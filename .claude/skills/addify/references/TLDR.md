@@ -21,6 +21,6 @@ No prefix of its own; it re-applies the ancestor label (`docs/window_title.md`).
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
-| `Nimages` | Flag on the addify line; applies to the restarted skill (addify-line wins) | Attachment for the dispatched skill, not addify’s own pipeline |
+| `Nimages` | Every numbered image directive on the addify line is stripped and applies to the restarted skill, including negatives and zero (addify-line wins) | Does not open scratch. Does not print the imagify zero error |
 | `img` | Specific files on this line, handed to the restarted verb | Cite promptify **Named images**. Do not drop them |
-| `Npass` | Flag on the addify line; applies to the restarted skill (addify-line wins) | If N > 1 on the restarted skill, pass 1 is a documented pre-plan |
+| `Npass` | First numbered instance on the addify line; applies to the restarted skill (addify-line wins) | If N > 1 on the restarted skill, pass 1 is a documented pre-plan |

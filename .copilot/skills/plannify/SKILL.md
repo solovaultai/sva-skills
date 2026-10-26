@@ -53,19 +53,18 @@ When the user text includes **`Nimages`**, **`N images`**, or **`N-images`**
 `1 images`, `1-images`), that token is an **attachment marker**, not part of
 the task wording.
 
-Follow promptify **Scratch images**: if `scratch.env` exists, run
-`scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
-**read those paths**. Else workspace `scratch/` (do not create). Parse
-image/pass flags per promptify **Flag parse order**. Carry what they show
+Follow promptify **Scratch images**. Every numbered image directive counts. Positive N is the N newest files, newest mtime first. Negative `-K` is exactly one file, `|K|` steps back from the newest (`-1` is the second newest). Union the paths, each once, newest mtime first. Do not pass a negative to `scratch ls`. List once with positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice (`1image -3image` calls `scratch ls 4` and keeps index 0 and index 3). An offset past the end adds no file. Do not invent a path. `0image`, `0images`, `image0`, `images0`, and `-0image` are an error before any read: `Error: image count starts at 1`. `image -3` stays blank n (N = 1); the `-3` is not part of that directive. `Npass` stays the first numbered instance only. The ack names every image token. If `scratch.env` exists, run
+`scripts/cli.sh scratch ls M` (or `scripts\cli.ps1 scratch ls M`) and
+**read the sliced paths**. Else workspace `scratch/` (do not create). Carry what they show
 into the Planning-Kickoff Prompt and the plan.
 
 **Tell the user (mandatory, first printed content):** Print this so it is
-obvious the token was **caught and correctly interpreted**. Name the
+obvious the markers were **caught and correctly interpreted**. Name every image token, not only the first. Name the
 source (`local …` or `remote conn:dir` or workspace `scratch/`).
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 
@@ -374,7 +373,7 @@ they said "plannify this" / "plan this prompt" / "turn this into a planning prom
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**   ← first, when an Nimages marker is present
-Recognized `<token>` as an attachment marker. Looking at the N most recent image(s) from <source> for extra detail on the issue under review.
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected image(s) from <source> for extra detail on the issue under review.
 
 **Npass — caught and correctly interpreted.**   ← when an Npass marker is present
 Recognized `<token>`: taking N passes. Pass 1 is a documented pre-plan; passes 2–N use that base for the final plan.
@@ -474,7 +473,7 @@ Help, tldr, pass, and empty usage do not retitle.
   phases; keep the rest
   (including Done / Deferred / reasons). Not fromhere. Not addify
   from-scratch. No Copilot chat confirm.
-- `Nimages` / `N images` / `N-images`: read the N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`
+- `Nimages` / `N images` / `N-images`, including a leading minus: every numbered image directive counts. Positive N is the N newest. Negative `-K` is one file, `|K|` steps back from the newest. Union, each path once, newest mtime first. List positive `M` then slice; do not pass a negative to `scratch ls`.
   and treat them as extra detail for the issue under review (see **Scratch
   images**). Lead the response with the **caught and correctly interpreted**
   acknowledgment so the user can see the marker was recognized.

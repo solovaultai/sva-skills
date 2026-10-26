@@ -29,6 +29,6 @@ Window prefix `DBG:` (`docs/window_title.md`).
 | `debify` | Alias of `/debugify` | Short name |
 | `debug` | Alias of `/debugify` | Same full loop under the shorter name |
 | `debug-kickoff` | Read-only brief (no edits) | Kickoff only — do not run this full loop |
-| `Nimages` | N newest images from the scratch source or workspace `scratch/` as existing evidence during Phase 0 | Visual evidence for Investigate |
+| `Nimages` | Union of every numbered image directive (positive N = N newest; `-K` = one file `|K|` back) from the scratch source or workspace `scratch/` as existing evidence during Phase 0 | Visual evidence for Investigate |
 | `img` | Specific files, not newest-N. Cite promptify **Named images** | Read before hypotheses; evidence for what the problem is |
 | `Npass` | Extra pass(es) deepen investigation / hypothesis quality | If N > 1, pre-plan first; last pass runs this invocation’s loop work |

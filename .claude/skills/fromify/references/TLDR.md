@@ -23,11 +23,11 @@ Window prefix `FROM:` (`docs/window_title.md`).
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
-| `Nimages` | Flag on the typed line; handed to the selected verb | Scratch source stays that verb’s, not a fromify pipeline |
+| `Nimages` | Every numbered image directive is stripped and handed to the selected verb, including negatives and zero | Does not open scratch. Scratch source stays that verb’s |
 | `img` | Specific files stay on the rewritten line | Not file-slot text. Cite promptify **Named images** |
-| `Npass` | Flag on the typed line; handed to the selected verb | fromify does not run its own second pass loop |
+| `Npass` | First numbered instance on the typed line; handed to the selected verb | fromify does not run its own second pass loop |
 
 `fromify john_b_changes_to_admin_page.md,marys_comments.txt` equals
 plannify of those two files. `fromify runnify test.txt` equals runnify
-plus the exact file text. `fromify 2pass` / `1image` apply to the
-selected verb.
+plus the exact file text. `fromify 2pass` is the pass flag. `1image -3image` both apply to the
+selected verb. fromify does not open scratch.

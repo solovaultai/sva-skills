@@ -217,13 +217,42 @@ save.
 
 ## Flags (`Nimages` / `Npass`)
 
-Same parse order as promptify: first numbered instance left to
-right on the **typed line only**. Cite promptify **Flag parse
-order** — do not fork. Strip **before** the mode or the name.
+On the **typed line only**.
 
-A stripped flag is not part of the snapshot name. Saveify does not
-take N passes and does not open scratch. `/saveify 2pass` is an
-auto-name save. `/saveify 2pass testme` saves the name `testme`.
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
+
+Accepted shapes (case-insensitive). N is digits, including 0:
+
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Strip every image directive and that first numbered pass **before**
+the mode or the name. A stripped flag is not part of the snapshot
+name. Saveify does not take N passes and does not open scratch.
+`/saveify 2pass` is an auto-name save. `/saveify 2pass testme`
+saves the name `testme`. `/saveify 1image -3image testme` saves the
+name `testme`.
 
 ---
 
@@ -293,7 +322,9 @@ name.
 - No ify context: **Error:** nothing to save.
 - Help, tldr, and pass print their page and stop. `savify` is not
   a command.
-- Flags follow promptify Flag parse order. Saveify does not loop.
+- Image directives: strip every numbered one, including negatives
+  and zero. Pass stays the first numbered instance. Saveify does
+  not loop and does not open scratch.
 
 ---
 

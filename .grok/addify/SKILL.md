@@ -9,11 +9,12 @@ description: >
   or "append this to the previous ify". Print a complete reference with
   `/addify help` or `/addify --help` (also `/?`). `/addify tldr`
   prints the short page. Empty `/addify` is
-  short usage, not Next. Recognizes Nimages / N images / N-images as a
-  pointer to the newest N images from the configured scratch source
-  (or workspace scratch/). Recognizes Npass / N-pass / N pass as a
-  pass-count flag that applies to the restarted skill (addify-line
-  wins the same family).
+  short usage, not Next. Strips every numbered image directive for
+  the restarted skill, including negatives, multiples, and zero
+  (0image, image0, -0image). Does not open scratch and does not
+  print the imagify zero error. Npass stays the first numbered
+  instance and applies to the restarted skill (addify-line wins
+  the same family).
 metadata:
   short-description: "Append text to the last ify and restart/continue"
 ---
@@ -72,35 +73,48 @@ request when they said “addify this” / “add this to the last ify”.
 
 ## Flag parse order (`Nimages` / `Npass`)
 
-Same as promptify. Read the user text **left to right**. For the
-**image** family and the **pass** family independently, use **only the
-first instance that counts**.
+Read the typed line **left to right**. File bodies are not scanned.
+Addify does not open scratch.
 
-- A **numbered** instance counts: `1image`, `1 image`, `1-image`,
-  `2images`, `3pass`, `2-pass`, `2 pass`, …
-- An **unnumbered** word does **not** count: `image`, `images`, `pass`,
-  `passes`. Skip it and keep scanning.
-- Exception: the first token of the typed line, exactly `image` (any
-  case), counts as numbered `1image` (N=1) and is stripped. A later
-  numbered image token does not override it. `images` and a
-  non-leading `image` stay unnumbered. `phasify image` = `phasify
-  1image`. File bodies are not scanned.
-- If the first hit is unnumbered and a later hit **is numbered**, use
-  that numbered instance.
-- If several numbered tokens appear, use only the **first** numbered
-  one left to right. Do **not** take the largest N.
-- If there is no numbered instance, the flag is **absent**.
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
 
-Those flags **apply to the restarted skill** (scratch ack / Npass /
-Flags row).
+Accepted shapes (case-insensitive). N is digits, including 0:
 
-- If both the original line and the addify line set the **same**
-  family, **addify-line wins**.
-- If only one line sets a family, that value applies.
-- Lead with the standard scratch / Npass acknowledgments when those
-  markers are present on the addify line, or still apply from the
-  original when addify omitted them. Acks first when markers are
-  present (scratch first, then Npass).
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Every stripped image directive on the winning line applies to the
+restarted skill. The pass value is that first numbered instance.
+When the addify line has any image directive, that set replaces
+image directives from the original line. When it has none, the
+original line keeps its image directives. When the addify line has
+a numbered pass, that pass replaces the original pass. When only
+one line sets a family, that line applies. Lead with the standard
+scratch / Npass acknowledgments when those markers are present on
+the addify line, or still apply from the original when addify
+omitted them. Acks first when markers are present (scratch first,
+then Npass). Addify does not open the images.
 
 Follow promptify **Scratch images** and **Multi-pass** for how the
 restarted skill consumes the flags.
@@ -264,8 +278,10 @@ Help, tldr, pass, and empty usage do not retitle.
 - Combined prompt = original body + newline + addify body
   (**verbatim**). Strip `Nimages` / `Npass` from the addify portion
   after parse.
-- Flag parse order: first numbered instance per family; addify-line
-  wins the same family. Acks first when markers are present.
+- Flag parse order: strip every numbered image directive, including
+  negatives and zero; pass stays the first numbered instance.
+  Addify-line wins that family. Do not open scratch. Acks first when
+  markers are present.
 - Dispatch per the table. plannify / promptify / **ify** restart
   from scratch (**not** fromhere). phasify = fromhere + AskQuestion.
   Grok debugify = full loop (alias `/debug`). runnify planning =

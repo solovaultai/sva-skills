@@ -26,6 +26,6 @@ Window prefix `PROMPT:` (`docs/window_title.md`).
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |
 | `tldr` | Print this short page and stop | Fast syntax + args without the full HELP |
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
-| `Nimages` | N newest images from the scratch source or workspace `scratch/` | Attachment marker — carry what they show into the rewrite |
+| `Nimages` | Every numbered directive: positive N newest; negative `-K` is one file, K steps back; union, newest first. `scratch ls M` (positive), then slice | Attachment marker — name every token; carry what they show into the rewrite |
 | `img` | Specific files, not newest-N. Cite promptify **Named images** | Every token counts. Used in the rewrite and the solution |
 | `Npass` | N pipeline passes before the final optimized prompt | If N > 1, pass 1 is a documented pre-plan; last pass emits the prompt |

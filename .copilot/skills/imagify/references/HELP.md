@@ -54,6 +54,9 @@ Help, tldr, pass, and a missing image do not retitle. Empty
 /imagify images2         — same count, glued (images<n>)
 /imagify image           — blank n, same as 1image
 /imagify images          — blank n, same as 1image
+/imagify -3image         — one file, 3 back from the newest
+/imagify 1image -3image  — union: newest plus the file 3 back
+/imagify image -3        — blank n, still the newest
 /imagify text            — text mode (also the default)
 /imagify totext          — text mode
 /imagify 2text           — text mode
@@ -65,12 +68,12 @@ Help, tldr, pass, and a missing image do not retitle. Empty
 | Argument | What it does | Why |
 |----------|--------------|-----|
 | *(empty)* | Transcribe the newest scratch image | No image directive means `1image`. No other directive means text |
-| `<n>image` / `<n>images` | Transcribe the N newest. One token, or `<n>` then the word, or a hyphen (`2-images`) | N is 1 or more. The first image directive wins |
-| `image<n>` / `images<n>` | Same count, glued (`image2`, `images2`) | `image 2` is blank n (1), not 2. Use `image2` |
-| `image` / `images` | Blank n. N is 1 | Same as `1image` |
+| `<n>image` / `<n>images` / `-<k>image` | Positive N is the N newest. `-K` is one file, `|K|` back. One token, `<n>` then the word, or a hyphen (`2-images`, `-3-image`, `-3 image`) | Every numbered directive counts. Union, newest mtime first. N is never 0 |
+| `image<n>` / `images<n>` / `image-<k>` | Glued suffix. `image2` is the 2 newest. `image-3` is the offset | `image 2` and `image -3` are blank n (1). The following number is not part of that directive |
+| `image` / `images` | Blank n. That directive is the newest | Same as `1image`. `image -3` stays this |
 | `text` / `totext` / `2text` | Text mode | Also the default when the line has no other directive, or no directive at all |
-| Embedded agent image | Every image embedded in this message, in that order | Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change the source or the count. No scratch read |
-| `0image` / `image0` | **Error:** `Error: image count starts at 1` when the source is scratch | Not an error when embedded agent images are the source |
+| Embedded agent image | Every image embedded in this message, in that order | Cursor, Grok, Claude, and GitHub Copilot. The directive does not drop or add those images. Negatives and unions apply only to scratch. No scratch read |
+| `0image` / `image0` / `-0image` | **Error:** `Error: image count starts at 1` when the source is scratch | Before any read. Not an error when embedded agent images are the source |
 | `img=` | **Error** on a transcription: `Error: imagify reads the newest N scratch images` | Newest N from the scratch area. Not a named file |
 | `help` / `--help` / `/?` | Print this page and stop | No transcription |
 | `tldr` | Print the short page and stop | Fast syntax |
@@ -79,16 +82,20 @@ Help, tldr, pass, and a missing image do not retitle. Empty
 ## Where the images come from
 
 On Cursor, Grok, Claude, and GitHub Copilot, an image embedded in
-the current agent message. Every one, in message order. `1image`,
-`2images`, and a missing directive do not select scratch.
+the current agent message. Every one, in message order. The image
+directive does not drop or add those images. Negatives and unions
+apply only when the source is scratch or workspace `scratch/`.
 
 Otherwise the standard ify scratch area. Cite promptify **Scratch images**.
-`scripts/cli.sh scratch ls N` when `scratch.env` exists. Otherwise
-workspace `scratch/`, newest first. Do not create that folder.
+Do not pass a negative to `scratch ls`. List once with positive `M`
+= the largest of the positive counts and of `|negative| + 1`, then
+slice. `1image -3image` calls `scripts/cli.sh scratch ls 4` and keeps
+index 0 and index 3. Otherwise workspace `scratch/`, newest mtime
+first, take M, then slice. Do not create that folder.
 
-No scratch file, and no embedded agent image: the only line is
-`Error: no image`. Fewer scratch files than N: transcribe the ones
-that exist.
+No scratch file, and no embedded agent image, and an empty union:
+the only line is `Error: no image`. Fewer files than a positive count:
+transcribe the ones that exist. An offset past the end adds no file.
 
 ## Text
 
@@ -101,5 +108,5 @@ line between them, no labels.
 ## Pass (`Npass`)
 
 Imagify does not take passes. One transcription. An `Npass` token
-is stripped and does not change N or the mode. There is no
+is stripped and does not change which images are read or the mode. There is no
 `/pass` skill.

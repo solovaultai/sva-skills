@@ -28,19 +28,17 @@ You are running **Promptify in Execution mode** (`/runnify`).
    optional one-line next-step.
 6. If the request contains **`Nimages`**, **`N images`**, or **`N-images`**
    (e.g. `1images`, `1 images`, `1-images`), follow promptify **Scratch
-   images** and **Flag parse order**: use only the first numbered instance
-   left to right (skip unnumbered "image" so a later `1image` counts; the first typed token exactly `image` counts as `1image`).
-   Follow promptify **Scratch images**: if `scratch.env` exists, run
-   `scripts/cli.sh scratch ls N` (or `cli.ps1`) and **read those paths**;
+   images**. Every numbered image directive counts. Positive N is the N newest files, newest mtime first. Negative `-K` is exactly one file, `|K|` steps back from the newest (`-1` is the second newest). Union the paths, each once, newest mtime first. Do not pass a negative to `scratch ls`. List once with positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice (`1image -3image` calls `scratch ls 4` and keeps index 0 and index 3). An offset past the end adds no file. Do not invent a path. `0image`, `0images`, `image0`, `images0`, and `-0image` are an error before any read: `Error: image count starts at 1`. `image -3` stays blank n (N = 1); the `-3` is not part of that directive. `Npass` stays the first numbered instance only. The ack names every image token. If `scratch.env` exists, run
+   `scripts/cli.sh scratch ls M` (or `cli.ps1`) and **read the sliced paths**;
    else workspace `scratch/`. Do not treat the marker as part of the task
    wording.
    **First printed content** must be the acknowledgment so the user sees the
-   marker was **caught and correctly interpreted**. Name the source
+   markers were **caught and correctly interpreted**. Name every image token, not only the first. Name the source
    (`local …` or `remote conn:dir` or workspace `scratch/`):
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 

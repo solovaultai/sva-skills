@@ -130,12 +130,12 @@ AskQuestion.
 
 ## Flags (`Nimages` / `Npass`)
 
-Same parse order as promptify: first numbered instance left to
-right; skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip **before** deciding
+Same parse order as promptify. Image family: every numbered directive counts (union, each path once, newest mtime first). Positive N is the N newest. Negative `-K` is one file, `|K|` steps back from the newest. Do not pass a negative to `scratch ls`; list positive `M` = max(positive counts, `|negative|+1`), then slice. The ack names every image token. Pass family: first numbered instance left to right only.
+Skip unnumbered `image` / `pass` (first typed token `image` counts as `1image`). Strip **before** deciding
 Help vs fromhere vs add vs plan. Cite promptify **Flag parse order** —
 do not fork.
 
-**`Nimages`:** N newest images from the scratch source (`scratch ls N`) or workspace `scratch/`. Attachment marker,
+**`Nimages`:** the image-directive union from the scratch source (positive `scratch ls M`, then slice) or workspace `scratch/`. Attachment marker,
 not task wording. Lead with the caught-and-interpreted ack. Carry
 what they show into the Planning-Kickoff Prompt and the plan.
 

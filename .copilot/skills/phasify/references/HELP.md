@@ -1828,27 +1828,28 @@ multi-pass definition/execution.
 
 **Parse order** (each family independently, left to right):
 
-- First **numbered** instance counts: `1image`, `2pass`, `2-pass`,
-  `1images`, `N images`, `N-images` (also `1 image`, `1-image`,
-  `N pass`)
+- **Image family:** every numbered directive counts. Positive N is the N newest (newest mtime first). Negative `-K` is one file, `|K|` steps back from the newest. Union, each path once. Shapes include `-3image`, `-3images`, `-3-image`, `-3-images`, `-3 image`, `-3 images`, `image-3`, and `images-3`.
+- Do not pass a negative to `scratch ls`. List positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice. `1image -3image` calls `scratch ls 4` and keeps index 0 and index 3. An offset past the end adds no file.
+- Zero (`0image`, `image0`, `-0image`) is an error before any read. `image -3` stays blank n (N = 1); the `-3` is not part of that directive.
+- The ack names every image token, not only the first.
+- **Pass family:** first numbered instance only (not the largest N): `2pass`, `2-pass`, `N pass`.
 - Unnumbered `image` / `images` / `pass` / `passes` does **not** count
-- Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped
-- Several numbered tokens → first only (not the largest N)
+- Exception: the first typed token exactly `image` (any case) counts as `1image` and is stripped. A later numbered image directive is included in the union.
 - No numbered instance → that flag is absent
 - Strip before Help vs task. Flags are **not** reason text —
   defer/block must not swallow `2pass` as reason
 - `-2pass` is a **pass** flag, not stop-before-end
 
-**`Nimages`:** if `scratch.env` exists, run `scripts/cli.sh scratch ls N`
-(or `cli.ps1`) and **read those paths**; else workspace `scratch/`
+**`Nimages`:** Every numbered image directive counts. Positive N is the N newest files, newest mtime first. Negative `-K` is exactly one file, `|K|` steps back from the newest (`-1` is the second newest). Union the paths, each once, newest mtime first. Do not pass a negative to `scratch ls`. List once with positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice (`1image -3image` calls `scratch ls 4` and keeps index 0 and index 3). An offset past the end adds no file. Do not invent a path. `0image`, `0images`, `image0`, `images0`, and `-0image` are an error before any read: `Error: image count starts at 1`. `image -3` stays blank n (N = 1); the `-3` is not part of that directive. `Npass` stays the first numbered instance only. The ack names every image token. If `scratch.env` exists, run `scripts/cli.sh scratch ls M`
+(or `cli.ps1`) and **read the sliced paths**; else workspace `scratch/`
 (`*.png` `*.jpg` `*.jpeg` `*.webp` `*.gif` `*.bmp`). Do not create
 `scratch/`. Use what they show (blocker evidence, UI state, phase
-clarification). Acknowledge first when present (name the source),
+clarification). Acknowledge first when present (name every image token and the source),
 then run the chosen mode.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 
@@ -1867,6 +1868,7 @@ Examples after strip:
 |-----------|------|--------|
 | `/phasify` | Next | none |
 | `/phasify 1image` | Next | 1 image |
+| `/phasify 1image -3image` | Next | union: newest plus the file 3 back |
 | `/phasify image` | Next | `1image` (leading token) |
 | `/phasify 3 2images` | Next-3 | 2 images |
 | `/phasify help 2images` | Help | (print this page; do not execute) |
@@ -1989,7 +1991,7 @@ Each present flag:
 
 `Caught and correctly interpreted <token>. On pass k of N.`
 
-- `<token>` = exact numbered token (`1image`, `2pass`, …)
+- Image family: name every numbered image token (`1image`, `-3image`, …), not only the first. Pass family: the first numbered token (`2pass`, …).
 - **N** = Npass value (default 1 if `Npass` is absent)
 - **k** = pass just finished or in progress (`On pass N of N` after the last)
 - Phase `Flags` and Status `Understood` on the first Flags line only

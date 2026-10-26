@@ -8,11 +8,11 @@ description: >-
   /fromify, "fromify", or wants files spliced into an ify prompt.
   Print a complete reference with `/fromify help` or `/fromify --help`
   (also `/?`). `/fromify tldr` prints the short page. Empty
-  `/fromify` is short usage, not Help. Recognizes nimages / Nimages /
-  N images / N-images as a pointer to the newest N images from the
-  configured scratch source (or workspace scratch/). Recognizes npass
-  / Npass / N-pass / N pass as a pass-count flag handed to the
-  selected verb (fromify does not run its own second pass loop).
+  `/fromify` is short usage, not Help. Strips every numbered image
+  directive and hands each to the selected verb, including negatives,
+  multiples, and zero. Does not open scratch and does not print the
+  imagify zero error. Npass stays the first numbered instance, handed
+  to that verb (fromify does not run its own second pass loop).
 metadata:
   short-description: "Splice local files into an ify prompt; default plannify"
 ---
@@ -71,15 +71,42 @@ If the user invokes the skill with no prompt body, explain:
 
 ## Flag parse order (`Nimages` / `Npass`)
 
-On the **typed line only**, follow promptify **Flag parse order**
-(first numbered `Nimages` / `Npass` only). Strip them. They are not
-body text. Do not scan file bodies for flags.
+On the **typed line only**. Do not scan file bodies for flags.
+fromify does not open scratch.
 
-Hand the stripped flags to the **selected verb**, including the
-existing scratch source that verb already uses. fromify does not run
-its own second pass loop. `/fromify 2pass` and `/fromify 1image`
-apply to the selected verb (default plannify when no verb token is
-present).
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
+
+Accepted shapes (case-insensitive). N is digits, including 0:
+
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Hand every stripped image directive to the selected verb, and hand
+that first numbered pass. fromify does not run its own second pass
+loop and does not read the images. `/fromify 2pass` and
+`/fromify 1image -3image` apply to the selected verb (default
+plannify when no verb token is present).
 
 ---
 
@@ -168,8 +195,8 @@ Read the selected verb from this tree (`~/.grok/skills/<name>/SKILL.md`
 or this repo’s `.grok/<name>/SKILL.md`) and follow it
 completely on the spliced body. Do not reimplement that verb.
 
-Hand the typed-line `Nimages` / `Npass` flags through as that verb’s
-flags.
+Hand every stripped image directive through as that verb’s flags,
+and the first numbered `Npass`. fromify does not open scratch.
 
 ---
 
@@ -190,10 +217,12 @@ equals runnify plus the exact file text of `test.txt`.
 
 ```text
 fromify 2pass
-fromify 1image
+fromify 1image -3image
 ```
 
-apply `2pass` / `1image` to the selected verb (here, plannify).
+`2pass` is the pass flag (first numbered instance). `1image` and
+`-3image` both apply to the selected verb (here, plannify).
+fromify does not open scratch.
 
 ---
 
@@ -217,9 +246,10 @@ Help, tldr, pass, and empty usage do not retitle.
 - First whitespace-delimited ify verb or alias (optional `/`,
   case-insensitive) selects that verb and is removed. Never select
   `fromify`. A later verb word stays in the body.
-- `Nimages` / `Npass`: promptify flag parse order on the typed line
-  only. Hand them to the selected verb, including the existing
-  scratch source. fromify does not run its own second pass loop.
+- Image directives: strip every numbered one, including negatives
+  and zero, and hand each to the selected verb. Pass stays the first
+  numbered instance. Do not open scratch. fromify does not run its
+  own second pass loop.
 - `from=` / `from:` and bare path-like tokens are file slots per the
   contract. Prose before and after stays. File bodies are literal.
 - Contract **Error:** stops the turn. Do not invent file text.

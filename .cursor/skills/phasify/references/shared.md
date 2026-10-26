@@ -59,9 +59,17 @@ in Flags). Leave the rest unchanged.
 ### Flags — both, one, or none
 
 Parse `Nimages` and `Npass` independently per promptify **Flag parse
-order**: first numbered instance left to right; skip unnumbered
-`image` / `pass` so a later `1image` / `2pass` can count. Exception: the first typed token exactly `image` counts as `1image`. No numbered
-instance ⇒ that flag is absent.
+order**. Image family: every numbered directive counts. Positive N is
+the N newest (newest mtime first). Negative `-K` is one file, `|K|`
+steps back from the newest. The files are the union, each path once,
+newest mtime first. Do not pass a negative to `scratch ls`. List
+positive `M` = the largest of the positive counts and of `|negative| + 1`,
+then slice. An offset past the end adds no file. Zero (`0image`,
+`image0`, `-0image`) is an error before any read. The ack names every
+image token. Pass family: first numbered instance left to right only.
+Skip unnumbered `image` / `pass` so a later `1image` / `2pass` can
+count. Exception: the first typed token exactly `image` counts as
+`1image`. No numbered instance ⇒ that flag is absent.
 
 | What the user included | Flags row |
 |------------------------|-----------|
@@ -73,7 +81,7 @@ Each present flag is its own Description line:
 
 `Caught and correctly interpreted <token>. On pass k of N.`
 
-- `<token>` is the exact numbered token (`1image`, `2pass`, …).
+- Image family: `<token>` lists every numbered image token (`1image`, `-3image`, …), not only the first. Pass family: the first numbered token (`2pass`, …).
 - **N** is the Npass value (default **1** if `Npass` is absent).
 - **k** is the pass just finished or in progress (after the last pass:
   `On pass N of N`).
@@ -111,19 +119,19 @@ or singular **`Nimage`** / **`N image`** / **`N-image`** (case-insensitive;
 examples: `1image`, `1 image`, `1-image`, `3images`), that token is an
 **attachment marker**, not a phase count and not part of the task wording.
 
-Follow promptify **Scratch images**: if `scratch.env` exists, run
-`scripts/cli.sh scratch ls N` (or `scripts\cli.ps1 scratch ls N`) and
-**read those paths**. Else workspace `scratch/` (do not create). Use
+Follow promptify **Scratch images**. Every numbered image directive counts. Positive N is the N newest files, newest mtime first. Negative `-K` is exactly one file, `|K|` steps back from the newest (`-1` is the second newest). Union the paths, each once, newest mtime first. Do not pass a negative to `scratch ls`. List once with positive `M` = the largest of the positive counts and of `|negative| + 1`, then slice (`1image -3image` calls `scratch ls 4` and keeps index 0 and index 3). An offset past the end adds no file. Do not invent a path. `0image`, `0images`, `image0`, `images0`, and `-0image` are an error before any read: `Error: image count starts at 1`. `image -3` stays blank n (N = 1); the `-3` is not part of that directive. `Npass` stays the first numbered instance only. The ack names every image token. If `scratch.env` exists, run
+`scripts/cli.sh scratch ls M` (or `scripts\cli.ps1 scratch ls M`) and
+**read the sliced paths**. Else workspace `scratch/` (do not create). Use
 what the images show (blocker evidence, UI state, phase
 clarification). Do not treat the marker as phase-selection.
 
 **Tell the user (mandatory, first printed content when a marker is present):**
-Name the source (`local …` or `remote conn:dir` or workspace `scratch/`).
+Name every image token, not only the first. Name the source (`local …` or `remote conn:dir` or workspace `scratch/`).
 Then run the chosen phasify mode.
 
 ```markdown
 **Scratch images — caught and correctly interpreted.**
-Recognized `<token>` as an attachment marker. Looking at the N most recent
+Recognized `<tokens>` as attachment markers (every image token, not only the first). Looking at the selected
 image(s) from <source> for extra detail on the issue under review.
 ```
 

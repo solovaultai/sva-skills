@@ -26,6 +26,6 @@ Window prefix `RUN:` (`docs/window_title.md`).
 | `pass` / `pass help` | Print the Pass (`Npass`) subsection only and stop | There is no `/pass` skill |
 | `runify` | Alias of `/runnify` | Short name |
 | `promptify-run` | Alias of `/runnify` | Same pipeline under the older name |
-| `Nimages` | N newest images from the scratch source or workspace `scratch/` | Read them; use what they show |
+| `Nimages` | Union of every numbered image directive (positive N = N newest; `-K` = one file `|K|` back) from the scratch source or workspace `scratch/` | Read them; use what they show |
 | `img` | Specific files, not newest-N. Cite promptify **Named images** | The solution reads each resolved image |
 | `Npass` | N pipeline passes of this execution run | If N > 1, pass 1 is a documented pre-plan; last pass executes + Results |

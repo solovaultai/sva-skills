@@ -12,9 +12,10 @@ description: >-
   phases. Does not write or delete. Print a complete reference with
   `/resumeify help` or `/resumeify --help` (also `/?`). `/resumeify
   tldr` prints the short page. `/resumeify pass` prints the Pass
-  (Npass) subsection (also `pass help`). Recognizes nimages / Nimages /
-  N images / N-images and npass / Npass / N-pass / N pass per
-  promptify Flag parse order. Resumeify does not run its own second
+  (Npass) subsection (also `pass help`). Strips every numbered image
+  directive, including negatives, multiples, and zero. Does not read
+  scratch and does not print the imagify zero error. Npass stays the
+  first numbered instance. Resumeify does not run its own second
   pass loop.
 argument-hint: "[<name|#|list>]"
 user-invocable: true
@@ -82,12 +83,40 @@ is **empty** after the strip: selection list. `Choose none` stops.
 
 ## Flag parse order (`Nimages` / `Npass`)
 
-On the **typed line only**, follow promptify **Flag parse order**
-(first numbered `Nimages` / `Npass` only). Strip them. They are not
-the snapshot name. Do not scan snapshot files for flags.
+On the **typed line only**. Do not scan snapshot files for flags.
 
-Do not read `Nimages` scratch sets. Do not run a pass loop.
-Cite promptify **Flag parse order** — do not fork.
+**Image family.** Strip every numbered image directive on the
+typed line. `1image -3image` strips both. A negative count is
+one directive.
+
+Accepted shapes (case-insensitive). N is digits, including 0:
+
+- `Nimage`, `Nimages`, `N-image`, `N-images`, `N image`, `N images`
+- `imageN`, `imagesN`
+- `-Nimage`, `-Nimages`, `-N-image`, `-N-images`, `-N image`, `-N images`
+- `image-N`, `images-N`
+
+`0image`, `image0`, and `-0image` are in that list, and so is every
+other accepted shape whose digits are 0. Strip them. Do not print
+`Error: image count starts at 1`.
+
+`image -3` is not a negative directive. When that `image` is the
+first token, it is `1image` and the `-3` stays on the line. Use
+`-3image` or `image-3` for a negative. `image -3image` is two
+directives when `image` is the first token (`1image` and `-3image`).
+Both are stripped. Unnumbered `image` / `images` are not directives
+except that leading `image`. `images` and a non-leading `image` stay
+unnumbered.
+
+**Pass family.** The first numbered `Npass`, `N-pass`, or `N pass`
+is the pass flag. A later numbered pass token stays on the line.
+Do not take the largest N. Unnumbered `pass` / `passes` are not
+pass flags.
+
+Strip every image directive and that first numbered pass. They are
+not the snapshot name. Resumeify does not read scratch images, does
+not run a pass loop, and does not print the scratch or Npass
+acknowledgements.
 
 ## Named images (`img`)
 
@@ -316,8 +345,10 @@ retitle. A saved-context restore does, including empty
 - A different `cwd` is announced. Do not change directory.
 - Unfinished plan: the next command is `/phasify`. All work phases
   Done: the plan is complete. `kind` `other` says neither.
-- `Nimages` / `Npass`: promptify flag parse order on the typed line
-  only. Do not fork. Do not loop.
+- Image directives: strip every numbered one on the typed line,
+  including negatives and zero. They are not a snapshot name. Pass
+  stays the first numbered instance. Do not read scratch. Do not
+  loop. Do not print `Error: image count starts at 1`.
 - Exact `help` / `--help` / `/?` after flag strip: print
   `references/HELP.md` and stop. Exact `tldr`: print
   `references/TLDR.md` and stop. Exact `pass` / `pass help`: print

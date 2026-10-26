@@ -133,14 +133,18 @@ plus `not an ify; use /image help`.
 ## Flags (`Nimages` / `Npass`)
 
 Cite promptify **Flag parse order** — do not fork. Read left to
-right. Each family independently. **First numbered instance** wins.
+right. The image family and the pass family are independent.
 
 | Rule | Example |
 |------|---------|
-| Numbered instance counts | `1image`, `1 image`, `1-image`, `3images`, `2pass`, `2-pass` |
+| Image: every numbered directive counts | Union, each path once, newest mtime first. Positive N is the N newest. `-K` is one file, K steps back |
+| Image: do not pass a negative to `scratch ls` | List positive `M` = max(positive counts, abs(negative)+1), then slice. `1image -3image` is `scratch ls 4`, indexes 0 and 3 |
+| Image: zero is an error before any read | `0image`, `image0`, `-0image` → `Error: image count starts at 1` |
+| Image: `image -3` is blank n (N = 1) | The `-3` is not part of that directive. Use `-3image` or `image-3` |
+| Image ack names every image token | Not only the first |
+| Pass: first numbered instance only | `2pass`, `2-pass`, `2 pass`. Not the largest N |
 | Unnumbered word does **not** count | `image`, `images`, `pass`, `passes` — keep scanning |
-| First typed token `image` counts as `1image` | Any case; stripped. Later numbered image token does not override |
-| Several numbered → first only | Do **not** take the largest N |
+| First typed token `image` counts as `1image` | Any case; stripped. A later numbered image directive is included in the union |
 | No numbered instance → flag absent | Ordinary English “image” / “pass” is not a marker |
 | **`-2pass` is Npass** | Not a subcommand |
 
