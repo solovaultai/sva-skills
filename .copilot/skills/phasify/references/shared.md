@@ -322,11 +322,15 @@ print the **Pass (`Npass`)** section only.
   `pass` / `pass help` prints the **Pass (`Npass`)** section and
   stops.
 - All multi-phase execute modes are **sequential, synchronous, in plan
-  order**. No parallel/fan-out. Next-N, Run-to-end, Stop-before-end,
+  order**. No parallel/fan-out. Next-N, Run-to-end, Full, Stop-before-end,
   Rundefer, and Runblock: x finishes, then x+1 begins.
 - Skip `Done`, `Deferred`, and `Def-Blocked` unless `--force` /
   explicit redo / named `pN`. Stop the sequence on `Blocked`. Skip
   `Def-Blocked` (do not “run until blocked”).
+- **Full** (`full`) uses that same skip, then a partial compress
+  between phases (see `full.md`). **`full rundefer`** does not skip
+  `Deferred`: each one becomes `Left` and runs. `Def-Blocked`
+  becomes `Blocked` and the walk stops.
 - After every finished phase except the last of this run: banner only.
   After the last phase of this run: banner + full table. Single-phase
   Next stays banner + table.
@@ -362,6 +366,7 @@ print the **Pass (`Npass`)** section only.
   Npass = this rundefer run, not whole-table replan. Parse `rundefer`
   **before** `undefer` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
   `todo` ≠ `todone`. Do not collapse on `un` / `defer` / `run`.
+  `full rundefer` and `rundefer full` are **Full**, not this mode.
   **Undefer stays status-only** (no execute).
 - `runblock` / `Nrunblock` / `runblock N` / `runblockN` unblock then
   execute remaining work or mark `Done`. Skip Unblock’s verification

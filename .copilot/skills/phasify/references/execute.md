@@ -58,7 +58,7 @@ that goal; if not, stop and say why.
    (work landed or explicitly Blocked) **before** phase x+1 begins.
    Do **not** run phases in parallel, as background agents, or as a batch
    of simultaneous todos. No async fan-out. Applies to Next-N,
-   Run-to-end, Stop-before-end, Rundefer, and Runblock.
+   Run-to-end, Full, Stop-before-end, Rundefer, and Runblock.
 4. Mark status accurately: `Done` only if the work **landed**; else
    `In progress`, `Blocked`, or leave as `Left`. Remaining unstarted work
    after a partial run is **`Left`**.
@@ -98,7 +98,7 @@ Use `✓` and `COMPLETED` for Done. If Blocked:
 - After the **last phase of this run:** banner + full `phase_layout.txt`
   recap (Task, Flags if any, statuses).
 
-Apply this to Next-N, Run-to-end, Stop-before-end, Rundefer, and
+Apply this to Next-N, Run-to-end, Full, Stop-before-end, Rundefer, and
 Runblock. Single-phase Next stays banner + table. Named single-phase
 (`0` / `pN`) also stays banner + table. Rundefer of one deferred
 phase stays banner + table. Runblock of one blocked phase stays

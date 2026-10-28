@@ -447,6 +447,8 @@ See HELP **Concepts** here; addify behavior is defined in addify
 /phasify 3               — Next-N: next 3 incomplete phases
 /phasify done            — Run-to-end (also finish / end / all / close / toend)
 /phasify toend           — same as done (also to-end / to end)
+/phasify full            — rest of the plan, or until Blocked, with a partial compress between phases
+/phasify full rundefer   — that walk, and rundefer each Deferred phase as it is reached
 /phasify -               — Stop-before-end (also -0 / -N)
 /phasify defer [reason]  — Defer next open phase (also Ndefer / defer N)
 /phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)
@@ -500,6 +502,8 @@ Pass help, not a task.
 | `pN`, `phase N`, `phase pN`, `run phase pN` | **Named** | Yes — that phase (PN). Bare `pN` stays execute |
 | `3`, `next 3`, `run next 3 phases` | **Next-N** | Yes — next **N ≥ 1** incomplete phases |
 | `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | **Run-to-end** | Yes — every remaining incomplete phase |
+| `full` | **Full** | Yes — rest of the plan, or until Blocked, with a partial compress between phases |
+| `full rundefer` / `rundefer full` | **Full** | Yes — that walk, and rundefer each Deferred phase as it is reached |
 | `-` / `-0` / `-N` | **Stop-before-end** | Yes — through 1-based index `C − N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | No — status only |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | No — status only (`Left`) |
@@ -567,7 +571,7 @@ stay execute. `instruct N` for N ≥ 2, `Ninstruct`, `instructN`,
 `instruct` or `instruct pN`). `instruct 0` / `0instruct` /
 `instruct0` is **Error:** (use `instruct p0`).
 
-New tokens are words (`done`, `toend`, `defer`, `undefer`, `rundefer`,
+New tokens are words (`full`, `done`, `toend`, `defer`, `undefer`, `rundefer`,
 `todo`, `todone`, `explain`, `dummy`, `coach`, `instruct`, `mini`, `ask`, `block`, `unblock`, `runblock`, `howto`, `remove`, `delete`) or a **leading minus** (`-2`),
 never something that collides with `2pass`. Match `runblock` /
 `Nrunblock` / `runblockN` as **Runblock** first (the token contains
@@ -757,6 +761,40 @@ Last executed phase of the plan gets the full recap.
 /phasify done
 /phasify finish
 /phasify toend
+```
+
+---
+
+## Full
+
+`full` runs the rest of the plan, or until `Blocked`, with a
+partial compress between phases. `full rundefer` and
+`rundefer full` do that walk and rundefer each `Deferred` phase
+as the walk reaches it. `done` / `toend` do not partial-compress.
+
+After flag strip. Case-insensitive. Match before Rundefer and
+before Run-to-end. `full` is one bare token. The only second
+token is `rundefer`. `full N`, `Nfull`, `full2`, `2full`,
+`full pN`, and `full 0` are **Error:**.
+
+`full` skips `Done`, `Deferred`, and `Def-Blocked`, and stops
+on `Blocked`. `full rundefer` undefer-and-runs each `Deferred`
+phase in plan order (`Deferred` → `Left`, clear Reason).
+`Def-Blocked` becomes `Blocked` (keep Reason) and the walk
+stops. Do not execute that phase.
+
+Between phases, after the banner, when a full optimize did not
+fire: drop the finished phase's command output, file bodies,
+and narrative. Keep Task, Flags, phase id and status, paths
+touched, and the next phase id. Do not write the handoff. Do
+not print `/compact`, `/clear`, or `/new`. Do not stop. An
+armed `before` or `after`, or optify on with a context meter
+at or above about 70%, is still the full optimize and stops
+the turn. Do not also partial-compress that boundary.
+
+```text
+/phasify full
+/phasify full rundefer
 ```
 
 ---

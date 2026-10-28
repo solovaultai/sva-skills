@@ -82,7 +82,7 @@ keep that summary text.
 
 `<n>` is the work phase this run is on (`P0` prints as `P0`).
 `<total>` is the work-phase count. Task and Flags do not count.
-Next-N, run-to-end, stop-before-end, rundefer, and runblock update
+Next-N, run-to-end, full, stop-before-end, rundefer, and runblock update
 the name at the **start** of each phase. Show, todo, explain, dummy,
 and guide use the phase they are about. A tldr phase tell
 (a selector such as `tldr 1`, `tldr N`, `Ntldr`, or `tldr pN`) uses

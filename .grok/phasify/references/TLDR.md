@@ -16,6 +16,8 @@ Window name is `PHASE:P<n>/<total>:<PREFIX>: <summary>` (`docs/window_title.md`)
 /phasify 3               — Next-N: next 3 incomplete phases
 /phasify done            — Run-to-end (also finish / end / all / close / toend)
 /phasify toend           — same as done (also to-end / to end)
+/phasify full            — rest of the plan, or until Blocked, with a partial compress between phases
+/phasify full rundefer   — that walk, and rundefer each Deferred phase as it is reached
 /phasify -               — Stop-before-end (also -0 / -N)
 /phasify defer [reason]  — Defer next open phase (also Ndefer / defer N)
 /phasify undefer         — Undefer next Deferred phase (also Nundefer / undefer N)

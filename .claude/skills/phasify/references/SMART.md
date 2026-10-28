@@ -91,6 +91,8 @@ Prefer the **single** existing mode that achieves the whole ask
 | Coach / one step at a time / check the person’s output | **coach** `coach` or `coach pN`. Not howto. Not runblock |
 | Steps to get past a block, without running the phase | **howto** `howto` or `howto pN` |
 | Run until N before last / all but last N | **Stop-before-end** `-N` |
+| Run the rest with a clearout between phases | **Full** `full` |
+| Run the rest and rundefer deferred phases | **Full** `full rundefer` |
 | Run remaining / to the end | **Run-to-end** `done` |
 | Next N phases | **Next-N** |
 | Named phase / run PN | **Named** `pN` |

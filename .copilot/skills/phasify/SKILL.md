@@ -4,7 +4,8 @@ description: >-
   Phasify — execute phase(s) of a plannified plan. Aliases: /phaseify,
   /phify. Empty /phasify =
   next incomplete. Named P0 (0/p0); next N (bare N≥1); done/toend =
-  run-to-end; -N = stop-before-end. Modes: defer, undefer, rundefer,
+  run-to-end; full = rest of the plan with a partial compress between
+  phases (full rundefer also rundefers); -N = stop-before-end. Modes: defer, undefer, rundefer, full,
   todo, explain, dummy, todone, block, unblock, runblock, howto, coach, instruct, ask, remove (delete
   alias), smart, show, help, tldr. Optional guide on explain, tldr, and dummy.
   Instruct (`instruct`, `mini`, `instruct next`, `pN-next`) is a read-only
@@ -50,7 +51,7 @@ and behavior; `/phasify help` prints HELP. See HELP **Concepts**.
 
 ## Flags (`Nimages` / `Npass`)
 
-Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end,
+Applies to **every** phasify mode (Next, Named, Next-N, Run-to-end, Full,
 Stop-before-end, Defer, Undefer, Rundefer, Todo, Explain, Dummy, Todone, Block,
 Unblock, Runblock, Howto, Coach, Instruct, Ask, Remove, Smart, Show, Help). Parse and strip **before** mode dispatch.
 
@@ -101,6 +102,8 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
 | `next`, `run next phase` | **Next** | The next incomplete phase (count = 1). Bare `next` stays execute |
 | `3`, `next 3`, `run next 3 phases` | **Next-N** | The next **N** incomplete phases, **N ≥ 1** |
 | `done` / `finish` / `end` / `all` / `close` / `toend` / `to-end` / `to end` | **Run-to-end** | Every remaining incomplete phase through the end of the plan |
+| `full` | **Full** | Rest of the plan, or until Blocked, with a partial compress between phases |
+| `full rundefer` / `rundefer full` | **Full** | That walk, and rundefer each Deferred phase as it is reached |
 | `-` / `-0` / `-N` | **Stop-before-end** | Run through 1-based index `C - N`; do not run phases `> C - N` |
 | `defer`, `Ndefer`, `defer N` [reason] | **Defer** | Mark that phase Deferred (optional reason); do not execute |
 | `undefer`, `Nundefer`, `undefer N` | **Undefer** | Clear Deferred → `Left`; do not execute |
@@ -189,8 +192,17 @@ is a pass flag, not stop-before-end. Bare `/phasify` stays **Next**.
   only the `P`/`p` family (`runblock pN` / `pN runblock` /
   `runblockPN` / `PNrunblock`). `runblock 0` / `0runblock` /
   `runblock0` is **Error:** (use `runblock p0`).
+- Match **`full`** and **`full rundefer` / `rundefer full`** as **Full**
+  before **Rundefer** and before **Run-to-end**. `full` runs the rest
+  of the plan, or until `Blocked`, with a partial compress between
+  phases. `full rundefer` does that walk and rundefers each `Deferred`
+  phase as it is reached. `full` is one bare token. The only second
+  token is `rundefer`. `full N`, `Nfull`, `full2`, `2full`, `full pN`,
+  and `full 0` are **Error:**. `full` ≠ `toend` ≠ `done` ≠ `all` ≠
+  `rundefer`.
 - Match **`rundefer` / `Nrundefer` / `rundeferN`** as **Rundefer**
-  **first** (the token contains `undefer` / `defer`). Do not collapse
+  after **Full** (the token contains `undefer` / `defer`). `full rundefer`
+  and `rundefer full` are Full, above, not this mode. Do not collapse
   on `run` / `un` / `defer`. `rundefer` ≠ `undefer` ≠ `toend` ≠
   `todo` ≠ `todone`. **`rundefer N` / `Nrundefer` / `rundeferN` /
   `2rundefer` / `rundefer2` means next N Deferred / Def-Blocked**,
@@ -311,8 +323,11 @@ Do not execute, defer, undefer, rundefer, todo, todone, explain, dummy, coach, i
 runblock, howto, remove, delete, or show. Do not invent extra modes. Help and exact `tldr` are not
 phase selectors. Empty `/phasify` is **Next**, not Help.
 
-**Mode dispatch:** Named / Next / Next-N / Run-to-end / Stop-before-end /
+**Mode dispatch:** Named / Next / Next-N / Run-to-end / **Full** / Stop-before-end /
 **Rundefer** / **Runblock** are **execute** modes (mutating).
+**Full** is the rest of the plan, or until Blocked, with a partial
+compress between phases. `full rundefer` rundefers Deferred phases
+in that walk.
 **Rundefer** undefer then execute (single step). **Runblock**
 unblock then execute-or-mark-Done (single step). **Defer**,
 **Undefer**, **Block**, **Unblock** (on verified pass), and
@@ -343,11 +358,12 @@ Do not read `references/HELP.md` except for `/phasify help` (also `--help`, `/?`
 
 **On:** read only the parsed mode file in the table, plus `references/table_layout.md`, plus `references/shared.md` when that mode locates or updates the plan. Do not read the other mode files.
 
-**Off:** read every mode reference: `shared.md`, `table_layout.md`, `execute.md`, `todo.md`, `explain.md`, `dummy.md`, `guide.md`, `coach.md`, `instruct.md`, `ask.md`, `todone.md`, `howto.md`, `defer.md`, `undefer.md`, `rundefer.md`, `block.md`, `unblock.md`, `runblock.md`, `remove.md`, `show.md`, and `SMART.md`. Still do not read `HELP.md` except for help / pass.
+**Off:** read every mode reference: `shared.md`, `table_layout.md`, `execute.md`, `full.md`, `todo.md`, `explain.md`, `dummy.md`, `guide.md`, `coach.md`, `instruct.md`, `ask.md`, `todone.md`, `howto.md`, `defer.md`, `undefer.md`, `rundefer.md`, `block.md`, `unblock.md`, `runblock.md`, `remove.md`, `show.md`, and `SMART.md`. Still do not read `HELP.md` except for help / pass.
 
 | Parsed mode | Mode file | Also read |
 |-------------|-----------|-----------|
 | Next, Named, Next-N, Run-to-end, Stop-before-end | `execute.md` | `shared.md`, `table_layout.md` |
+| Full | `full.md` | `execute.md`, `shared.md`, `table_layout.md` |
 | Rundefer | `rundefer.md` | `execute.md`, `shared.md`, `table_layout.md` |
 | Runblock | `runblock.md` | `execute.md`, `shared.md`, `table_layout.md` |
 | Defer | `defer.md` | `shared.md`, `table_layout.md` |
@@ -374,9 +390,9 @@ On a mutating run, apply **Phase boundary** before the mode-file read. If that o
 
 ## Phase boundary
 
-Cite the optify skill's `references/optify_contract.md`. Clear and compact follow that contract. A phase mutation is not an optimize. Do not compact between phases when nothing is armed and the meter is under the cutoff.
+Cite the optify skill's `references/optify_contract.md`. Clear and compact follow that contract. A phase mutation is not an optimize. Do not compact between phases when nothing is armed and the meter is under the cutoff. Full is the exception for a minor clearout: between its phases, after the banner, run Partial compress when a full optimize did not fire. `done` and `toend` still do not compact.
 
-Mutating runs: Named, Next, Next-N, Run-to-end, Stop-before-end, Defer, Undefer, Rundefer, Todone, Block, Unblock, Runblock, Remove. **Howto, show, explain, dummy, a tldr phase tell, guide, coach, instruct, and ask do not optimize.** Help, exact tldr, and pass do not optimize. A tldr question, a dummy question, and ask do not optimize and do not retitle. Todo is read-only and does not optimize. Explain, dummy, tldr-tell, guide, coach, instruct, and ask do not change Status and do not rewrite the phased plan.
+Mutating runs: Named, Next, Next-N, Run-to-end, Full, Stop-before-end, Defer, Undefer, Rundefer, Todone, Block, Unblock, Runblock, Remove. **Howto, show, explain, dummy, a tldr phase tell, guide, coach, instruct, and ask do not optimize.** Help, exact tldr, and pass do not optimize. A tldr question, a dummy question, and ask do not optimize and do not retitle. Todo is read-only and does not optimize. Explain, dummy, tldr-tell, guide, coach, instruct, and ask do not change Status and do not rewrite the phased plan.
 
 **Start** of a mutating run, before the mode-file read. Optimize, then stop the turn, only when one of these is true:
 

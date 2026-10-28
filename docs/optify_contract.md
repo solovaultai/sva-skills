@@ -227,6 +227,8 @@ is not a compact and not a clear.
 
 Do not compact between every phase when nothing
 is armed. A phase boundary alone is not a compact.
+`phasify full` is not this compact. Between its
+phases it runs Partial compress, below.
 A phase mutation alone is not an optimize. Do
 not replace "about 70%" with another cutoff.
 
@@ -234,6 +236,40 @@ An armed `after` at the end of a phase is an
 optimize. Clear versus compact still follows the
 rules above. The usual case is the same plan, so
 the action is compact.
+
+---
+
+## Partial compress
+
+A partial compress is a minor clearout inside one `phasify full` or
+`phasify full rundefer` run. It is not a compact and not a clear.
+
+It runs only between those phases, after the phase banner, when a
+full optimize did not fire on that boundary.
+
+Drop from what the next phase carries:
+
+- the finished phase's command output
+- file bodies already read for that phase
+- that phase's narrative
+
+Keep:
+
+- Task
+- Flags
+- phase id and status
+- paths touched
+- the next phase id
+
+Do not write the handoff. Do not print `/compact`, `/clear`, or
+`/new`. Do not stop the turn. Continue the next phase in the same
+run.
+
+A context meter at or above about 70% (switch on), an armed
+`before`, and an armed `after` are still a full optimize. They
+stop the turn. Do not also partial-compress that boundary. The
+switch off does not turn off this partial compress. The meter
+check still runs only while the switch is on.
 
 ---
 
@@ -317,6 +353,12 @@ the phase banner and the table first, then the
 status update, then optimize, then stop. Status
 updates still land before an after stop. Clear
 `after` when that shot fires.
+
+`phasify full` and `phasify full rundefer` run
+Partial compress between phases when neither
+start check fired and `after` is not armed.
+That clearout does not stop the turn. It does
+not replace the checks above.
 
 Howto, show, and explain do not optimize.
 
