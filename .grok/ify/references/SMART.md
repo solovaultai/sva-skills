@@ -61,6 +61,7 @@ verbs.
 | Instructions live in local files | **fromify** when no ify verb is named; if the user already named a verb, that verb with `from=` |
 | Document this prompt | **docify**. Default is askify; a leading ify verb selects that verb |
 | Shrink context or turn token policy on or off | **optify** |
+| Create or repair a project repo, including clone. A trailing instruction on that same request stays buildify | **buildify** |
 | Implement / execute / build / “just do it” (not a named phase, not a bug) | **runnify** |
 | Plain-language / non-technical answer (not a phase on the current plan) | **askify** as `dummy <question>` |
 | Question / list / options / explain **existing** (read-only) | **askify** |
@@ -113,6 +114,7 @@ invented):
 | askify | a question to answer read-only; plain language → `dummy <question>` |
 | plannify | a planning request (plan, do not implement); current-plan feature add → `add <feature>` |
 | runnify | the work to execute |
+| buildify | one repo to create, ensure, or clone; a trailing instruction stays on that line |
 | phasify | the phase selector / next-phase request (no new plan) |
 | debugify | the bug report (this tree: full loop; `/debug` alias) |
 | promptify | the prompt to optimize (no execute) |

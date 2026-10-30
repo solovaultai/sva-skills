@@ -77,7 +77,7 @@ Scan **this conversation** newest-first. Chat only — no disk store.
 
 **Ify set:** `promptify` · `plannify` · `phasify` · `runnify` ·
 `debugify` · `askify` · `ify` · `addify` · `fromify` · `docify` ·
-`saveify` · `resumeify` · `imagify`.
+`saveify` · `resumeify` · `imagify` · `buildify`.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.copilot/skills/docify/SKILL.md`.
 
@@ -137,7 +137,8 @@ Append **verbatim**. One newline so tokens do not glue. Strip
 | **ify** | Restart `/ify` from scratch on the combined text. **Not** fromhere. |
 | **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
 | **docify** | Restart `/docify` on the original invocation plus the appended text. Flags re-parse. Default verb remains askify unless a verb token is present. |
-| **imagify** | Restart `/imagify` on the combined text. The reply is still only the transcribed text. |
+| **imagify** | Restart `/imagify` on the combined text. The reply is still only that output (transcribed text, shown images, or the details listing). |
+| **buildify** | Restart `/buildify` on the combined text. Create or ensure the repo, then hand any instruction tail to runnify. |
 | **addify** | Resolve ancestor, then dispatch. |
 
 If phasify is last and no current plan exists, say `/plannify` first.

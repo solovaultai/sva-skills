@@ -258,6 +258,7 @@ Name a missing or ambiguous file in that ack.
 |------|-----|
 | promptify | Evidence in the optimized prompt and in the solution |
 | runnify | Evidence in the solution that run produces |
+| buildify | Hands image, pass, and img tokens to runnify |
 | plannify | Part of the plan |
 | askify | Evidence in the answer |
 | docify | Included in the written document |

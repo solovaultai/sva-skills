@@ -14,7 +14,12 @@
 #   image-<k> images-<k>                      one offset   (image-3)
 #   image | images                            blank n = 1  (image -3 is still 1)
 #   0image image0 -0image                     Error: image count starts at 1
-#   text | totext | 2text                     text mode (the default, only mode)
+#   text | totext | 2text                     text mode (the default)
+#   show [N|-K|N,K|details]                   display images (not text)
+#       show 2                                N newest, newest first
+#       show -K                               one file, index K (show -2 is 2 back)
+#       show 1,3                              newest, plus the image 3 back
+#       show details                          name, date, size, path of the 10 newest
 #   help | --help | /?                        print references/HELP.md and stop
 #   tldr                                      print references/TLDR.md and stop
 #   pass | pass help                          print the Pass (Npass) section and stop
@@ -27,6 +32,7 @@
 #   IMAGIFY_LANG=eng               tesseract language(s), e.g. eng+heb
 #   SVA_SKILLS_ROOT                sva-skills repo (for scripts/cli.sh scratch ls N)
 #   IMAGIFY_NO_CLIP=1              do not touch the clipboard
+#   IMAGIFY_NO_OPEN=1              show: print paths, do not open a viewer
 set -u
 
 SKILL_DIR="${HOME}/.claude/skills/imagify"
@@ -54,12 +60,36 @@ print_pass() {
 }
 
 # ---------- parse ----------
-# SEL holds signed selectors. Positive N = indexes 0..N-1.
+# SEL holds image-directive selectors. Positive N = indexes 0..N-1.
 # Negative -K = index K only. Zero sets ZERO and is not stored.
+# SHOW_PARTS holds the numbers after `show`, in order. A single positive
+# is a count. A single negative is an index. In a longer list the first
+# positive is a count and every later number is an index (absolute value),
+# so `show 1,3` is the newest plus the image 3 back.
 SEL=()
-ZERO=0          # 0image / -0image seen
+SHOW_PARTS=()
+ZERO=0          # 0image / -0image / show 0 seen
 IMG_ERR=0       # img= seen
+MODE=text       # text | show
+DETAILS=0       # show details
 REST=()         # tokens left after directives are removed
+
+add_show_piece() {  # $1 signed integer text
+  local raw="$1" sign=1 digits n
+  if [[ "$raw" == -* ]]; then sign=-1; digits="${raw#-}"; else digits="$raw"; fi
+  [[ "$digits" =~ ^[0-9]+$ ]] || return 1
+  n=$((10#$digits))
+  if [ "$n" -eq 0 ]; then ZERO=1; return 0; fi
+  if [ "$sign" -lt 0 ]; then SHOW_PARTS+=("-$n"); else SHOW_PARTS+=("$n"); fi
+}
+
+add_show_token() {  # $1 comma-separated signed integers
+  local raw="$1" piece
+  IFS=',' read -ra _bits <<< "$raw"
+  for piece in "${_bits[@]}"; do
+    add_show_piece "$piece" || return 1
+  done
+}
 
 add_sel() {  # $1 signed integer text (3, -3, 0, -0)
   local raw="$1" sign=1 digits n
@@ -77,7 +107,8 @@ while [ $i -lt ${#tokens[@]} ]; do
   case "$lc" in
     img=*|img:*) IMG_ERR=1; i=$((i+1)); continue ;;
     from=*|from:*|docify|docpathify) i=$((i+1)); continue ;;
-    text|totext|2text) i=$((i+1)); continue ;;              # text mode is the only mode
+    text|totext|2text) i=$((i+1)); continue ;;              # text mode; show wins when both appear
+    show) MODE=show; i=$((i+1)); continue ;;
     [0-9]*pass|[0-9]*-pass) i=$((i+1)); continue ;;        # Npass stripped (first numbered only; no effect)
   esac
   # N pass (two tokens). A leading minus is not Npass.
@@ -104,6 +135,15 @@ while [ $i -lt ${#tokens[@]} ]; do
     add_sel 1                                              # "image -3" stays 1; -3 is not this directive
     i=$((i+1)); continue
   fi
+  # show details | show 2 | show -2 | show 1,3 | show 1 -3. Not an image directive.
+  if [ "$MODE" = show ] && [ "$lc" = details ]; then
+    DETAILS=1
+    i=$((i+1)); continue
+  fi
+  if [ "$MODE" = show ] && [[ "$lc" =~ ^-?[0-9]+(,-?[0-9]+)*$ ]]; then
+    add_show_token "$lc"
+    i=$((i+1)); continue
+  fi
   REST+=("$t"); i=$((i+1))
 done
 
@@ -116,18 +156,61 @@ esac
 
 [ "$IMG_ERR" -eq 1 ] && err "Error: imagify reads the newest N scratch images"
 [ "$ZERO" -eq 1 ]    && err "Error: image count starts at 1"
-[ ${#SEL[@]} -eq 0 ] && SEL=(1)
+if [ "$DETAILS" -eq 1 ] && { [ ${#SHOW_PARTS[@]} -gt 0 ] || [ ${#SEL[@]} -gt 0 ]; }; then
+  err "Error: show details takes no selector"
+fi
+# Text mode with no image directive is the newest image.
+# Show with no selector and no image directive is the newest image.
+# Show details always lists 10 and does not invent a count of 1.
+if [ "$MODE" = text ] && [ ${#SEL[@]} -eq 0 ]; then
+  SEL=(1)
+fi
+if [ "$MODE" = show ] && [ "$DETAILS" -eq 0 ] && [ ${#SHOW_PARTS[@]} -eq 0 ] && [ ${#SEL[@]} -eq 0 ]; then
+  SHOW_PARTS=(1)
+fi
 
-# Positive M = max(positive counts, |negative|+1). Never pass a negative to scratch ls.
-M=0
-for s in "${SEL[@]}"; do
-  if [ "$s" -gt 0 ]; then
-    [ "$s" -gt "$M" ] && M=$s
-  else
-    need=$(( ${s#-} + 1 ))
-    [ "$need" -gt "$M" ] && M=$need
+# Indexes to keep. Positive image directive N = 0..N-1. Negative -K = index K.
+# Show parts: one positive = that count; one negative = that index; a longer
+# list uses the first positive as a count and every later number as an index.
+declare -A want=()
+note_count() {  # $1 positive N
+  local i=0
+  while [ "$i" -lt "$1" ]; do want[$i]=1; i=$((i+1)); done
+}
+note_index() { want[$1]=1; }
+if [ "$DETAILS" -eq 0 ]; then
+  if [ ${#SEL[@]} -gt 0 ]; then
+    for s in "${SEL[@]}"; do
+      if [ "$s" -gt 0 ]; then note_count "$s"; else note_index "${s#-}"; fi
+    done
   fi
-done
+  _np=${#SHOW_PARTS[@]}
+  if [ "$_np" -eq 1 ]; then
+    s="${SHOW_PARTS[0]}"
+    if [ "$s" -gt 0 ]; then note_count "$s"; else note_index "${s#-}"; fi
+  elif [ "$_np" -gt 1 ]; then
+    s="${SHOW_PARTS[0]}"
+    if [ "$s" -gt 0 ]; then note_count "$s"; else note_index "${s#-}"; fi
+    _i=1
+    while [ "$_i" -lt "$_np" ]; do
+      s="${SHOW_PARTS[$_i]}"
+      note_index "${s#-}"
+      _i=$((_i+1))
+    done
+  fi
+fi
+
+# Positive M = one past the highest index. Never pass a negative to scratch ls.
+# details always lists the 10 newest.
+if [ "$DETAILS" -eq 1 ]; then
+  M=10
+else
+  M=0
+  for idx in "${!want[@]}"; do
+    need=$((idx + 1))
+    [ "$need" -gt "$M" ] && M=$need
+  done
+fi
 [ "$M" -ge 1 ] || err "Error: image count starts at 1"
 
 # ---------- resolve images ----------
@@ -159,28 +242,76 @@ if [ ${#listed[@]} -gt 0 ]; then
   for f in "${listed[@]}"; do [ -n "$f" ] && [ -f "$f" ] && clean+=("$f"); done
 fi
 
-# Slice. Positive N keeps indexes 0..N-1. Negative -K keeps index K.
-# An offset past the end adds no file. Dedupe by path. Newest mtime first.
-declare -A want=()
-for s in "${SEL[@]}"; do
-  if [ "$s" -gt 0 ]; then
-    i=0
-    while [ "$i" -lt "$s" ]; do want[$i]=1; i=$((i+1)); done
-  else
-    want[${s#-}]=1
-  fi
-done
+# Slice. want[] was filled above. An offset past the end adds no file.
+# Dedupe by path. Newest mtime first. details keeps the whole list (M=10).
 files=()
 declare -A seen=()
-i=0
-while [ "$i" -lt ${#clean[@]} ]; do
-  if [ -n "${want[$i]:-}" ]; then
-    f="${clean[$i]}"
-    if [ -z "${seen[$f]:-}" ]; then seen[$f]=1; files+=("$f"); fi
-  fi
-  i=$((i+1))
-done
+if [ "$DETAILS" -eq 1 ]; then
+  for f in "${clean[@]+"${clean[@]}"}"; do
+    [ -z "${seen[$f]:-}" ] && { seen[$f]=1; files+=("$f"); }
+  done
+else
+  i=0
+  while [ "$i" -lt ${#clean[@]} ]; do
+    if [ -n "${want[$i]:-}" ]; then
+      f="${clean[$i]}"
+      if [ -z "${seen[$f]:-}" ]; then seen[$f]=1; files+=("$f"); fi
+    fi
+    i=$((i+1))
+  done
+fi
 [ ${#files[@]} -eq 0 ] && err "Error: no image"
+
+fmt_size() {
+  if command -v numfmt >/dev/null 2>&1; then
+    numfmt --to=iec-i --suffix=B "$1" 2>/dev/null || printf '%s' "$1"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+open_image() {
+  [ -n "${IMAGIFY_NO_OPEN:-}" ] && return 0
+  if [ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ] && command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$1" >/dev/null 2>&1 &
+    disown $! 2>/dev/null || true
+  fi
+}
+
+set_window_title() {  # $1 summary
+  [ -n "${TMUX:-}" ] || return 0
+  local summary="$1" name
+  [ -z "$summary" ] && summary="image text"
+  name="IMG: ${summary}"
+  while [ ${#name} -gt 48 ] && [ "${name%% *}" != "$name" ]; do name="${name% *}"; done
+  name="${name:0:48}"
+  tmux rename-window "$name" 2>/dev/null || true
+}
+
+if [ "$DETAILS" -eq 1 ]; then
+  printf '%s\n' "index  name  date                 size      path"
+  idx=0
+  for f in "${files[@]}"; do
+    ts="$(stat -c '%Y' "$f" 2>/dev/null || stat -f '%m' "$f" 2>/dev/null || echo 0)"
+    bytes="$(stat -c '%s' "$f" 2>/dev/null || stat -f '%z' "$f" 2>/dev/null || echo 0)"
+    when="$(date -d "@${ts}" '+%Y-%m-%d %H:%M:%S' 2>/dev/null || date -r "$ts" '+%Y-%m-%d %H:%M:%S' 2>/dev/null || printf '%s' "$ts")"
+    printf '%-5s  %s  %s  %8s  %s\n' "$idx" "$(basename "$f")" "$when" "$(fmt_size "$bytes")" "$f"
+    idx=$((idx+1))
+  done
+  set_window_title "show image details"
+  exit 0
+fi
+
+if [ "$MODE" = show ]; then
+  for f in "${files[@]}"; do
+    printf '%s\n' "$f"
+    open_image "$f"
+  done
+  spec="${SHOW_PARTS[*]:-}"
+  [ -z "$spec" ] && spec="images"
+  set_window_title "show ${spec}"
+  exit 0
+fi
 
 # ---------- OCR ----------
 ocr_one() {

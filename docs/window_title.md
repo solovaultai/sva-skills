@@ -62,6 +62,7 @@ from the end of the summary until it fits. Never cut the prefix.
 | optify | `OPT: <summary>` |
 | gitify | `GIT: <summary>` |
 | imagify | `IMG: <summary>` |
+| buildify | `BUILD: <summary>` |
 
 Optify `<summary>` is the single subcommand word: `on`, `off`,
 `now`, `before`, or `after` (example `OPT: now`). Help, tldr, pass,
@@ -73,7 +74,9 @@ when that token is already that short. Help, tldr, pass, and
 dry-run do not retitle. A live bunch that commits does, including
 empty `/gitify`. Live `get`, live `put`, and live `unarchive` set `GIT:`.
 
-Imagify `<summary>` is three to six words of the transcription. Help, tldr, and pass do not retitle. Empty `/imagify` sets `IMG:`. A missing image does not.
+Imagify `<summary>` is three to six words of the transcription. Show mode uses three to six words of the selector (`show 2 images`, `show image details`). Help, tldr, and pass do not retitle. Empty `/imagify` sets `IMG:`. A missing image does not. Show does.
+
+Buildify `<summary>` is three to six words (`create test-repo`, `clone foo to bar`). Help, tldr, pass, empty usage, and dry-run do not retitle. A live create, ensure, or clone does. `BUILD` is not a phasify ancestor prefix.
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
 `ASK`, `IFY`, `FROM`, `DOC`, `IMG`). `<summary>` is a few words of the recovered Task, not
@@ -96,6 +99,7 @@ PHASE:P1/4:PLAN: ify window titles
 OPT: now
 GIT: add gitify verb
 IMG: image text
+BUILD: create test-repo
 ```
 
 ---
