@@ -4,14 +4,14 @@ Promptify in Planning mode. Coach the request into a planning-kickoff
 prompt, then run that prompt read-only and emit a structured plan. Never
 implements, edits, or mutates the workspace.
 
-`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). A from-slot still splices first. A spliced body is a prompt, not an interview. The empty-prompt interview does not read files.
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). A from-slot still splices first. A spliced body is a prompt, not an interview. Help, tldr, pass, and an interview (no instructional prompt before the splice) do not read files.
 `docify` / `docpathify` write the deliverable (`the docify skill's references/docify_contract.md`).
 Window prefix `PLAN:` (`docs/window_title.md`).
-No prompt (empty, or flags only) starts the eight-section interview and does not retitle. Goal and why cannot be skipped. Context, Constraints, What a good result looks like, Deliverable and format, Preferences on approach, Examples, and Already tried or ruled out are skippable. `help` is still the command list.
+No instructional prompt starts a walk that asks one section at a time and does not retitle. Directives may be present (`1image`, `3pass`; plannify `add` with no feature). An empty answer is valid for every section, including the goal. Areas: Goal and why, Context, Constraints, What a good result looks like, Deliverable and format, Preferences on approach, Examples, and Already tried or ruled out. `help` is still the command list.
 
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
-/plannify              — no prompt: eight-section interview (Goal required; stop and wait)
+/plannify              — no instructional prompt: walk, one section at a time (directives may be present; empty answer valid; stop and wait)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
 /plannify add <feat>   — add a feature to the just-run plan (last ify: plannify or phasify)
 /plannify help         — this reference (also --help / /?)
@@ -25,7 +25,7 @@ No prompt (empty, or flags only) starts the eight-section interview and does not
 | Argument | What it does | Why |
 |----------|--------------|-----|
 | `<prompt>` | Coach, then produce a plan (read-only) | Planning mode — never implements or mutates the workspace |
-| *(no prompt)* | Eight-section interview, then stop and wait | Body after flag strip is empty, including flags alone. Goal cannot be skipped. Not the command list. |
+| *(no instructional prompt)* | Walk, one section at a time, then stop and wait | Directives may be present (`1image`, `3pass`, plannify `add` with no feature). An instructional prompt is what blocks the interview. An empty answer is valid for every section, including the goal. Not the command list. |
 | `fromhere` | Replan from the current plan’s statuses (also `planify fromhere`) | Replan without a greenfield plan; keeps Done / Deferred / Def-Blocked |
 | `add <feature>` | Surgical feature add on the just-run plan | Last ify must be plannify or phasify; keep unaffected phases |
 | `help` / `--help` / `/?` | Print the full user reference and stop | Long form of this page |

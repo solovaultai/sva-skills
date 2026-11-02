@@ -26,8 +26,9 @@ Leave the name when the turn ends. Do not restore `gHHMMSS`.
 
 **Do not retitle** help, `--help`, `/?`, exact tldr, `pass`, `pass help`,
 or empty usage. Empty `/plannify` and empty `/runnify` are the
-eight-section interview (no prompt after flag strip, including flags
-alone), not the command list, and they do not retitle. The later turn
+eight-section interview (no instructional prompt; directives such as
+`1image`, `3pass`, and plannify `add` with no feature may be present),
+not the command list, and they do not retitle. The later turn
 that runs the assembled prompt sets `PLAN:` or `RUN:` as that verb
 already does on a real task. Help, tldr, and pass still do not.
 Empty `/phasify` is Next, so it does set the name.

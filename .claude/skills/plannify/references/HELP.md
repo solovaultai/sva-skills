@@ -10,12 +10,15 @@ If the remaining body after flag strip is exactly `pass` or
 section below and stop. There is no `/pass` skill.
 
 Empty `/plannify` is the eight-section interview, not this page
-and not the command list. No prompt after flag strip, including
-flags alone, asks the eight sections in one message and waits.
-Goal and why cannot be skipped. The other seven are skippable:
-Context the agent cannot guess; Constraints and non-negotiables;
-What a good result looks like; Deliverable and format; Preferences
-on approach; Examples; Already tried or ruled out. `help` is still
+and not the command list. No instructional prompt starts a walk that asks one section at a
+time, then waits. Directives may be present
+(`1image`, `3pass`, `img`; plannify `add` with no feature).
+An instructional prompt is what blocks the interview.
+An empty answer is valid for every section, including the goal.
+Do not re-ask. The areas, in order: Goal and why; Context the
+agent cannot guess; Constraints and non-negotiables; What a good
+result looks like; Deliverable and format; Preferences on
+approach; Examples; Already tried or ruled out. `help` is still
 this page.
 `fromhere` is a task body (replan), not help.
 First token `add` is **Add**, not help.
@@ -31,10 +34,10 @@ a structured plan. Never implements, edits, or mutates the workspace.
 
 Aliases: `/planify`, `/plify`, `/promptify-plan`.
 
-`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). A from-slot still splices first. A spliced body is a prompt, not an interview. The empty-prompt interview does not read files.
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). A from-slot still splices first. A spliced body is a prompt, not an interview. Help, tldr, pass, and an interview (no instructional prompt before the splice) do not read files.
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `the docify skill's references/docify_contract.md`). Help, tldr, pass, and the empty-prompt interview do not write.
+(see `the docify skill's references/docify_contract.md`). The interview turn does not write. A line that is only `docify` / `docpathify` plus flags is an interview; the answer turn writes.
 
 Window title prefix is `PLAN:` (see `docs/window_title.md`).
 Help, tldr, pass, and the empty-prompt interview do not retitle.
@@ -45,7 +48,7 @@ Help, tldr, pass, and the empty-prompt interview do not retitle.
 
 ```text
 /plannify <prompt>     — coach, then produce a plan (read-only)
-/plannify              — no prompt: eight-section interview (Goal required; stop and wait)
+/plannify              — no instructional prompt: walk, one section at a time (directives may be present; empty answer valid; stop and wait)
 /plannify fromhere     — replan from current statuses (also planify fromhere)
 /plannify add <feat>   — add a feature to the just-run plan (last ify: plannify or phasify)
 /plannify help         — this reference (also --help / /?)
@@ -58,7 +61,7 @@ Help, tldr, pass, and the empty-prompt interview do not retitle.
 
 The prompt to plan is everything after the command, or the free-text
 when they said “plannify this” / “plan this prompt”.
-No prompt after flag strip is the eight-section interview, not this command list.
+No instructional prompt starts a walk, one section at a time, not this command list. Directives may be present. An instructional prompt is what blocks the interview. An empty answer is valid for every section, including the goal.
 
 ---
 
@@ -69,7 +72,7 @@ No prompt after flag strip is the eight-section interview, not this command list
 | `/plannify <prompt>` | **Plan** | Optimize + read-only planning pass |
 | `/plannify fromhere` / `planify fromhere` | **fromhere** | Replan from current statuses |
 | `/plannify add <feature>` | **Add** | Surgical feature add (last ify must be plannify or phasify) |
-| `/plannify` *(empty)* / flags only | Interview | Eight sections, then stop and wait. Not the command list. Goal cannot be skipped. `fromhere` / `add` are **not** empty. |
+| `/plannify` *(no instructional prompt)* | Walk | One section at a time, then stop and wait. Directives may be present (`1image`, `3pass`, `add` with no feature, `docify`). Not the command list. An empty answer is valid for every section, including the goal. `fromhere`, and `add` with a feature, are not a walk. |
 | `/plannify help` / `--help` / `/?` | **Help** | Print this page; stop |
 | `/plannify tldr` | **tldr** | Print the short page; stop |
 | `/plannify pass` / `pass help` | **Pass help** | Print the Pass section; stop |
@@ -77,7 +80,7 @@ No prompt after flag strip is the eight-section interview, not this command list
 Exact remaining body after flag strip must be `help`, `--help`,
 `/?`, `tldr`, `pass`, or `pass help`. `fromhere` and first token
 `add` are never treated as help.
-A body that is empty after flag strip, including flags alone, is the eight-section interview. Goal cannot be skipped.
+No instructional prompt starts a walk, one section at a time, even when directives are present. An instructional prompt is what blocks the interview. An empty answer is valid for every section, including the goal.
 
 ---
 
@@ -121,8 +124,7 @@ the feature text (verbatim). Reserved: a prompt that starts with
 **Gate:** last ify must be **plannify** or **phasify** (same
 recover walk as addify). Otherwise **Error:** — do not plan.
 Name the last ify if one exists. No current plan: **Error:**
-`/plannify` first. Empty `/plannify add`: **Error:** `add` needs
-a feature.
+`/plannify` first. `add` with no feature (flags allowed) is the interview, not an error. The add gate runs after the answers, not before the interview. The assembled text is the feature.
 
 **Surgical:** if the text does **not** add, remove, or change a
 feature, reprint the chain and do not append. Else keep every
@@ -174,9 +176,11 @@ exactly `pass` or `pass help` prints **this section** and stops.
 Full reference: `/promptify pass help` (canonical) or
 `/plannify help`.
 
-No prompt after flag strip starts the eight-section interview, not
-this section. Goal cannot be skipped. Help, exact tldr, and this
-pass page stay as they are.
+No instructional prompt starts a walk, one section at a time, not
+this section. Directives may be present. An instructional prompt
+is what blocks the interview. An empty answer is valid for every
+section, including the goal. Help, exact
+tldr, and this pass page stay as they are.
 
 **Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
 left to right (promptify Flag parse order). Default **1**.
@@ -298,8 +302,7 @@ Planning-Kickoff Prompt → Scores → Plan → **Phased plan** (last).
   page; do not plan. Exact `tldr`: print `references/TLDR.md`
   (not this file). Exact `pass` / `pass help`: print **Pass
   (`Npass`)** only. There is no `/pass` skill. Empty is the eight-section interview, not help and not the
-  command list. Goal cannot be skipped. `fromhere` is not help. First token `add` is
-  Add, not help.
+  command list. An empty answer is valid for every section, including the goal. `fromhere` is not help. `add` with a feature is Add, not help. `add` with no feature is the interview.
 
 ---
 

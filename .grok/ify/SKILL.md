@@ -177,7 +177,7 @@ verb’s HELP.md.
 `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
 · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify` · `imagify` · `buildify`
 
-Empty `/plannify` and empty `/runnify` (no prompt after flag strip, including flags alone) are the eight-section interview, not the command list. Goal cannot be skipped. `help` is still the command list.
+Empty `/plannify` and empty `/runnify` means no instructional prompt. Directives such as `1image`, `3pass`, and plannify `add` with no feature may be present. The walk asks one area at a time. An empty answer is valid for every area, including the goal. An instructional prompt is what blocks the walk. `help` is still the command list.
 
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.grok/docify/SKILL.md`.
 

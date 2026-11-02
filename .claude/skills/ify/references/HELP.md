@@ -98,8 +98,8 @@ they said “ify this”.
 | Verb | When to use | Alias |
 |------|-------------|-------|
 | **askify** | Question / list / options / explain existing (read-only answer). `dummy` is a non-technical tell | `/promptify-ask` |
-| **plannify** | Plan / design / phases (read-only plan; no implement). Empty `/plannify` is the eight-section interview, not the command list. Goal cannot be skipped. | `/promptify-plan`, `planify`, `plify` |
-| **runnify** | Implement / execute (not a named phase, not a bug). Empty `/runnify` is the eight-section interview, not the command list. Goal cannot be skipped. | `/promptify-run`, `runify` |
+| **plannify** | Plan / design / phases (read-only plan; no implement). No instructional prompt is the eight-section interview, not the command list. Directives such as `1image`, `3pass`, and `add` with no feature may be present. The walk asks one area at a time. An empty answer is valid for every area, including the goal. | `/promptify-plan`, `planify`, `plify` |
+| **runnify** | Implement / execute (not a named phase, not a bug). No instructional prompt is the eight-section interview, not the command list. Directives such as `1image` and `3pass` may be present. The walk asks one area at a time. An empty answer is valid for every area, including the goal. | `/promptify-run`, `runify` |
 | **phasify** | Next phase / named PN / **explain** / **dummy** / **tldr** phase tell / **guide** / **coach** / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
 | **debugify** | Bug / failing / root cause — **full in-agent loop** (instrument → fix → verify) | `/promptify-debug`, `dbgify`, `debify` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
@@ -247,11 +247,11 @@ verify → clean). Install dest: `~/.claude/skills/`.
 | `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
 | `/askify dummy <prompt>` | Non-technical tell. No commands, paths, or APIs. Same kind of explanation as `/phasify dummy`. Not a phase selector (`dummy N` / `dummy pN` stay on phasify). `plan dummy` prints the kickoff plan first |
 | `/plannify <prompt>` | Optimize then plan (read-only) |
-| `/plannify` | No prompt: eight-section interview (Goal required; stop and wait). Not the command list. |
+| `/plannify` | No instructional prompt: eight-section interview. Directives such as `1image`, `3pass`, and `add` with no feature may be present. One area at a time. An empty answer is valid for every area, including the goal. Stop and wait. Not the command list. |
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
 | `/runnify <prompt>` | Optimize then execute |
-| `/runnify` | No prompt: eight-section interview (Goal required; stop and wait). Not the command list. |
+| `/runnify` | No instructional prompt: eight-section interview. Directives such as `1image` and `3pass` may be present. One area at a time. An empty answer is valid for every area, including the goal. Stop and wait. Not the command list. |
 | `/phasify` | Execute the next plan phase |
 | `/phasify explain` | Full write-up of the next not-Done phase. Count selectors skip Done. Named `pN` may be Done (what landed; thin record quotes the description; do not invent work). Pending stays the full write-up. Blocked / Def-Blocked / partially blocked (`Progress` with a recorded blocker, same as howto): detailed steps from the record. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
 | `/phasify dummy` | Non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
