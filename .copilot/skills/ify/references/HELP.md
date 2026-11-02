@@ -63,7 +63,7 @@ ify and you have more text for that same run, use `/addify`.
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
 /gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
 /imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win; aliases imgfy, imageify; copies the text; show 2, show -2, show 1,3, show details)
-/buildify            — create or ensure one private git-crypt repo (clone <from> <to>; tail, including 1image and 3pass, goes to runnify)
+/buildify            — create or ensure one private git-crypt repo (clone <from> <to>; destroy [name]; tail, including 1image and 3pass, goes to runnify; destroy has no tail)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```
@@ -98,8 +98,8 @@ they said “ify this”.
 | Verb | When to use | Alias |
 |------|-------------|-------|
 | **askify** | Question / list / options / explain existing (read-only answer). `dummy` is a non-technical tell | `/promptify-ask` |
-| **plannify** | Plan / design / phases (read-only plan; no implement) | `/promptify-plan`, `planify`, `plify` |
-| **runnify** | Implement / execute (not a named phase, not a bug) | `/promptify-run`, `runify` |
+| **plannify** | Plan / design / phases (read-only plan; no implement). Empty `/plannify` is the eight-section interview, not the command list. Goal cannot be skipped. | `/promptify-plan`, `planify`, `plify` |
+| **runnify** | Implement / execute (not a named phase, not a bug). Empty `/runnify` is the eight-section interview, not the command list. Goal cannot be skipped. | `/promptify-run`, `runify` |
 | **phasify** | Next phase / named PN / **explain** / **dummy** / **tldr** phase tell / **guide** / **coach** / **runblock** / **howto** / **remove** (`delete` alias) on the **current** plan | `phaseify`, `phify` |
 | **debugify** | Bug / failing / root cause — **full in-agent loop** (instrument → fix → verify) | `/promptify-debug`, `/debug`, `dbgify`, `debify` |
 | **promptify** | Optimize the prompt only (no run, no plan, no answer) | `prify` |
@@ -112,7 +112,7 @@ they said “ify this”.
 | **optify** | Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.copilot/skills/optify/SKILL.md`. | — |
 | **gitify** | Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.copilot/skills/gitify/SKILL.md`. | — |
 | **imagify** | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. The transcribed text is copied to the clipboard. `show` displays scratch images instead: `show 2` the two newest, `show -K` one image K back, `show 1,3` the newest and the image 3 back, `show details` the name, date, and size of the 10 newest. `imgfy` and `imageify` are aliases. See `.copilot/skills/imagify/SKILL.md`. | `imgfy`, `imageify` |
-| **buildify** | Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. No alias. See `.copilot/skills/buildify/SKILL.md`. | — |
+| **buildify** | Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. `destroy` removes the GitHub repo, the folder, or both only after the basename is typed back. No alias. See `.copilot/skills/buildify/SKILL.md`. | — |
 
 **Ify set:** `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` ·
 `phasify` · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify` · `imagify` · `buildify`.
@@ -250,9 +250,11 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/askify <prompt>` | Answer only (read-only; no plan unless `/askify plan`) |
 | `/askify dummy <prompt>` | Non-technical tell. No commands, paths, or APIs. Same kind of explanation as `/phasify dummy`. Not a phase selector (`dummy N` / `dummy pN` stay on phasify). `plan dummy` prints the kickoff plan first |
 | `/plannify <prompt>` | Optimize then plan (read-only) |
+| `/plannify` | No prompt: eight-section interview (Goal required; stop and wait). Not the command list. |
 | `/plannify fromhere` | Replan from current statuses |
 | `/plannify add <feature>` | Surgical feature add on the just-run plan (last ify: plannify or phasify) |
 | `/runnify <prompt>` | Optimize then execute |
+| `/runnify` | No prompt: eight-section interview (Goal required; stop and wait). Not the command list. |
 | `/phasify` | Execute the next plan phase |
 | `/phasify explain` | Full write-up of the next not-Done phase. Count selectors skip Done. Named `pN` may be Done (what landed; thin record quotes the description; do not invent work). Pending stays the full write-up. Blocked / Def-Blocked / partially blocked (`Progress` with a recorded blocker, same as howto): detailed steps from the record. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
 | `/phasify dummy` | Non-technical tell of the next not-Done phase. `dummy N` / `Ndummy` / `dummyN` = next N, not named PN. Named is only `dummy pN` and may be Done. `dummy 0` is Error (use `dummy p0`). On a block: spelled-out task names, not enough to perform. Other statuses: no unblock list. Optional second word `guide`. No execute, no Status change, does not rewrite the plan. |
@@ -271,4 +273,4 @@ The Claude Code tree is `.claude/skills/`, installed to `~/.claude/skills/`.
 | `/optify` | Token policy, on by default. `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. |
 | `/gitify` | Add each dirty repo under the open folder, make one commit, then push that branch. A basename or component selects one. Optional tag, msg, link, `forcemain`, and `all`. `get` pulls or clones a literal prefix, `put` checks in to `origin main` or creates with git-crypt, and `unarchive` restores one archived repo. `dry-run` writes nothing. Empty `/gitify` is a real commit. Not a git engine. |
 | `/imagify` | Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and no image directive are `1image`. `text`, `totext`, and `2text` are text mode, which is also the default. The reply is that text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. The transcribed text is copied to the clipboard. `show` displays scratch images instead: `show 2` the two newest, `show -K` one image K back, `show 1,3` the newest and the image 3 back, `show details` the name, date, and size of the 10 newest. `imgfy` and `imageify` are aliases. |
-| `/buildify` | Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. No alias. |
+| `/buildify` | Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. `destroy` removes the GitHub repo, the folder, or both only after the basename is typed back. No alias. |

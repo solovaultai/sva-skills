@@ -21,9 +21,11 @@ Prepares one private GitHub repo with git-crypt, a README, and the
 gitify secret attributes. If the repo already exists, makes it
 reachable and git-crypt enabled, and encrypts secret-like files.
 `clone <from> <to>` duplicates an existing repo into a new one.
-Words after the repo are a runnify prompt. Image, pass, and `img`
-tokens in that tail are passed to runnify. They are not buildify
-directives.
+`destroy` deletes the current repo. `destroy <name>` deletes
+that named repo. Words after a create, ensure, or clone are a
+runnify prompt. Image, pass, and `img` tokens in that tail are
+passed to runnify. They are not buildify directives. A destroy
+line has no runnify tail.
 
 `buildify test-repo make a repo that tests our other repos 1image 3pass`
 is buildify on `test-repo`, then runnify with
@@ -43,14 +45,18 @@ file.
 
 Window title prefix is `BUILD:` (see `docs/window_title.md`).
 Help, tldr, pass, empty usage, and dry-run do not retitle. A live
-create, ensure, or clone does, when `TMUX` is set. `BUILD` is not
-a phasify ancestor prefix. When the tail runs, runnify retitles
-to `RUN:`.
+create, ensure, or clone does, when `TMUX` is set. A live
+destroy does on the turn that deletes. The proposing turn does
+not. `BUILD` is not a phasify ancestor prefix. When the tail
+runs, runnify retitles to `RUN:`.
 
 ```text
 /buildify <name> [instructions…]
 /buildify clone <from> <to> [instructions…]
+/buildify destroy [repo|folder|both]
+/buildify destroy <name> [repo|folder|both]
 /buildify dry-run <name> [instructions…]
+/buildify dry-run destroy [name]
 /buildify help            — this reference (also --help, /?)
 /buildify tldr            — short form (stop)
 /buildify pass help       — Pass (Npass) subsection (also `pass`)
@@ -67,19 +73,30 @@ Typed line only. File bodies are not scanned.
    stop. They do not create a repo and do not retitle.
 2. A bare token `dry-run` is buildify's. It is removed so runnify
    never sees it. Two bare `dry-run` tokens is **Error** before
-   any write.
-3. After that, first token `clone` takes the next two tokens as
+   any write or delete.
+3. After that, first token `destroy` selects destroy. It is not
+   a repo name and it is not `clone`. The next token, when it is
+   not `repo`, `folder`, or `both`, is the exact basename.
+   Those three words are selectors. `repo` is GitHub only.
+   `folder` is directories only. `both` is the default. A
+   destroy line does not hand a tail to runnify. Any other
+   leftover token is **Error** before any delete.
+   `buildify destroy 1image` is **Error**, not a runnify tail.
+4. Otherwise, first token `clone` takes the next two tokens as
    `<from>` and `<to>`. Anything left is the runnify tail, image
    and pass tokens included.
-4. Otherwise the first token is the repo name. Anything left is
+5. Otherwise the first token is the repo name. Anything left is
    the runnify tail, unchanged.
-5. A flag-shaped token (`1image`, `3pass`, `img=…`) is never a
-   repo name. Empty `/buildify`, or a line whose only tokens were
-   flags, is short usage.
+6. A flag-shaped token (`1image`, `3pass`, `img=…`) is never a
+   repo name or a destroy name. Empty `/buildify`, or a line
+   whose only tokens were flags, is short usage.
 
 `clone` is reserved only as that first task token.
 `buildify test-repo clone the fixtures` builds `test-repo` and
-hands `clone the fixtures` to runnify.
+hands `clone the fixtures` to runnify. `destroy` is reserved
+only as that first task token. `buildify test-repo destroy
+the fixtures` builds `test-repo` and hands that tail to
+runnify.
 
 The name is one token and must pass `git check-ref-format --branch`.
 Lookup is the exact basename. `fluent` is a repo named `fluent`,
@@ -216,11 +233,80 @@ as create. Do not modify the source repo.
 
 ---
 
+## Destroy
+
+`buildify destroy` destroys the current repo: the open folder,
+and the GitHub repo `origin` names when `origin` exists. Do not
+scan for other folders with that basename. If the open folder
+is already gone, stop.
+
+`buildify destroy <name>` destroys that exact basename. Walk
+parents of the open folder up through the user's home, and
+record a parent only when its basename equals the name. Search
+under home for that basename. Do not walk above home. Do not
+enter `.git`, `node_modules`, or `.cache`. Do not follow a
+symlink that leaves home.
+
+GitHub for a name is resolved the way create resolves it:
+owner from a live sibling origin, host
+`git@github-adworkinitp` (checked origins use `solovaultai`).
+`gh repo view <owner>/<name>` decides that the repo exists. A
+failed `gh` call is **Error** when a GitHub delete was
+requested. It is not proof of absence.
+
+Folders and GitHub: offer both. No GitHub repo: folders only,
+and say so. No folder and a GitHub repo: GitHub only, and say
+so. Neither: **Error** before any delete. Name what was looked
+up.
+
+Several folders: list every absolute path. The user chooses
+`all` or a subset. The basename typed later covers that set.
+Do not delete an unlisted path.
+
+`repo` leaves every folder. `folder` leaves the GitHub repo.
+`both` is the default, limited to targets that exist. If the
+requested side does not exist, **Error** before any delete.
+
+The proposing turn prints each folder path, whether the GitHub
+repo exists (`owner/name`), the commit count of each local git
+repo in the set (`git rev-list --count HEAD`; no `HEAD` is 0),
+and which side will be deleted. It does not delete.
+
+When more than one folder would be deleted, the next turn
+chooses `all` or a subset of the listed paths. That turn does
+not delete. The basename comes after that choice.
+
+The confirmation turn must be that exact basename and nothing
+else.
+For the current folder, use the open folder's basename. A
+mismatch stops. No delete.
+
+When a git repo being destroyed has 4 or more commits, a
+further turn must be `delete <N> commits` with that N. Several
+such repos use the largest count. The name again does not
+count. A folder that is not a git repo adds no second check.
+The check applies if that repo's folder is deleted or its
+GitHub repo is deleted.
+
+Then `gh repo delete <owner>/<name> --yes`, and remove the
+listed directories. Do not remove `/` or the user's home. If
+the open folder is removed, operate from the parent and state
+that parent as the new context. Do not delete the parent. Do
+not rewrite history, force-push, or delete a git-crypt key
+from anywhere else.
+
+`dry-run` prints the resolution and the commands. It does not
+ask, write, or delete.
+
+---
+
 ## Dry-run
 
 Prints the placement, the git and gh commands, the attribute
-lines, and the runnify tail that would have run. Writes nothing.
-Asks nothing. Does not retitle. Does not start runnify.
+lines, and the runnify tail that would have run. On destroy,
+prints the resolution and the commands. Writes nothing. Asks
+nothing. Does not retitle. Does not start runnify. Does not
+delete.
 
 ---
 
@@ -232,8 +318,8 @@ Buildify does not print the scratch or Npass acknowledgements
 and does not read scratch. Runnify does. The work root is the
 repo just built.
 
-A failed build, a declined create, or dry-run does not start
-runnify. An empty tail stops after a short build report: path,
+A failed build, a declined create, dry-run, or destroy does not
+start runnify. An empty tail stops after a short build report: path,
 created or ensured or cloned, and that the git-crypt check passed.
 
 ---
@@ -244,8 +330,9 @@ created or ensured or cloned, and that the git-crypt check passed.
 |-------|--------|
 | `<name> [instructions…]` | Create or ensure that repo. The rest is the runnify tail. |
 | `clone <from> <to> [instructions…]` | Duplicate `<from>` into `<to>`. The rest is the runnify tail. |
+| `destroy` / `destroy <name>` | Delete the current repo, or that basename. Optional `repo`, `folder`, or `both`. No runnify tail. |
 | `dry-run` | Bare token. Print the action. Write nothing. Two is **Error**. |
-| `1image` / `3pass` / `img=` | Never a repo name. In the tail, passed to runnify. |
+| `1image` / `3pass` / `img=` | Never a repo name or a destroy name. In a create tail, passed to runnify. On destroy, **Error**. |
 | `help` / `--help` / `/?` | Print this reference and stop. |
 | `tldr` | Print the short page and stop. |
 | `pass` / `pass help` | Print the Pass section and stop. |
@@ -277,8 +364,10 @@ acknowledgement.
 ## Window title
 
 Prefix `BUILD:` (`docs/window_title.md`). Summary is three to six
-words (`create test-repo`, `clone foo to bar`). Whole name at
-most 48 characters. A live create, ensure, or clone sets it when
-`TMUX` is set. Help, tldr, pass, empty usage, and dry-run do not
+words (`create test-repo`, `clone foo to bar`,
+`destroy test-repo`). Whole name at most 48 characters. A live
+create, ensure, or clone sets it when `TMUX` is set. A live
+destroy sets it on the turn that deletes. The proposing turn
+does not. Help, tldr, pass, empty usage, and dry-run do not
 retitle. `BUILD` is not a phasify ancestor prefix. The tail's
 runnify retitles to `RUN:`.

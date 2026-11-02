@@ -169,6 +169,8 @@ verb’s HELP.md.
 `addify` · `askify` · `debugify` · `docify` · `fromify` · `ify` · `phasify`
 · `plannify` · `promptify` · `resumeify` · `runnify` · `saveify` · `optify` · `gitify` · `imagify` · `buildify`
 
+Empty `/plannify` and empty `/runnify` (no prompt after flag strip, including flags alone) are the eight-section interview, not the command list. Goal cannot be skipped. `help` is still the command list.
+
 **docify.** Document this prompt. Default is askify; a leading ify verb selects that verb. See `.claude/skills/docify/SKILL.md`.
 
 **optify.** Token policy, on by default. `/optify`, `/optify on`, `/optify off`, `/optify now`, `/optify before`, `/optify after`. The command is the same on Claude, Grok, Copilot, and Cursor. See `.claude/skills/optify/SKILL.md`.
@@ -176,7 +178,7 @@ verb’s HELP.md.
 **gitify.** Add each dirty repo under the open folder, make one commit, then `git push origin <current-branch>`. A basename or component selects one repo. Empty `/gitify` is a real commit. Optional `tag`, `msg`, `link`, `forcemain`, and `all`. `dry-run` prints the action list and writes nothing. `get <plug>` pulls or clones a literal basename prefix and skips archived and ignored repos. `put <plug>` checks existing repos in to `origin main`, or creates a missing repo with git-crypt. `unarchive <repo>` restores one archived repo. With no plug or name, and the open folder is a git repo, `get`, `put`, and `unarchive` act on that repo only. Stop words and any other unmatched token stop with no write. See `.claude/skills/gitify/SKILL.md`.
 
 **imagify.** Print only the text in the newest scratch image, or in N images. `<n>image`, `<n>images`, `image<n>`, and `images<n>` set N. Blank n and a line with no image directive are `1image`. `text`, `totext`, and `2text` select text mode, which is also the default. The reply is the transcribed text and nothing else. When the agent message has an embedded image, those images are the source on Cursor, Grok, Claude, and GitHub Copilot. The image directive does not change that. The transcribed text is copied to the clipboard. `show` displays scratch images instead: `show 2` the two newest, `show -K` one image K back, `show 1,3` the newest and the image 3 back, `show details` the name, date, and size of the 10 newest. `imgfy` and `imageify` are aliases. See `.claude/skills/imagify/SKILL.md`.
-**buildify.** Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. No alias. See `.claude/skills/buildify/SKILL.md`.
+**buildify.** Prepare one private git-crypt GitHub repo and a README. If it already exists, make it reachable and encrypt secret-like files. `clone <from> <to>` duplicates an existing repo. Words after the repo are a runnify prompt. Image, pass, and `img` tokens in that tail are passed to runnify. Empty `/buildify` is short usage. `dry-run` writes nothing. `destroy` removes the GitHub repo, the folder, or both only after the basename is typed back. No alias. See `.claude/skills/buildify/SKILL.md`.
 
 **Aliases → canonical** (help / tldr verb match)
 
@@ -221,7 +223,7 @@ Print this and **stop**. Not Help. Not Next.
 /optify              — token policy, on by default (/optify on, /optify off, /optify now, /optify before, /optify after)
 /gitify              — every dirty repo: commit, then push (empty is a real commit; optional forcemain, all, get, put, or unarchive)
 /imagify             — text from the newest scratch image (empty is 1image; text, totext, 2text; embedded agent images win; aliases imgfy, imageify; copies the text; show 2, show -2, show 1,3, show details)
-/buildify            — create or ensure one private git-crypt repo (clone <from> <to>; tail, including 1image and 3pass, goes to runnify)
+/buildify            — create or ensure one private git-crypt repo (clone <from> <to>; destroy [name]; tail, including 1image and 3pass, goes to runnify; destroy has no tail)
 
 Already know the verb? Run it directly. Append to last ify? /addify
 ```

@@ -9,7 +9,14 @@ If the remaining body after flag strip is exactly `pass` or
 `pass help` (case-insensitive), print only the **Pass (`Npass`)**
 section below and stop. There is no `/pass` skill.
 
-Empty `/runnify` is the short usage cheat, not this page.
+Empty `/runnify` is the eight-section interview, not this page
+and not the command list. No prompt after flag strip, including
+flags alone, asks the eight sections in one message and waits.
+Goal and why cannot be skipped. The other seven are skippable:
+Context the agent cannot guess; Constraints and non-negotiables;
+What a good result looks like; Deliverable and format; Preferences
+on approach; Examples; Already tried or ruled out. `help` is still
+this page.
 `help me …` (or any longer body) is a **task**, not Help.
 
 ---
@@ -22,13 +29,13 @@ Promptify in **Execution** mode. Analyze, validate, enrich, score, then
 
 `/promptify` stops after the optimized prompt. `/runnify` does not.
 
-`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`).
+`from=` / `from:` splices local files into the prompt (see `docs/from_contract.md`). A from-slot still splices first. A spliced body is a prompt, not an interview. The empty-prompt interview does not read files.
 
 A typed-line `docify` / `docpathify` writes this verb's deliverable
-(see `the docify skill's references/docify_contract.md`). Help, tldr, and pass do not write.
+(see `the docify skill's references/docify_contract.md`). Help, tldr, pass, and the empty-prompt interview do not write.
 
 Window title prefix is `RUN:` (see `docs/window_title.md`).
-Help, tldr, and pass do not retitle.
+Help, tldr, pass, and the empty-prompt interview do not retitle.
 
 ---
 
@@ -36,6 +43,7 @@ Help, tldr, and pass do not retitle.
 
 ```text
 /runnify <prompt>      — optimize, then EXECUTE
+/runnify               — no prompt: eight-section interview (Goal required; stop and wait)
 /runnify help          — this reference (also --help / /?)
 /runnify tldr          — short form; stop
 /runnify pass          — Pass (Npass) subsection only (also pass help)
@@ -47,6 +55,7 @@ Help, tldr, and pass do not retitle.
 Exact remaining body after flag strip must be `help`, `--help`,
 `/?`, `tldr`, `pass`, or `pass help`. `help me write a login form` is a
 task.
+A body that is empty after flag strip, including flags alone, is the eight-section interview. Goal cannot be skipped.
 
 ---
 
@@ -88,6 +97,10 @@ There is **no** `/pass` skill. After flag strip, remaining body
 exactly `pass` or `pass help` prints **this subsection** and stops.
 Cite promptify **Flag parse order** and **Pass (`Npass`)** — do not
 fork. Full reference: `/promptify pass help`.
+
+No prompt after flag strip starts the eight-section interview, not
+this section. Goal cannot be skipped. Help, exact tldr, and this
+pass page stay as they are.
 
 **Tokens:** `Npass` / `N-pass` / `N pass`. First numbered instance
 left to right. Default **1**. N pipeline passes of this execution
@@ -137,7 +150,7 @@ Nothing after the table except an optional one-line next-step.
 - Exact `help` / `--help` / `/?` after flag strip: print this page;
   do not execute. Exact `tldr`: print `references/TLDR.md` (not this
   file). Exact `pass` / `pass help`: print **Pass
-  (`Npass`)** only. Empty `/runnify` is short usage, not Help.
+  (`Npass`)** only. Empty `/runnify` is the eight-section interview, not Help and not the command list. Goal cannot be skipped.
 
 ---
 

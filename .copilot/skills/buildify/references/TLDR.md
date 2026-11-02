@@ -2,9 +2,12 @@
 
 Prepare one private git-crypt GitHub repo and a README. If it
 already exists, make it reachable and encrypt secret-like files.
-`clone <from> <to>` duplicates an existing repo. Words after the
-repo are runnify's prompt. `1image`, `3pass`, and `img=` in that
-tail go to runnify. `dry-run` prints the action and writes nothing.
+`clone <from> <to>` duplicates an existing repo. `destroy`
+deletes the current repo. `destroy <name>` deletes that
+basename. Words after a create, ensure, or clone are runnify's
+prompt. `1image`, `3pass`, and `img=` in that tail go to
+runnify. A destroy line has no runnify tail. `dry-run` prints
+the action and writes nothing.
 `from=` splices local files (`docs/from_contract.md`). `docify`
 writes the deliverable (the docify skill's `references/docify_contract.md`):
 the build report, and the runnify Results when a tail ran.
@@ -14,7 +17,10 @@ No alias. Empty `/buildify` is short usage.
 ```text
 /buildify <name> [instructions…]       — create or ensure that repo
 /buildify clone <from> <to> [instructions…] — duplicate <from> into <to>
+/buildify destroy [repo|folder|both]   — destroy the open folder
+/buildify destroy <name> [repo|folder|both] — destroy that basename
 /buildify dry-run <name> [instructions…]    — print the action; write nothing
+/buildify dry-run destroy [name]       — print the delete plan; delete nothing
 /buildify help                         — full reference (also --help / /?)
 /buildify tldr                         — short form (stop)
 /buildify pass                         — Pass (Npass) subsection only (also pass help)
@@ -29,7 +35,8 @@ is buildify on `test-repo`, then runnify with that sentence plus
 | *(empty)* | Short usage | Not a commit. Flags only is the same |
 | `<name>` | Create or ensure that one repo | One token. Must pass `git check-ref-format --branch`. Exact basename |
 | `clone <from> <to>` | New repo `<to>` copied from `<from>`, new git-crypt key | `<from>` missing: ask, then create `<to>` or stop. Do not create `<from>` |
-| instructions | Runnify on that tail after the build | Work root is the repo just built. Image and pass tokens stay in the tail |
+| `destroy` / `destroy <name>` | Delete the open folder, that basename, or the GitHub repo | No runnify tail. `repo`, `folder`, or `both` (default). Type the basename back. 4 or more commits also require `delete <N> commits` |
+| instructions | Runnify on that tail after the build | Work root is the repo just built. Image and pass tokens stay in the tail. Not on destroy |
 | `dry-run` | Print placement, git and gh commands, attribute lines, and the tail | Writes nothing. Asks nothing. Does not retitle. Does not start runnify |
 | `help` / `tldr` / `pass` | Print that page and stop | `buildify 1image help` is help. No repo. No retitle |
 
@@ -83,9 +90,25 @@ README and its attribute lines. Add any missing gitify secret
 lines. New key. Same check-attr, commit, private GitHub, and push
 as create. Do not modify the source.
 
+## Destroy
+
+No name: the open folder only, plus the GitHub repo `origin`
+names when `origin` exists. A name: exact basename under home,
+plus GitHub the way create resolves owner and host. Default
+`both`, only for targets that exist. `repo` leaves folders.
+`folder` leaves GitHub. The proposing turn prints paths,
+`owner/name`, and `git rev-list --count HEAD`. Several
+folders: the next turn chooses `all` or a subset, then a
+later turn is the exact basename. One folder: the next turn
+is the exact basename. Four or more commits need
+`delete <N> commits` (largest count). Then
+`gh repo delete <owner>/<name> --yes` and remove the listed
+directories. Do not remove `/` or home. `dry-run` prints the
+plan and deletes nothing. A mismatch deletes nothing.
+
 ## Runnify
 
 Non-empty tail only after a successful build. Empty tail: report
 the path, created or ensured or cloned, and that the git-crypt
-check passed. Failed build, declined create, and dry-run do not
-start runnify.
+check passed. Failed build, declined create, dry-run, and
+destroy do not start runnify.

@@ -25,7 +25,12 @@ Same prefix both times.
 Leave the name when the turn ends. Do not restore `gHHMMSS`.
 
 **Do not retitle** help, `--help`, `/?`, exact tldr, `pass`, `pass help`,
-or empty usage. Empty `/phasify` is Next, so it does set the name.
+or empty usage. Empty `/plannify` and empty `/runnify` are the
+eight-section interview (no prompt after flag strip, including flags
+alone), not the command list, and they do not retitle. The later turn
+that runs the assembled prompt sets `PLAN:` or `RUN:` as that verb
+already does on a real task. Help, tldr, and pass still do not.
+Empty `/phasify` is Next, so it does set the name.
 Exact `/phasify tldr` (no other token) does not retitle. A phasify
 tldr phase tell (a selector is present) does. `/phasify ask`, a tldr
 question (any remainder that is not a selector and not `guide`), and
@@ -76,7 +81,7 @@ empty `/gitify`. Live `get`, live `put`, and live `unarchive` set `GIT:`.
 
 Imagify `<summary>` is three to six words of the transcription. Show mode uses three to six words of the selector (`show 2 images`, `show image details`). Help, tldr, and pass do not retitle. Empty `/imagify` sets `IMG:`. A missing image does not. Show does.
 
-Buildify `<summary>` is three to six words (`create test-repo`, `clone foo to bar`). Help, tldr, pass, empty usage, and dry-run do not retitle. A live create, ensure, or clone does. `BUILD` is not a phasify ancestor prefix.
+Buildify `<summary>` is three to six words (`create test-repo`, `clone foo to bar`). Help, tldr, pass, empty usage, and dry-run do not retitle. A live create, ensure, or clone does. A live destroy sets the name on the turn that deletes. A proposing turn does not. `BUILD` is not a phasify ancestor prefix.
 
 `<PREFIX>` is the ancestor's token (`PLAN`, `DBG`, `RUN`, `PROMPT`,
 `ASK`, `IFY`, `FROM`, `DOC`, `IMG`). `<summary>` is a few words of the recovered Task, not

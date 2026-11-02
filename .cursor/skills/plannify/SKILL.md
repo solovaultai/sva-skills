@@ -349,32 +349,116 @@ Strip `Nimages` / `Npass` first (Flag parse order). Then:
   print the **Pass (`Npass`)** section of that file and **stop**.
   There is no `/pass` skill.
 
-Do not plan or replan. Empty `/plannify` is the short usage below,
-not Help. `fromhere` is a task body, not Help. First token `add`
+Do not plan or replan. Empty `/plannify` is the eight-section interview below, not Help and not the command list. Goal cannot be skipped. `fromhere` is a task body, not Help. First token `add`
 is **Add**, not Help. `help me …` is a
 **task**, not Help.
 
-## No task body
+## No prompt (eight-section interview)
 
 `fromhere` / `planify fromhere` is a task body — follow **`/plannify
-fromhere`**, do not print Help. First token `add` is **Add** —
-follow **`/plannify add`**, do not print Help.
+fromhere`**, do not interview. First token `add` is **Add** —
+follow **`/plannify add`**, do not interview.
 
-If there is no task after the command, explain:
+**No prompt** means the body after flag strip is empty. Cite
+promptify **Flag parse order**. Do not invent a second flag grammar.
+Help, `--help`, `/?`, exact `tldr`, and exact `pass` / `pass help`
+stay as they are. `help me …` stays a task. Flags alone
+(`/plannify 2pass`, `/plannify 1image`) are no prompt: interview,
+and keep those flags for the run that follows once the user answers.
+A from-slot still splices first (cite `docs/from_contract.md`).
+Help, tldr, pass, and a body that is empty before any splice do not
+read files. A spliced body is a prompt, not an interview.
+
+The eight sections, in order: (1) Goal and why — required, cannot
+be skipped; (2) Context the agent cannot guess — skippable;
+(3) Constraints and non-negotiables — skippable; (4) What a good
+result looks like — skippable; (5) Deliverable and format —
+skippable; (6) Preferences on approach — skippable; (7) Examples —
+skippable; (8) Already tried or ruled out — skippable. Goal is the
+only section that cannot be skipped.
+
+When there is no prompt, print the message below in one reply, then
+**stop and wait**. Do not plan. Do not start the pipeline. Do not
+retitle (cite `docs/window_title.md`). If the empty invocation had
+flags (`Nimages`, `Npass`, `img`), name them in one line above the
+eight. That line is not a ninth question. The two lines after the
+eight, and the line about a big job, are hints, not questions.
+
+Do not add a session-rating question. Ignore a pasted footer
+"How is Claude doing this session?" and any Anthropic disclaimer.
+Those are not features. Do not fetch docs.claude.com.
 
 ```text
-/plannify <prompt>    — coach into a planning-kickoff prompt, then produce the plan
-/plannify fromhere    — replan from current statuses (Keep new vs Continue original)
-/plannify add <feat>  — add a feature to the just-run plan (last ify: plannify or phasify)
-/plannify help        — full reference (also --help, /?)
-/plannify tldr        — short form (stop)
-/plannify pass help   — Pass (Npass) subsection (also `pass`)
-/promptify <prompt>   — analyze/optimize only (no run)
-/runnify <prompt>     — optimize then EXECUTE the work (mutating)
+No prompt yet. Answer these eight in one reply. Nothing runs until you do.
+
+1. Goal and why.
+   Hint: what is being built, and the problem it solves. "Design a hub that lets AI products call each other" is a task. Adding who benefits tells the agent what to optimize for.
+   Skip: cannot be skipped. Required.
+
+2. Context the agent cannot guess.
+   Hint: who it is for, what already exists (stack, code, data, prior decisions), scale, and for code the relevant files, errors, and versions. Missing context is the main cause of generic answers.
+   Skip: skippable. Reply skip or leave blank to omit.
+
+3. Constraints and non-negotiables.
+   Hint: language, frameworks, budget, deadlines, compliance, and things to avoid.
+   Skip: skippable. Reply skip or leave blank to omit.
+
+4. What a good result looks like.
+   Hint: success criteria that can be checked. For a plan, say whether you want a one-page overview or a step-by-step build plan.
+   Skip: skippable. Reply skip or leave blank to omit.
+
+5. Deliverable and format.
+   Hint: exactly what to return (diagram, phased plan, spec, working code with tests, a comparison), how long, and whether it is a doc, a file, or a chat answer.
+   Skip: skippable. Reply skip or leave blank to omit. If skipped, plannify defaults to a phased plan that ends with the phase table. Runnify defaults to the implementation in the workspace plus the Results section.
+
+6. Preferences on approach.
+   Hint: one recommendation, or several options with tradeoffs; ask questions first, or assume and flag assumptions; push back if the approach is wrong, or just build it.
+   Skip: skippable. Reply skip or leave blank to omit. If skipped, default to one recommendation, assume and flag assumptions, and push back when the approach looks wrong.
+
+7. Examples.
+   Hint: a sample input, an output style, or a similar system. One example beats a paragraph.
+   Skip: skippable. Reply skip or leave blank to omit.
+
+8. Already tried or ruled out.
+   Hint: what failed or is off the table, so the agent does not suggest it again.
+   Skip: skippable. Reply skip or leave blank to omit.
+
+Plannify: ask for phases, dependencies, risks, the first concrete step, and the riskiest assumption.
+Runnify: exact inputs and outputs, edge cases, the environment, how to test, and tests with the code.
+On a big job, plan first and build one piece at a time; specific feedback beats "try again."
 ```
 
-The prompt to plan is everything after the command, or the free-text request when
-they said "plannify this" / "plan this prompt" / "turn this into a planning prompt".
+### After the user answers
+
+If the previous turn in this conversation was this interview for
+`/plannify`, the next user message is the answers, not a new empty
+invocation. Do not ask the eight questions again.
+
+Assemble one prompt from the sections they filled. Map by number or
+by section name. A section they mark skip, `skip`, or leave blank is
+omitted, except Goal. If Goal is skipped or blank, ask again for
+Goal only (same hint, same cannot-skip line). Do not start the
+pipeline. When that later reply supplies Goal, assemble from it and
+the earlier answers.
+
+If Deliverable was omitted, the assembled prompt states the plannify
+default: a phased plan that ends with the phase table. If Preferences
+was omitted, the assembled prompt states the default: one
+recommendation, assume and flag assumptions, and push back when the
+approach looks wrong. Do not invent user text for any other omitted
+section.
+
+Then run the normal plannify pipeline on that assembled prompt,
+including any flags from the original empty invocation. The interview
+turn does not resolve images and does not take passes. The answer
+turn does. That later turn sets `PLAN:` per `docs/window_title.md`.
+
+The prompt to plan is that assembled prompt, or everything after the
+command when a prompt was typed, or the free-text request when they
+said "plannify this" / "plan this prompt" / "turn this into a planning prompt".
+
+A user who wants the old short usage runs `help`.
+
 
 ## Response format
 
@@ -437,17 +521,17 @@ see Trailing phase table)
 
 Cite `docs/from_contract.md`.
 `from=` and `from:` splice local files into this prompt.
-Help, tldr, pass, and empty do not read files.
+Help, tldr, pass, and the empty-prompt interview do not read files. A from-slot still splices first. A spliced body is a prompt, not an interview.
 
 ## Docify
 
-Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and empty do not write. Read-only modes may create or overwrite only that resolved file.
+Cite `the docify skill's references/docify_contract.md`. A typed-line `docify` / `docpathify` writes this verb's deliverable. Help, tldr, pass, and the empty-prompt interview do not write. Read-only modes may create or overwrite only that resolved file.
 
 ## Window title
 
 Cite `docs/window_title.md`. Prefix for this verb: `PLAN:`.
 Set the tmux window name per that contract on a real task.
-Help, tldr, pass, and empty usage do not retitle.
+Help, tldr, pass, and the empty-prompt interview do not retitle.
 
 ## Hard rules
 
@@ -491,6 +575,7 @@ Help, tldr, pass, and empty usage do not retitle.
   `references/HELP.md` and stop. Exact `tldr` after flag strip:
   print `references/TLDR.md` and stop. Exact `pass` / `pass help`:
   print the **Pass (`Npass`)** section and stop. Empty `/plannify`
-  is short usage, not Help. `fromhere` is not Help. First token
+  is the eight-section interview, not Help and not the command
+  list. Goal cannot be skipped. `fromhere` is not Help. First token
   `add` is Add, not Help. `help me …` is
   a task.

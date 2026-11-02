@@ -234,7 +234,7 @@ table when that skill requires one).
 | **fromify** | Restart `/fromify` on the original invocation plus the appended text. Flags re-parse. Default verb remains plannify unless a verb token is present. |
 | **docify** | Restart `/docify` on the original invocation plus the appended text. Flags re-parse. Default verb remains askify unless a verb token is present. |
 | **imagify** | Restart `/imagify` on the combined text. The reply is still only that output (transcribed text, shown images, or the details listing). |
-| **buildify** | Restart `/buildify` on the combined text. Create or ensure the repo, then hand any instruction tail to runnify. |
+| **buildify** | Restart `/buildify` on the combined text. Create, ensure, or clone, then hand any instruction tail to runnify. `destroy` deletes only after the typed checks and does not hand a tail to runnify. |
 
 **fromhere + addify (phasify last):** same outcome as a user who ran
 `/plannify fromhere` but whose Task is the old Task plus the new
